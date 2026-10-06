@@ -1,0 +1,18 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run local PHP server",
+      "type": "shell",
+      "command": "php -S localhost:8000 router.php",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Check PHP syntax",
+      "type": "shell",
+      "command": "find . -name '*.php' -not -path './node_modules/*' -print0 | xargs -0 -n1 php -l",
+      "problemMatcher": []
+    }
+  ]
+}

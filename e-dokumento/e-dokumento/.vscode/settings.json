@@ -1,0 +1,7 @@
+{
+  "intelephense.environment.phpVersion": "8.3.0",
+  "files.associations": { "*.sql": "sql" },
+  "files.exclude": { ".vercel": true },
+  "editor.rulers": [120],
+  "[php]": { "editor.tabSize": 4 }
+}
