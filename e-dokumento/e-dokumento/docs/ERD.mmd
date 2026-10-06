@@ -1,0 +1,157 @@
+%% Entity Relationship Diagram for the 19 tables in sql/01_schema.sql
+%% Preview with the "Markdown Preview Mermaid Support" VS Code extension or at mermaid.live
+erDiagram
+  roles ||--o{ profiles : "assigned to"
+  profiles |o--o| residents : "logs in as"
+  puroks ||--o{ residents : "houses"
+  residents ||--o{ resident_verifications : "submits"
+  id_types ||--o{ resident_verifications : "presented as"
+  profiles |o--o{ resident_verifications : "reviews"
+  document_types ||--o{ document_type_requirements : "requires"
+  requirements ||--o{ document_type_requirements : "required by"
+  residents ||--o{ document_requests : "requests"
+  document_types ||--o{ document_requests : "requested as"
+  purposes ||--o{ document_requests : "stated for"
+  profiles ||--o{ document_requests : "encodes"
+  document_requests ||--o{ request_attachments : "has"
+  requirements |o--o{ request_attachments : "satisfied by"
+  document_requests ||--o{ request_status_history : "logs"
+  document_requests ||--o{ payments : "paid by"
+  profiles ||--o{ payments : "receives"
+  document_requests ||--o| issued_documents : "produces"
+  barangay_officials ||--o{ issued_documents : "signs"
+  profiles ||--o{ notifications : "receives"
+  document_requests |o--o{ notifications : "about"
+  profiles |o--o{ audit_logs : "performs"
+  profiles |o--o{ system_settings : "last updates"
+  roles {
+    smallint id PK
+    text code UK
+    text name
+  }
+  profiles {
+    uuid id PK "FK auth.users.id"
+    smallint role_id FK
+    text email UK
+    text full_name
+    text status
+  }
+  puroks {
+    smallint id PK
+    text name UK
+    boolean is_active
+  }
+  residents {
+    uuid id PK
+    uuid profile_id FK "UK, nullable"
+    smallint purok_id FK
+    text first_name
+    text last_name
+    date birth_date
+    date resident_since
+    text verification_status
+    text status
+  }
+  id_types {
+    smallint id PK
+    text name UK
+  }
+  resident_verifications {
+    uuid id PK
+    uuid resident_id FK
+    smallint id_type_id FK
+    text id_number
+    text status
+    uuid reviewed_by FK
+  }
+  document_types {
+    smallint id PK
+    text code UK
+    text name UK
+    numeric fee
+    smallint processing_days
+    boolean requires_captain_approval
+    boolean once_per_lifetime
+    text template_key
+  }
+  requirements {
+    smallint id PK
+    text name UK
+    boolean accepts_upload
+  }
+  document_type_requirements {
+    smallint document_type_id PK "FK"
+    smallint requirement_id PK "FK"
+    boolean is_mandatory
+  }
+  purposes {
+    smallint id PK
+    text name UK
+  }
+  document_requests {
+    uuid id PK
+    text control_no UK
+    uuid resident_id FK
+    smallint document_type_id FK
+    smallint purpose_id FK
+    jsonb extra_details
+    numeric fee_amount
+    text status
+    uuid requested_by FK
+  }
+  request_attachments {
+    uuid id PK
+    uuid request_id FK
+    smallint requirement_id FK
+    text file_path UK
+    text review_status
+  }
+  request_status_history {
+    bigint id PK
+    uuid request_id FK
+    text from_status
+    text to_status
+    uuid changed_by FK
+  }
+  payments {
+    uuid id PK
+    uuid request_id FK
+    text or_number UK
+    numeric amount
+    text method
+    text status
+    uuid received_by FK
+  }
+  barangay_officials {
+    smallint id PK
+    text full_name
+    text position
+    date term_end
+    boolean is_active
+  }
+  issued_documents {
+    uuid id PK
+    uuid request_id FK "UK"
+    text document_no UK
+    text verification_code UK
+    smallint signatory_id FK
+    text status
+  }
+  notifications {
+    bigint id PK
+    uuid recipient_id FK
+    uuid request_id FK
+    boolean is_read
+  }
+  audit_logs {
+    bigint id PK
+    uuid actor_id FK
+    text action
+    text entity_type
+    jsonb details
+  }
+  system_settings {
+    text key PK
+    jsonb value
+    uuid updated_by FK
+  }
