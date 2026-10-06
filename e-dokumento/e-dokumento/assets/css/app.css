@@ -143,6 +143,7 @@ small, .small { font-size: var(--text-sm); }
 .sidebar { background: var(--ink); color: var(--on-dark); width: var(--sidebar-w); display: flex; flex-direction: column; }
 @media (min-width: 992px) {
   .sidebar { position: sticky; top: 0; height: 100vh; flex: 0 0 var(--sidebar-w); }
+  .sidebar.offcanvas-lg { background-color: var(--ink) !important; }
 }
 @media (max-width: 991.98px) {
   .sidebar.offcanvas-lg { --bs-offcanvas-width: min(300px, 86vw); --bs-offcanvas-bg: var(--ink); --bs-offcanvas-color: var(--on-dark); }
