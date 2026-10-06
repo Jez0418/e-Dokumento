@@ -56,6 +56,7 @@ page_header('Barangay officials', 'The active Punong Barangay is printed as the 
   <div class="col-lg-8">
     <section class="panel p-0">
       <?php if (!$rows): ?><?= empty_state('No officials yet', 'Add the Punong Barangay first; they sign every certificate.', '', '', 'award') ?><?php else: ?>
+      <p class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i>Swipe sideways to see every column.</p>
       <div class="table-responsive"><table class="table data-table">
         <thead><tr><th scope="col">Name</th><th scope="col">Position</th><th scope="col">Term</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
         <tbody>
@@ -65,10 +66,10 @@ page_header('Barangay officials', 'The active Punong Barangay is printed as the 
             <td><?= e(OFFICIAL_POSITIONS[$o['position']] ?? $o['position']) ?></td>
             <td><?= e(fmt_date($o['term_start'], 'M Y')) ?> – <?= e(fmt_date($o['term_end'], 'M Y')) ?></td>
             <td><?= $o['is_active'] ? simple_badge('Serving', 'success') : simple_badge('Former', 'neutral') ?></td>
-            <td class="text-end text-nowrap">
+            <td class="text-end text-nowrap"><div class="row-actions">
               <a class="btn btn-sm btn-outline-secondary" href="?edit=<?= e($o['id']) ?>">Edit</a>
               <?= action_button('/officials', ['action' => 'toggle', 'official_id' => $o['id'], 'to' => $o['is_active'] ? '0' : '1'], $o['is_active'] ? 'End service' : 'Reinstate', 'btn-sm btn-outline-secondary', $o['is_active'] ? 'Mark ' . $o['full_name'] . ' as no longer serving?' : '') ?>
-            </td>
+            </div></td>
           </tr>
         <?php endforeach; ?>
         </tbody>

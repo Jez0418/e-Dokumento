@@ -67,6 +67,7 @@ page_header($isTreasurer ? 'Cashiering' : 'Payments', $isTreasurer ? 'Record the
 <?php if (!$result['rows']): ?>
   <?= empty_state($tab === 'queue' ? 'No one is waiting to pay' : 'No payments found', $tab === 'queue' ? 'Requests appear here when the Secretary sends them for payment.' : 'Adjust the filters or date range.', '', '', 'cash-coin') ?>
 <?php elseif ($tab === 'queue'): ?>
+  <p class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i>Swipe sideways to see every column.</p>
   <div class="table-responsive"><table class="table data-table">
     <thead><tr><th scope="col">Control no.</th><th scope="col">Resident</th><th scope="col">Document</th><th scope="col" class="text-end">Amount due</th><th scope="col">Waiting since</th><?php if ($isTreasurer): ?><th scope="col"><span class="visually-hidden">Action</span></th><?php endif; ?></tr></thead>
     <tbody>
@@ -88,6 +89,7 @@ page_header($isTreasurer ? 'Cashiering' : 'Payments', $isTreasurer ? 'Record the
     </tbody>
   </table></div>
 <?php else: ?>
+  <p class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i>Swipe sideways to see every column.</p>
   <div class="table-responsive"><table class="table data-table">
     <thead><tr><th scope="col">OR no.</th><th scope="col">Control no.</th><th scope="col">Resident</th><th scope="col">Method</th><th scope="col" class="text-end">Amount</th><th scope="col">Paid</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
     <tbody>
@@ -100,12 +102,12 @@ page_header($isTreasurer ? 'Cashiering' : 'Payments', $isTreasurer ? 'Record the
         <td class="text-end num"><?= e(money($p['amount'])) ?></td>
         <td><?= e(fmt_datetime($p['paid_at'])) ?><small class="d-block text-secondary"><?= e($p['received_by_name'] ?? '') ?></small></td>
         <td><?= $p['status'] === 'posted' ? simple_badge('Posted', 'success') : simple_badge('Voided', 'danger') ?></td>
-        <td class="text-end text-nowrap">
+        <td class="text-end text-nowrap"><div class="row-actions">
           <a class="btn btn-sm btn-outline-secondary" href="<?= e(url('payments/view', ['id' => $p['id']])) ?>">View</a>
           <?php if ($isTreasurer && $p['status'] === 'posted' && $p['request_status'] === 'processing'): ?>
             <?= action_button('/requests/action', ['id' => $p['request_id'], 'action' => 'void_payment', 'payment_id' => $p['id'], '_back' => '/payments?tab=history'], 'Void', 'btn-sm btn-outline-danger', 'Void OR ' . $p['or_number'] . '? The request returns to For payment.', true) ?>
           <?php endif; ?>
-        </td>
+        </div></td>
       </tr>
     <?php endforeach; ?>
     </tbody>

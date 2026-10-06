@@ -67,9 +67,18 @@ function form_errors(array $errors): string
     if ($errors === []) {
         return '';
     }
-    $html = '<div class="alert alert-danger" role="alert"><strong>Check the highlighted fields.</strong>';
+    $fieldErrors = array_diff_key($errors, ['_form' => true]);
+    $html = '<div class="alert alert-danger form-summary" role="alert">';
     if (isset($errors['_form'])) {
-        $html .= '<div class="mt-1">' . e($errors['_form']) . '</div>';
+        $html .= '<strong>' . e($errors['_form']) . '</strong>';
+    }
+    if ($fieldErrors !== []) {
+        $count = count($fieldErrors);
+        $html .= (isset($errors['_form']) ? '<div class="mt-2">' : '<div>') . '<strong>Fix ' . ($count === 1 ? 'this field' : 'these ' . $count . ' fields') . ' and submit again:</strong><ul>';
+        foreach ($fieldErrors as $message) {
+            $html .= '<li>' . e((string) $message) . '</li>';
+        }
+        $html .= '</ul></div>';
     }
     return $html . '</div>';
 }

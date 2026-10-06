@@ -13,6 +13,7 @@
     if (!window.Chart || role === 'resident') return;
     Chart.defaults.font.family = color('--font-sans');
     Chart.defaults.color = color('--ink-2');
+    Chart.defaults.font.size = 14;
     const main = document.getElementById('mainChart');
     if (main) {
       if (role === 'treasurer') {
@@ -35,18 +36,18 @@
               { label: 'Rejected', data: rows.map((r) => r.rejected), backgroundColor: color('--stamp'), borderRadius: 4 },
             ],
           },
-          options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
+          options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 14, font: { size: 14 } } } },
                      scales: { y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: color('--rule-soft') } }, x: { grid: { display: false } } } },
         });
       }
     }
     const typeEl = document.getElementById('typeChart');
     if (typeEl && (s.by_type || []).length) {
-      const palette = [color('--carbon'), color('--manila-deep'), color('--approve'), '#7A3E9D', color('--amber'), color('--ink-3')];
+      const palette = [color('--carbon'), color('--gold'), color('--approve'), color('--violet'), color('--stamp'), color('--ink-3')];
       charts.type = new Chart(typeEl, {
         type: 'doughnut',
         data: { labels: s.by_type.map((t) => t.name), datasets: [{ data: s.by_type.map((t) => t.total), backgroundColor: s.by_type.map((_, i) => palette[i % palette.length]), borderWidth: 2, borderColor: '#fff' }] },
-        options: { maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'right', labels: { boxWidth: 12 } } } },
+        options: { maintainAspectRatio: false, cutout: '58%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 14, font: { size: 14 } } } } },
       });
     }
   }

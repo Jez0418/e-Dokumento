@@ -19,11 +19,12 @@ guest_start('Check a certificate', 'guest verify');
 <main class="verify-page" id="main">
   <a href="/login" class="verify-brand"><img src="/assets/img/logo.svg" alt="" width="32" height="32"> e-Dokumento · Barangay <?= e(barangay_name()) ?></a>
   <h1>Check a barangay certificate</h1>
-  <p class="text-secondary">Enter the 10-character verification code printed at the bottom of the certificate.</p>
+  <p class="page-lead">Enter the 10-character verification code printed at the bottom of the certificate, next to the QR code.</p>
   <form method="get" class="verify-form" role="search">
-    <label class="visually-hidden" for="code">Verification code</label>
-    <input class="form-control form-control-lg mono" id="code" name="code" value="<?= e($code) ?>" maxlength="10" placeholder="e.g. 4F9A21C07B" autocomplete="off" required pattern="[0-9A-Fa-f]{10}">
-    <button class="btn btn-primary btn-lg" type="submit">Check</button>
+    <label class="form-label w-100 mb-0" for="code">Verification code</label>
+    <input class="form-control form-control-lg mono" id="code" name="code" value="<?= e($code) ?>" maxlength="10" placeholder="e.g. 4F9A21C07B" autocomplete="off" required pattern="[0-9A-Fa-f]{10}" aria-describedby="code-hint" title="10 characters: digits 0 to 9 and letters A to F">
+    <button class="btn btn-primary btn-lg" type="submit">Check certificate</button>
+    <p class="form-text" id="code-hint">10 characters: digits 0–9 and letters A–F only. Leave out spaces and dashes.</p>
   </form>
 
   <?php if ($error): ?>
@@ -51,5 +52,10 @@ guest_start('Check a certificate', 'guest verify');
       <?php endif; ?>
     </section>
   <?php endif; ?>
+
+  <footer class="verify-foot">
+    <p class="mb-1">Questions about a certificate? Visit the barangay hall<?= setting('office_hours') ? ' during office hours: ' . e(setting('office_hours')) : '' ?>.</p>
+    <a href="/login">Residents and staff: sign in to e-Dokumento</a>
+  </footer>
 </main>
 <?php guest_end(); ?>

@@ -82,7 +82,7 @@ if ($role === 'resident'):
         <?php foreach ($recent as $r): ?>
           <li><a href="<?= e(url('requests/view', ['id' => $r['id']])) ?>">
             <span class="mono stub-mini"><?= e($r['control_no']) ?></span>
-            <span class="flex-grow-1"><?= e($r['document_type']) ?><small class="d-block text-secondary">Filed <?= e(time_ago($r['submitted_at'])) ?></small></span>
+            <span class="flex-grow-1"><span class="stub-title"><?= e($r['document_type']) ?></span><small class="d-block text-secondary">Filed <?= e(time_ago($r['submitted_at'])) ?></small></span>
             <?= status_badge($r['status']) ?>
           </a></li>
         <?php endforeach; ?>
@@ -98,12 +98,13 @@ if ($role === 'resident'):
         'captain'   => '<a class="btn btn-primary" href="/requests?status=for_approval"><i class="bi bi-pen me-1" aria-hidden="true"></i>Review approvals</a>',
         default     => '<a class="btn btn-outline-primary" href="/reports"><i class="bi bi-bar-chart-line me-1" aria-hidden="true"></i>Reports</a>',
     };
-    page_header($greeting . ', ' . strtok((string) $user['full_name'], ' ') . '.', 'Today at the barangay hall, live from the database.', $actions);
+    page_header($greeting . ', ' . strtok((string) $user['full_name'], ' ') . '.', 'Where every request stands today. Counts refresh every minute.', $actions);
   ?>
 
   <section class="pipeline" aria-label="Requests by stage">
-    <?php foreach ($stages as [$key, $label, $hint]): ?>
+    <?php foreach ($stages as $i => [$key, $label, $hint]): ?>
       <a class="pipe-step<?= in_array($key, $focus, true) ? ' is-focus' : '' ?>" href="<?= e(url('requests', ['status' => $key])) ?>">
+        <span class="pipe-no">Step <?= $i + 1 ?></span>
         <span class="pipe-num" data-card="<?= e($key) ?>"><?= $n($key) ?></span>
         <span class="pipe-label"><?= e($label) ?></span>
         <span class="pipe-hint"><?= e($hint) ?></span>
@@ -152,7 +153,21 @@ if ($role === 'resident'):
         <h2><?= $role === 'treasurer' ? 'Daily collections, last 30 days' : 'Requests, last 6 months' ?></h2>
         <span class="text-secondary small" id="dash-updated">Updated <?= e(fmt_date((string) ($summary['generated_at'] ?? ''), 'g:i A')) ?></span>
       </div>
-      <div class="chart-box"><canvas id="mainChart" aria-label="<?= $role === 'treasurer' ? 'Daily collections chart' : 'Requests per month chart' ?>" role="img"></canvas></div>
+      <div class="chart-box"><canvas id="mainChart" aria-label="<?= $role === 'treasurer' ? 'Daily collections chart. The numbers are in the table below it.' : 'Requests per month chart. The numbers are in the table below it.' ?>" role="img"></canvas></div>
+      <details class="chart-data">
+        <summary>Show the numbers</summary>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <?php if ($role === 'treasurer'): ?>
+              <thead><tr><th scope="col">Day</th><th scope="col" class="text-end">Collected</th></tr></thead>
+              <tbody><?php foreach ($summary['daily_collections'] ?? [] as $row): ?><tr><td><?= e((string) ($row['label'] ?? '')) ?></td><td class="text-end num"><?= e(money($row['total'] ?? 0)) ?></td></tr><?php endforeach; ?></tbody>
+            <?php else: ?>
+              <thead><tr><th scope="col">Month</th><th scope="col" class="text-end">Filed</th><th scope="col" class="text-end">Released</th><th scope="col" class="text-end">Rejected</th></tr></thead>
+              <tbody><?php foreach ($summary['by_month'] ?? [] as $row): ?><tr><td><?= e((string) ($row['label'] ?? '')) ?></td><td class="text-end num"><?= (int) ($row['submitted'] ?? 0) ?></td><td class="text-end num"><?= (int) ($row['released'] ?? 0) ?></td><td class="text-end num"><?= (int) ($row['rejected'] ?? 0) ?></td></tr><?php endforeach; ?></tbody>
+            <?php endif; ?>
+          </table>
+        </div>
+      </details>
     </section>
 
     <?php if ($role !== 'treasurer'): ?>
@@ -161,7 +176,16 @@ if ($role === 'resident'):
       <?php if (empty($summary['by_type'])): ?>
         <p class="text-secondary mb-0">No requests filed this month yet.</p>
       <?php endif; ?>
-      <div class="chart-box chart-box-sm<?= empty($summary['by_type']) ? ' d-none' : '' ?>"><canvas id="typeChart" aria-label="Requests by document type this month" role="img"></canvas></div>
+      <div class="chart-box chart-box-sm<?= empty($summary['by_type']) ? ' d-none' : '' ?>"><canvas id="typeChart" aria-label="Requests by document type this month. The numbers are in the table below it." role="img"></canvas></div>
+      <?php if (!empty($summary['by_type'])): ?>
+        <details class="chart-data">
+          <summary>Show the numbers</summary>
+          <table class="table table-sm">
+            <thead><tr><th scope="col">Document</th><th scope="col" class="text-end">Requests</th></tr></thead>
+            <tbody><?php foreach ($summary['by_type'] as $row): ?><tr><td><?= e((string) ($row['name'] ?? '')) ?></td><td class="text-end num"><?= (int) ($row['total'] ?? 0) ?></td></tr><?php endforeach; ?></tbody>
+          </table>
+        </details>
+      <?php endif; ?>
     </section>
     <?php endif; ?>
 
@@ -170,6 +194,7 @@ if ($role === 'resident'):
       <?php if (!$recent): ?>
         <?= empty_state('No requests yet', 'Requests filed online or at the counter will appear here.', $role === 'secretary' ? '/requests/new' : '', 'Encode a walk-in request', 'files') ?>
       <?php else: ?>
+        <p class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i>Swipe sideways to see every column.</p>
         <div class="table-responsive">
           <table class="table data-table">
             <thead><tr><th scope="col">Control no.</th><th scope="col">Resident</th><th scope="col">Document</th><th scope="col">Status</th><th scope="col">Filed</th></tr></thead>

@@ -56,17 +56,17 @@ page_header('Verifications', 'Compare each ID with the resident record. Approve 
           <div><dt>Resident since</dt><dd><?= e(fmt_date($res['resident_since'], 'F Y')) ?></dd></div>
           <div><dt>ID</dt><dd><?= e(one($ver['id_types'])['name'] ?? '') ?> <span class="mono"><?= e($ver['id_number']) ?></span></dd></div>
         </dl>
-        <p class="mb-3">
-          <a class="btn btn-sm btn-outline-primary" href="<?= e(file_link('verification-ids', $ver['front_image_path'])) ?>" target="_blank" rel="noopener"><i class="bi bi-image me-1" aria-hidden="true"></i>Open front</a>
-          <?php if ($ver['back_image_path']): ?><a class="btn btn-sm btn-outline-primary" href="<?= e(file_link('verification-ids', $ver['back_image_path'])) ?>" target="_blank" rel="noopener">Open back</a><?php endif; ?>
+        <p class="btn-row">
+          <a class="btn btn-sm btn-outline-primary" href="<?= e(file_link('verification-ids', $ver['front_image_path'])) ?>" target="_blank" rel="noopener"><i class="bi bi-image me-1" aria-hidden="true"></i>Open front of ID</a>
+          <?php if ($ver['back_image_path']): ?><a class="btn btn-sm btn-outline-primary" href="<?= e(file_link('verification-ids', $ver['back_image_path'])) ?>" target="_blank" rel="noopener"><i class="bi bi-image me-1" aria-hidden="true"></i>Open back of ID</a><?php endif; ?>
         </p>
         <?php if ($ver['status'] === 'pending'): ?>
-          <div class="d-flex gap-2">
+          <div class="d-flex flex-wrap gap-2">
             <?= action_button('/verifications', ['verification_id' => $ver['id'], 'decision' => 'approved'], 'Approve', 'btn-primary', 'Approve this resident? They will be able to request documents online.', false, 'check2') ?>
             <?= action_button('/verifications', ['verification_id' => $ver['id'], 'decision' => 'rejected'], 'Reject', 'btn-outline-danger', 'Reject this ID? Tell the resident what to fix.', true, 'x') ?>
           </div>
         <?php elseif ($ver['remarks']): ?>
-          <p class="small mb-0"><strong>Reason:</strong> <?= e($ver['remarks']) ?></p>
+          <p class="mb-0"><strong>Reason:</strong> <?= e($ver['remarks']) ?></p>
         <?php endif; ?>
       </article>
     <?php endforeach; ?>

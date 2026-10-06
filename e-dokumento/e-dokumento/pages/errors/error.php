@@ -36,7 +36,10 @@ $signedIn = isset($_COOKIE['edk_rt']);
     <h1><?= htmlspecialchars($title) ?></h1>
     <p><?= htmlspecialchars($message) ?></p>
     <?php if ($detail): ?><pre class="error-detail"><?= htmlspecialchars((string) $detail) ?></pre><?php endif; ?>
-    <a class="btn btn-primary" href="<?= $signedIn ? '/dashboard' : '/login' ?>"><?= $signedIn ? 'Go to dashboard' : 'Go to sign in' ?></a>
+    <?php if ($code === 419): ?><p>To fix it, go back with your browser's back button, reload the page, and submit the form again.</p><?php endif; ?>
+    <div class="error-actions">
+      <a class="btn btn-primary" href="<?= $signedIn ? '/dashboard' : '/login' ?>"><?= $signedIn ? 'Go to dashboard' : 'Go to sign in' ?></a>
+    </div>
   </main>
 </body>
 </html>

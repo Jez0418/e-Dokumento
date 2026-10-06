@@ -35,6 +35,7 @@ page_header('Document types', 'What residents can request, its fee, how long it 
 <?php if (!$types): ?>
   <?= empty_state('No document types yet', 'Add the certificates your barangay issues, such as clearances and residency certificates.', '/document-types/form', 'Add document type', 'file-earmark-text') ?>
 <?php else: ?>
+  <p class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i>Swipe sideways to see every column.</p>
   <div class="table-responsive"><table class="table data-table">
     <thead><tr><th scope="col">Code</th><th scope="col">Name</th><th scope="col" class="text-end">Fee</th><th scope="col">Ready in</th><th scope="col">Signed by captain</th><th scope="col">Requirements</th><th scope="col">Requests</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
     <tbody>
@@ -48,18 +49,18 @@ page_header('Document types', 'What residents can request, its fee, how long it 
         <td><?= count($t['document_type_requirements'] ?? []) ?></td>
         <td><?= $count ?></td>
         <td><?= $t['is_active'] ? simple_badge('Active', 'success') : simple_badge('Inactive', 'neutral') ?></td>
-        <td class="text-end text-nowrap">
+        <td class="text-end text-nowrap"><div class="row-actions">
           <a class="btn btn-sm btn-outline-secondary" href="<?= e(url('document-types/form', ['id' => $t['id']])) ?>">Edit</a>
           <?= action_button('/document-types', ['action' => 'toggle', 'type_id' => $t['id'], 'to' => $t['is_active'] ? '0' : '1'], $t['is_active'] ? 'Deactivate' : 'Activate', 'btn-sm btn-outline-secondary', $t['is_active'] ? 'Deactivate ' . $t['name'] . '? Open requests are not affected.' : '') ?>
           <?php if ($count === 0): ?>
             <?= action_button('/document-types', ['action' => 'delete', 'type_id' => $t['id']], 'Delete', 'btn-sm btn-outline-danger', 'Delete ' . $t['name'] . ' permanently? This cannot be undone.') ?>
           <?php endif; ?>
-        </td>
+        </div></td>
       </tr>
     <?php endforeach; ?>
     </tbody>
   </table></div>
 <?php endif; ?>
 </section>
-<p class="small text-secondary mt-2">Types that have been requested can only be deactivated, so past requests keep their history.</p>
+<p class="page-note">Types that have been requested can only be deactivated, so past requests keep their history.</p>
 <?php layout_end(); ?>

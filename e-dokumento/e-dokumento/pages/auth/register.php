@@ -86,13 +86,13 @@ guest_start('Create an account', 'guest auth');
       <?php if ($done): ?>
         <div class="text-center py-4">
           <i class="bi bi-envelope-check display-5 text-primary" aria-hidden="true"></i>
-          <h2 class="mt-3">Check your email</h2>
+          <h1 class="mt-3">Check your email</h1>
           <p>If <strong><?= e($email ?? '') ?></strong> can receive mail, a confirmation link is on its way. Open it, then sign in to verify your residency.</p>
           <a class="btn btn-primary" href="/login">Go to sign in</a>
         </div>
       <?php else: ?>
-      <h2>Create a resident account</h2>
-      <p class="text-secondary">Use your name exactly as it appears on your ID. The Secretary checks it against the ID you upload next.</p>
+      <h1>Create a resident account</h1>
+      <p class="auth-lead">Use your name exactly as it appears on your ID. The Secretary checks it against the ID you upload next.</p>
       <?= form_errors($errors) ?>
       <form method="post" novalidate class="needs-validation">
         <?= csrf_field() ?>
@@ -102,17 +102,17 @@ guest_start('Create an account', 'guest auth');
             <div class="col-md-4">
               <label class="form-label" for="first_name">First name</label>
               <input class="form-control<?= invalid($errors, 'first_name') ?>" id="first_name" name="first_name" value="<?= e(old($old, 'first_name')) ?>" required maxlength="60" autocomplete="given-name">
-              <?= field_error($errors, 'first_name') ?>
+              <?= isset($errors['first_name']) ? field_error($errors, 'first_name') : '<div class="invalid-feedback">Enter your first name as it appears on your ID.</div>' ?>
             </div>
             <div class="col-md-3">
               <label class="form-label" for="middle_name">Middle name <span class="optional">optional</span></label>
               <input class="form-control<?= invalid($errors, 'middle_name') ?>" id="middle_name" name="middle_name" value="<?= e(old($old, 'middle_name')) ?>" maxlength="60" autocomplete="additional-name">
-              <?= field_error($errors, 'middle_name') ?>
+              <?= isset($errors['middle_name']) ? field_error($errors, 'middle_name') : '<div class="invalid-feedback">Use letters only.</div>' ?>
             </div>
             <div class="col-md-3">
               <label class="form-label" for="last_name">Last name</label>
               <input class="form-control<?= invalid($errors, 'last_name') ?>" id="last_name" name="last_name" value="<?= e(old($old, 'last_name')) ?>" required maxlength="60" autocomplete="family-name">
-              <?= field_error($errors, 'last_name') ?>
+              <?= isset($errors['last_name']) ? field_error($errors, 'last_name') : '<div class="invalid-feedback">Enter your last name as it appears on your ID.</div>' ?>
             </div>
             <div class="col-md-2">
               <label class="form-label" for="suffix">Suffix <span class="optional">optional</span></label>
@@ -128,26 +128,27 @@ guest_start('Create an account', 'guest auth');
             <div class="col-md-4">
               <label class="form-label" for="birth_date">Birth date</label>
               <input class="form-control<?= invalid($errors, 'birth_date') ?>" id="birth_date" name="birth_date" type="date" value="<?= e(old($old, 'birth_date')) ?>" required max="<?= e(today_local()) ?>">
-              <?= field_error($errors, 'birth_date') ?>
+              <?= isset($errors['birth_date']) ? field_error($errors, 'birth_date') : '<div class="invalid-feedback">Enter your birth date. It cannot be in the future.</div>' ?>
             </div>
             <div class="col-md-4">
               <label class="form-label" for="sex">Sex</label>
               <select class="form-select<?= invalid($errors, 'sex') ?>" id="sex" name="sex" required>
                 <?= options(['female' => 'Female', 'male' => 'Male'], old($old, 'sex'), 'Choose') ?>
               </select>
-              <?= field_error($errors, 'sex') ?>
+              <?= isset($errors['sex']) ? field_error($errors, 'sex') : '<div class="invalid-feedback">Choose your sex as shown on your ID.</div>' ?>
             </div>
             <div class="col-md-4">
               <label class="form-label" for="civil_status">Civil status</label>
               <select class="form-select<?= invalid($errors, 'civil_status') ?>" id="civil_status" name="civil_status" required>
                 <?= options(CIVIL_STATUSES, old($old, 'civil_status'), 'Choose') ?>
               </select>
-              <?= field_error($errors, 'civil_status') ?>
+              <?= isset($errors['civil_status']) ? field_error($errors, 'civil_status') : '<div class="invalid-feedback">Choose your civil status.</div>' ?>
             </div>
             <div class="col-md-6">
               <label class="form-label" for="contact_no">Mobile number</label>
-              <input class="form-control<?= invalid($errors, 'contact_no') ?>" id="contact_no" name="contact_no" value="<?= e(old($old, 'contact_no')) ?>" required inputmode="tel" pattern="(09|\+639)[0-9]{9}" placeholder="09171234567" autocomplete="tel">
-              <?= field_error($errors, 'contact_no') ?>
+              <input class="form-control<?= invalid($errors, 'contact_no') ?>" id="contact_no" name="contact_no" value="<?= e(old($old, 'contact_no')) ?>" required inputmode="tel" pattern="(09|\+639)[0-9]{9}" aria-describedby="contact-hint" placeholder="09171234567" autocomplete="tel">
+              <div class="form-text" id="contact-hint">11 digits, starting with 09. The Secretary may call this number.</div>
+              <?= isset($errors['contact_no']) ? field_error($errors, 'contact_no') : '<div class="invalid-feedback">Enter an 11-digit mobile number that starts with 09.</div>' ?>
             </div>
             <div class="col-md-6">
               <label class="form-label" for="occupation">Occupation <span class="optional">optional</span></label>
@@ -165,17 +166,17 @@ guest_start('Create an account', 'guest auth');
               <select class="form-select<?= invalid($errors, 'purok_id') ?>" id="purok_id" name="purok_id" required>
                 <?= options(pluck($puroks), old($old, 'purok_id'), 'Choose') ?>
               </select>
-              <?= field_error($errors, 'purok_id') ?>
+              <?= isset($errors['purok_id']) ? field_error($errors, 'purok_id') : '<div class="invalid-feedback">Choose your purok.</div>' ?>
             </div>
             <div class="col-md-8">
               <label class="form-label" for="street_address">House no. and street</label>
               <input class="form-control<?= invalid($errors, 'street_address') ?>" id="street_address" name="street_address" value="<?= e(old($old, 'street_address')) ?>" required minlength="3" maxlength="200" autocomplete="street-address">
-              <?= field_error($errors, 'street_address') ?>
+              <?= isset($errors['street_address']) ? field_error($errors, 'street_address') : '<div class="invalid-feedback">Enter your house number and street, at least 3 characters.</div>' ?>
             </div>
             <div class="col-md-4">
               <label class="form-label" for="resident_since">Living here since</label>
               <input class="form-control<?= invalid($errors, 'resident_since') ?>" id="resident_since" name="resident_since" type="date" value="<?= e(old($old, 'resident_since')) ?>" required max="<?= e(today_local()) ?>">
-              <?= field_error($errors, 'resident_since') ?>
+              <?= isset($errors['resident_since']) ? field_error($errors, 'resident_since') : '<div class="invalid-feedback">Enter when you started living here. It cannot be in the future.</div>' ?>
             </div>
             <div class="col-md-8 d-flex align-items-end">
               <div class="form-check mb-2">
@@ -192,19 +193,21 @@ guest_start('Create an account', 'guest auth');
             <div class="col-md-12">
               <label class="form-label" for="email">Email</label>
               <input class="form-control<?= invalid($errors, 'email') ?>" id="email" name="email" type="email" value="<?= e(old($old, 'email')) ?>" required maxlength="254" autocomplete="email">
-              <?= field_error($errors, 'email') ?>
+              <?= isset($errors['email']) ? field_error($errors, 'email') : '<div class="invalid-feedback">Enter a valid email address, for example juan@gmail.com.</div>' ?>
             </div>
             <div class="col-md-6">
               <label class="form-label" for="password">Password</label>
-              <input class="form-control<?= invalid($errors, 'password') ?>" id="password" name="password" type="password" required minlength="8" maxlength="72" autocomplete="new-password" data-strength="password-hint">
+              <div class="input-group has-validation">
+                <input class="form-control<?= invalid($errors, 'password') ?>" id="password" name="password" type="password" required minlength="8" maxlength="72" autocomplete="new-password" data-strength="password-hint" aria-describedby="password-hint">
+                <button class="btn btn-outline-secondary" type="button" data-toggle-password="password" aria-label="Show password"><i class="bi bi-eye" aria-hidden="true"></i></button>
+                <?= isset($errors['password']) ? field_error($errors, 'password') : '<div class="invalid-feedback">Use at least 8 characters with an uppercase letter, a lowercase letter and a number.</div>' ?>
+              </div>
               <div class="form-text" id="password-hint">At least 8 characters with an uppercase letter, a lowercase letter and a number.</div>
-              <?= field_error($errors, 'password') ?>
             </div>
             <div class="col-md-6">
               <label class="form-label" for="password_confirm">Repeat password</label>
               <input class="form-control<?= invalid($errors, 'password_confirm') ?>" id="password_confirm" name="password_confirm" type="password" required maxlength="72" autocomplete="new-password" data-match="password">
-              <?= field_error($errors, 'password_confirm') ?>
-              <div class="invalid-feedback">The passwords do not match.</div>
+              <?= isset($errors['password_confirm']) ? field_error($errors, 'password_confirm') : '<div class="invalid-feedback">The passwords do not match.</div>' ?>
             </div>
           </div>
         </fieldset>
@@ -212,7 +215,7 @@ guest_start('Create an account', 'guest auth');
         <div class="form-check my-3">
           <input class="form-check-input<?= invalid($errors, 'consent') ?>" type="checkbox" id="consent" name="consent" value="1" required<?= chk(isset($old['consent'])) ?>>
           <label class="form-check-label" for="consent">I allow the barangay to process my personal data to issue documents I request, as provided by the Data Privacy Act of 2012 (RA 10173).</label>
-          <?= field_error($errors, 'consent') ?>
+          <?= isset($errors['consent']) ? field_error($errors, 'consent') : '<div class="invalid-feedback">Tick this box to agree. We cannot create your account without it.</div>' ?>
         </div>
         <button class="btn btn-primary btn-lg w-100" type="submit" data-loading-text="Creating your account…">Create account</button>
       </form>

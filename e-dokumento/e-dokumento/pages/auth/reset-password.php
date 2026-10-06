@@ -32,7 +32,7 @@ guest_start('Set a new password', 'guest auth');
   <?php require __DIR__ . '/_aside.php'; ?>
   <main class="auth-main" id="main">
     <div class="auth-card">
-      <h2>Set a new password</h2>
+      <h1>Set a new password</h1>
       <div id="reset-missing" class="alert alert-warning d-none" role="alert">
         Open this page from the link in your password reset email. <a href="/forgot-password">Request a new link</a>.
       </div>
@@ -44,7 +44,7 @@ guest_start('Set a new password', 'guest auth');
           <label class="form-label" for="password">New password</label>
           <input class="form-control<?= invalid($errors, 'password') ?>" id="password" name="password" type="password" required minlength="8" maxlength="72" autocomplete="new-password">
           <div class="form-text">At least 8 characters with an uppercase letter, a lowercase letter and a number.</div>
-          <?= field_error($errors, 'password') ?>
+          <?= isset($errors['password']) ? field_error($errors, 'password') : '<div class="invalid-feedback">Use at least 8 characters with an uppercase letter, a lowercase letter and a number.</div>' ?>
         </div>
         <div class="mb-4">
           <label class="form-label" for="password_confirm">Repeat new password</label>

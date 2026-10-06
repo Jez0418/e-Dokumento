@@ -63,6 +63,7 @@ page_header('Issued documents', 'Every certificate the system has numbered, with
 <?php if (!$result['rows']): ?>
   <?= empty_state('No issued documents', 'Documents are numbered when the Secretary issues them or the Punong Barangay approves them.', '', '', 'patch-check') ?>
 <?php else: ?>
+  <p class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i>Swipe sideways to see every column.</p>
   <div class="table-responsive"><table class="table data-table">
     <thead><tr>
       <th scope="col"><?= sort_link('Document no.', 'document_no', $sort, $dir) ?></th>
@@ -82,12 +83,12 @@ page_header('Issued documents', 'Every certificate the system has numbered, with
         <td><?= e($d['valid_until'] ? fmt_date($d['valid_until']) : '—') ?></td>
         <td class="mono"><?= e($d['verification_code']) ?></td>
         <td><?= $d['status'] === 'valid' ? simple_badge('Valid', 'success') : simple_badge('Revoked', 'danger') ?><?= (int) $d['print_count'] > 0 ? '<small class="d-block text-secondary">Printed ' . (int) $d['print_count'] . '×</small>' : '' ?></td>
-        <td class="text-end text-nowrap">
+        <td class="text-end text-nowrap"><div class="row-actions">
           <a class="btn btn-sm btn-outline-secondary" href="<?= e(url('documents/print', ['id' => $d['id']])) ?>">Open</a>
           <?php if ($d['status'] === 'valid' && has_role('secretary', 'captain')): ?>
             <?= action_button('/documents', ['action' => 'revoke', 'doc_id' => $d['id']], 'Revoke', 'btn-sm btn-outline-danger', 'Revoke ' . $d['document_no'] . '? Anyone checking its code will see it was revoked.', true) ?>
           <?php endif; ?>
-        </td>
+        </div></td>
       </tr>
     <?php endforeach; ?>
     </tbody>

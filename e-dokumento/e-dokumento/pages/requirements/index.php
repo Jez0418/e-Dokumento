@@ -53,6 +53,7 @@ page_header('Requirements', 'Files or checks a document can ask for. Link them t
   <div class="col-lg-8">
     <section class="panel p-0">
       <?php if (!$rows): ?><?= empty_state('No requirements yet', 'Add requirements such as a valid ID or proof of residency.', '', '', 'list-check') ?><?php else: ?>
+      <p class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i>Swipe sideways to see every column.</p>
       <div class="table-responsive"><table class="table data-table">
         <thead><tr><th scope="col">Requirement</th><th scope="col">How</th><th scope="col">Used by</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
         <tbody>
@@ -62,11 +63,11 @@ page_header('Requirements', 'Files or checks a document can ask for. Link them t
             <td><?= $r['accepts_upload'] ? 'Upload' : 'In person' ?></td>
             <td><?= $usedBy ?> type<?= $usedBy === 1 ? '' : 's' ?></td>
             <td><?= $r['is_active'] ? simple_badge('Active', 'success') : simple_badge('Inactive', 'neutral') ?></td>
-            <td class="text-end text-nowrap">
+            <td class="text-end text-nowrap"><div class="row-actions">
               <a class="btn btn-sm btn-outline-secondary" href="?edit=<?= e($r['id']) ?>">Edit</a>
               <?= action_button('/requirements', ['action' => 'toggle', 'requirement_id' => $r['id'], 'to' => $r['is_active'] ? '0' : '1'], $r['is_active'] ? 'Deactivate' : 'Activate', 'btn-sm btn-outline-secondary') ?>
               <?php if ($usedBy === 0): ?><?= action_button('/requirements', ['action' => 'delete', 'requirement_id' => $r['id']], 'Delete', 'btn-sm btn-outline-danger', 'Delete this requirement? Files already uploaded against it keep the link and block deletion.') ?><?php endif; ?>
-            </td>
+            </div></td>
           </tr>
         <?php endforeach; ?>
         </tbody>

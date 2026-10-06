@@ -69,6 +69,7 @@ page_header('Reports', 'Every figure is read live from the database for the filt
   <?php if (!$data['rows']): ?>
     <?= empty_state('Nothing in this period', 'Try a wider date range or remove a filter.', '', '', 'bar-chart-line') ?>
   <?php else: ?>
+    <p class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i>Swipe sideways to see every column.</p>
     <div class="table-responsive"><table class="table data-table report-table">
       <thead><tr><?php foreach ($data['columns'] as $label): ?><th scope="col"><?= e($label) ?></th><?php endforeach; ?></tr></thead>
       <tbody>
@@ -83,7 +84,7 @@ page_header('Reports', 'Every figure is read live from the database for the filt
 
   <?php if (!empty($data['daily'])): ?>
     <h3 class="h6 mt-4">Daily totals</h3>
-    <table class="table table-sm w-auto"><tbody>
+    <table class="table table-sm w-auto"><thead><tr><th scope="col">Day</th><th scope="col" class="text-end">Collected</th></tr></thead><tbody>
       <?php foreach ($data['daily'] as $day => $sum): ?><tr><td><?= e(fmt_date($day, 'D, M j')) ?></td><td class="text-end num"><?= e(money($sum)) ?></td></tr><?php endforeach; ?>
     </tbody></table>
   <?php endif; ?>

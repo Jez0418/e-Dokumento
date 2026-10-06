@@ -100,6 +100,7 @@ page_header('Users', 'Staff accounts are created here. Residents create their ow
     </form>
     <section class="panel p-0">
       <?php if (!$result['rows']): ?><?= empty_state('No users match', 'Try another name or role.', '', '', 'person-gear') ?><?php else: ?>
+      <p class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i>Swipe sideways to see every column.</p>
       <div class="table-responsive"><table class="table data-table">
         <thead><tr><th scope="col">User</th><th scope="col">Role</th><th scope="col">Last sign-in</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
         <tbody>
@@ -109,11 +110,11 @@ page_header('Users', 'Staff accounts are created here. Residents create their ow
             <td>
               <?php if ($self): ?><?= e(one($u['roles'])['name'] ?? '') ?>
               <?php else: ?>
-                <form method="post" class="d-flex gap-1" data-confirm="Change this user's role? Their menu and permissions change immediately.">
+                <form method="post" class="d-flex gap-2" data-confirm="Change this user's role? Their menu and permissions change immediately.">
                   <?= csrf_field() ?><input type="hidden" name="action" value="role"><input type="hidden" name="user_id" value="<?= e($u['id']) ?>">
                   <label class="visually-hidden" for="role-<?= e($u['id']) ?>">Role</label>
                   <select class="form-select form-select-sm" id="role-<?= e($u['id']) ?>" name="role"><?= options(pluck($roles, 'name', 'code'), $code) ?></select>
-                  <button class="btn btn-sm btn-outline-secondary" type="submit">Set</button>
+                  <button class="btn btn-sm btn-outline-primary" type="submit">Change role</button>
                 </form>
               <?php endif; ?>
             </td>

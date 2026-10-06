@@ -66,9 +66,6 @@ layout_start($req['control_no'], $role === 'captain' && $status === 'for_approva
   <div class="notice notice-danger"><i class="bi bi-x-octagon" aria-hidden="true"></i><div><strong>Reason:</strong> <?= e($req['rejection_reason']) ?></div></div>
 <?php endif; ?>
 
-<div class="row g-4">
-  <div class="col-xl-8">
-
     <?php /* ---------------- Next step for this role ---------------- */ ?>
     <?php
     $panel = '';
@@ -141,6 +138,10 @@ layout_start($req['control_no'], $role === 'captain' && $status === 'for_approva
       </section>
     <?php endif; ?>
 
+<div class="row g-4">
+  <div class="col-xl-8">
+
+
     <section class="panel">
       <div class="panel-head"><h2>Request details</h2></div>
       <dl class="detail-grid">
@@ -177,13 +178,13 @@ layout_start($req['control_no'], $role === 'captain' && $status === 'for_approva
                 <small class="text-secondary"><?= e(number_format($a['size_bytes'] / 1024, 0)) ?> KB · <?= e(time_ago($a['uploaded_at'])) ?></small>
                 <?= simple_badge(ucfirst($a['review_status']), ['accepted' => 'success', 'rejected' => 'danger'][$a['review_status']] ?? 'neutral') ?>
                 <?php if ($role === 'secretary' && in_array($status, ['pending', 'under_review'], true) && $a['review_status'] === 'pending'): ?>
-                  <span class="ms-auto d-flex gap-1">
+                  <span class="ms-auto d-flex flex-wrap gap-2">
                     <?= action_button($act, $hidden + ['action' => 'accept_file', 'attachment_id' => $a['id']], 'Accept', 'btn-sm btn-outline-success') ?>
                     <?= action_button($act, $hidden + ['action' => 'reject_file', 'attachment_id' => $a['id']], 'Reject', 'btn-sm btn-outline-danger', 'Reject this file? Tell the resident what to fix.', true) ?>
                   </span>
                 <?php endif; ?>
               </div>
-              <?php if ($a['review_status'] === 'rejected' && $a['review_remarks']): ?><p class="small text-danger mb-1 ms-4"><?= e($a['review_remarks']) ?></p><?php endif; ?>
+              <?php if ($a['review_status'] === 'rejected' && $a['review_remarks']): ?><p class="small text-danger fw-semibold mb-1"><i class="bi bi-exclamation-circle me-1" aria-hidden="true"></i>Why it was rejected: <?= e($a['review_remarks']) ?></p><?php endif; ?>
             <?php endforeach; ?>
             <?php
               $needsReplacement = $rq['accepts_upload'] && in_array($status, ['pending', 'under_review'], true)
@@ -206,7 +207,7 @@ layout_start($req['control_no'], $role === 'captain' && $status === 'for_approva
     </section>
   </div>
 
-  <div class="col-xl-4">
+  <div class="col-xl-4 order-first order-xl-last">
     <section class="panel">
       <div class="panel-head"><h2>Timeline</h2></div>
       <ol class="timeline">

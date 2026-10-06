@@ -3,9 +3,9 @@
 ?>
 <aside class="auth-aside">
   <div class="auth-aside-inner">
-    <img src="/assets/img/logo.svg" alt="" width="56" height="56" class="mb-4">
+    <img src="/assets/img/logo.svg" alt="" width="56" height="56" class="auth-logo">
     <p class="auth-kicker">Barangay <?= e(barangay_name()) ?></p>
-    <h1 class="auth-title">Request barangay documents without lining up twice.</h1>
+    <p class="auth-title">Request barangay documents without lining up twice.</p>
     <p class="auth-copy">File your request online, track it by control number, and come to the hall only when it is ready to claim.</p>
     <dl class="auth-facts">
       <div><dt>Office hours</dt><dd><?= e(setting('office_hours', 'Not set')) ?></dd></div>

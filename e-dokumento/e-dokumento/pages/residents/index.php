@@ -69,6 +69,7 @@ page_header('Residents', 'The barangay registry. Residents who sign up online ap
   <?php if (!$result['rows']): ?>
     <?= empty_state('No residents match', $f['q'] !== '' ? 'Check the spelling, or search by last name only.' : 'Residents appear here when they register online or when the Secretary encodes them.', has_role('secretary') ? '/residents/form' : '', 'Add resident', 'people') ?>
   <?php else: ?>
+  <p class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i>Swipe sideways to see every column.</p>
   <div class="table-responsive">
     <table class="table data-table">
       <thead><tr>
@@ -82,7 +83,7 @@ page_header('Residents', 'The barangay registry. Residents who sign up online ap
       <tbody>
         <?php foreach ($result['rows'] as $r): $href = url('residents/view', ['id' => $r['id']]); ?>
           <tr data-href="<?= e($href) ?>">
-            <td><a href="<?= e($href) ?>"><?= e(resident_name($r, true)) ?></a><?= $r['profile_id'] ? ' <i class="bi bi-person-check text-secondary" title="Has an online account" aria-label="Has an online account"></i>' : '' ?></td>
+            <td><a href="<?= e($href) ?>"><?= e(resident_name($r, true)) ?></a><?= $r['profile_id'] ? ' <span class="tag tag-neutral"><i class="bi bi-person-check me-1" aria-hidden="true"></i>Online account</span>' : '' ?></td>
             <td><?= e(one($r['puroks'])['name'] ?? '') ?></td>
             <td><?= e(fmt_date($r['birth_date'])) ?> <small class="text-secondary">(<?= (int) age_from($r['birth_date']) ?>)</small></td>
             <td><?= e(fmt_date($r['resident_since'], 'M Y')) ?></td>

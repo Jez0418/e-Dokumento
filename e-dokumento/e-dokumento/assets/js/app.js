@@ -14,7 +14,8 @@
       '<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>';
     el.querySelector('span').textContent = message;
     toastBox.appendChild(el);
-    new bootstrap.Toast(el, { delay: type === 'error' ? 9000 : 5000 }).show();
+    // Errors stay until closed so slow readers can finish them
+    new bootstrap.Toast(el, type === 'error' ? { autohide: false } : { delay: 6000 }).show();
     el.addEventListener('hidden.bs.toast', () => el.remove());
   }
   window.edkToast = toast;
@@ -78,6 +79,12 @@
     pendingForm = form;
     const needsReason = form.dataset.confirmReason === '1';
     document.getElementById('confirmMessage').textContent = form.dataset.confirm || 'Are you sure?';
+    // The confirm button repeats the action's own label, and is red only for destructive actions
+    const trigger = form.querySelector('[type=submit]');
+    const go = document.getElementById('confirmGo');
+    const danger = !trigger || /\bbtn-(outline-)?danger\b/.test(trigger.className);
+    go.textContent = (trigger && trigger.textContent.trim()) || 'Confirm';
+    go.className = 'btn ' + (danger ? 'btn-danger' : 'btn-primary');
     const wrap = document.getElementById('confirmReasonWrap');
     const reason = document.getElementById('confirmReason');
     wrap.classList.toggle('d-none', !needsReason);

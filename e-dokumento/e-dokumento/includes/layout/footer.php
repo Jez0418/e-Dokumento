@@ -5,19 +5,20 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 class="modal-title h5" id="confirmTitle">Are you sure?</h2>
+        <h2 class="modal-title h5" id="confirmTitle">Check before you continue</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <p id="confirmMessage" class="mb-0"></p>
         <div id="confirmReasonWrap" class="mt-3 d-none">
-          <label for="confirmReason" class="form-label">Reason <span class="text-secondary">(10 to 500 characters)</span></label>
+          <label for="confirmReason" class="form-label">Reason <span class="optional">10 to 500 characters</span></label>
           <textarea id="confirmReason" class="form-control" rows="3" maxlength="500"></textarea>
-          <div class="invalid-feedback">Give a reason of at least 10 characters.</div>
+          <div class="form-text" id="confirmReasonHint">Be specific. The reason is saved with the record.</div>
+          <div class="invalid-feedback">Write a reason of at least 10 characters.</div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Keep it</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Go back</button>
         <button type="button" class="btn btn-danger" id="confirmGo">Confirm</button>
       </div>
     </div>

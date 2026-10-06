@@ -134,7 +134,18 @@ $chips = ['' => 'All'] + REQUEST_STATUSES;
         'files'
     ) ?>
   <?php else: ?>
-  <div class="table-responsive">
+  <ul class="req-cards d-md-none" aria-label="Requests">
+    <?php foreach ($rows as $r): ?>
+      <li><a href="<?= e(url('requests/view', ['id' => $r['id']])) ?>">
+        <span class="mono stub-mini"><?= e($r['control_no']) ?></span>
+        <span class="req-card-date">Filed <?= e(fmt_date($r['submitted_at'])) ?></span>
+        <span class="req-card-doc"><?= e($r['document_type']) ?><?= (int) $r['copies'] > 1 ? ' × ' . (int) $r['copies'] : '' ?></span>
+        <span class="req-card-meta"><?= $isResident ? '' : e($r['resident_name']) . ' · ' ?><?= e($r['purpose']) ?> · <?= $r['fee_waived'] ? 'Fee waived' : e(money($r['fee_amount'])) ?><?= $r['channel'] === 'walk_in' ? ' · Walk-in' : '' ?></span>
+        <span class="req-card-status"><?= status_badge($r['status']) ?><?= $r['is_overdue'] ? '<span class="tag tag-danger">Overdue</span>' : '' ?></span>
+      </a></li>
+    <?php endforeach; ?>
+  </ul>
+  <div class="table-responsive d-none d-md-block">
     <table class="table data-table">
       <thead>
         <tr>

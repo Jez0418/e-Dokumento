@@ -185,6 +185,7 @@ endif;
               <input type="radio" name="document_type_id" value="<?= e($t['id']) ?>" required<?= chk(old($old, 'document_type_id') === (string) $t['id']) ?>
                      data-fee="<?= e($t['fee']) ?>" data-max="<?= e($t['max_copies']) ?>" data-template="<?= e($t['template_key']) ?>">
               <span class="doc-choice-body">
+                <span class="doc-choice-check" aria-hidden="true"><i class="bi bi-check-lg"></i></span>
                 <span class="doc-choice-name"><?= e($t['name']) ?></span>
                 <span class="doc-choice-meta"><?= (float) $t['fee'] > 0 ? e(money($t['fee'])) . ' per copy' : 'Free' ?> · ready in <?= (int) $t['processing_days'] ?: 'same' ?> <?= (int) $t['processing_days'] === 0 ? 'day' : ((int) $t['processing_days'] === 1 ? 'working day' : 'working days') ?></span>
                 <?php if ($t['description']): ?><span class="doc-choice-desc"><?= e($t['description']) ?></span><?php endif; ?>
@@ -193,6 +194,7 @@ endif;
             </label>
           <?php endforeach; ?>
         </div>
+        <div class="invalid-feedback doc-choice-feedback">Choose the document you need.</div>
       </section>
 
       <section class="panel">
@@ -201,12 +203,13 @@ endif;
           <div class="col-md-6">
             <label class="form-label" for="purpose_id">What is it for?</label>
             <select class="form-select<?= invalid($errors, 'purpose_id') ?>" id="purpose_id" name="purpose_id" required><?= options(pluck($purposes), old($old, 'purpose_id'), 'Choose') ?></select>
-            <?= field_error($errors, 'purpose_id') ?>
+            <?= isset($errors['purpose_id']) ? field_error($errors, 'purpose_id') : '<div class="invalid-feedback">Choose what the document is for.</div>' ?>
           </div>
           <div class="col-md-6">
             <label class="form-label" for="copies">Copies</label>
-            <input class="form-control<?= invalid($errors, 'copies') ?>" id="copies" name="copies" type="number" min="1" max="3" value="<?= e(old($old, 'copies', '1')) ?>" required>
-            <?= field_error($errors, 'copies') ?>
+            <input class="form-control<?= invalid($errors, 'copies') ?>" id="copies" name="copies" type="number" min="1" max="3" value="<?= e(old($old, 'copies', '1')) ?>" required aria-describedby="copies-hint">
+            <div class="form-text" id="copies-hint">The maximum depends on the document.</div>
+            <?= isset($errors['copies']) ? field_error($errors, 'copies') : '<div class="invalid-feedback">Enter a number of copies within the limit for this document.</div>' ?>
           </div>
           <div class="col-12">
             <label class="form-label" for="purpose_details">Details <span class="optional">optional</span></label>
@@ -215,15 +218,16 @@ endif;
           </div>
         </div>
         <div class="business-fields row g-3 mt-1" hidden>
-          <div class="col-md-6"><label class="form-label" for="business_name">Business name</label><input class="form-control<?= invalid($errors, 'business_name') ?>" id="business_name" name="business_name" value="<?= e(old($old, 'business_name')) ?>" maxlength="120"><?= field_error($errors, 'business_name') ?></div>
+          <div class="col-md-6"><label class="form-label" for="business_name">Business name</label><input class="form-control<?= invalid($errors, 'business_name') ?>" id="business_name" name="business_name" value="<?= e(old($old, 'business_name')) ?>" maxlength="120"><?= isset($errors['business_name']) ? field_error($errors, 'business_name') : '<div class="invalid-feedback">Enter the business name, at least 2 characters.</div>' ?></div>
           <div class="col-md-6"><label class="form-label" for="business_nature">Nature of business <span class="optional">optional</span></label><input class="form-control" id="business_nature" name="business_nature" value="<?= e(old($old, 'business_nature')) ?>" maxlength="120" placeholder="Sari-sari store, carinderia…"></div>
-          <div class="col-12"><label class="form-label" for="business_address">Business address</label><input class="form-control<?= invalid($errors, 'business_address') ?>" id="business_address" name="business_address" value="<?= e(old($old, 'business_address')) ?>" maxlength="200"><?= field_error($errors, 'business_address') ?></div>
+          <div class="col-12"><label class="form-label" for="business_address">Business address</label><input class="form-control<?= invalid($errors, 'business_address') ?>" id="business_address" name="business_address" value="<?= e(old($old, 'business_address')) ?>" maxlength="200"><?= isset($errors['business_address']) ? field_error($errors, 'business_address') : '<div class="invalid-feedback">Enter the business address, at least 3 characters.</div>' ?></div>
         </div>
       </section>
 
       <section class="panel">
         <div class="panel-head"><h2>3. Requirements</h2></div>
-        <p class="text-secondary choose-first">Choose a document to see what to upload.</p>
+        <p class="form-text mt-0 mb-3"><i class="bi bi-info-circle me-1" aria-hidden="true"></i>Upload JPG, PNG or PDF files, up to 2 MB each and 4 MB in total. A clear phone photo works.</p>
+        <p class="text-secondary choose-first">Choose a document in step 1 to see what to upload.</p>
         <?php foreach ($types as $t): ?>
           <div class="req-group" data-type="<?= e($t['id']) ?>" hidden>
             <?php if (!$t['reqs']): ?><p class="mb-0">No files needed for this document.</p><?php endif; ?>
@@ -238,7 +242,7 @@ endif;
                   <div class="req-input">
                     <label class="visually-hidden" for="<?= e($fid) ?>">Upload <?= e($rq['name']) ?></label>
                     <input class="form-control<?= invalid($errors, 'req_file_' . $rq['id']) ?>" type="file" id="<?= e($fid) ?>" name="req_file[<?= e($rq['id']) ?>]" accept="image/jpeg,image/png,application/pdf" data-max-bytes="2097152"<?= $rq['is_mandatory'] && !$isSecretary ? ' data-required="1"' : '' ?> disabled>
-                    <?= field_error($errors, 'req_file_' . $rq['id']) ?>
+                    <?= isset($errors['req_file_' . $rq['id']]) ? field_error($errors, 'req_file_' . $rq['id']) : '<div class="invalid-feedback">Upload a JPG, PNG or PDF of 2 MB or less.</div>' ?>
                   </div>
                 <?php else: ?>
                   <span class="tag tag-neutral">Bring in person</span>
@@ -247,7 +251,6 @@ endif;
             <?php endforeach; ?>
           </div>
         <?php endforeach; ?>
-        <p class="form-text mb-0">JPG, PNG or PDF, up to 2 MB each and 4 MB in total.</p>
       </section>
 
       <?php if ($isSecretary): ?>
@@ -259,7 +262,8 @@ endif;
         </div>
         <label class="form-label" for="waiver_reason">Basis for the waiver</label>
         <input class="form-control<?= invalid($errors, 'waiver_reason') ?>" id="waiver_reason" name="waiver_reason" value="<?= e(old($old, 'waiver_reason')) ?>" maxlength="500" placeholder="For example: indigent resident per social worker's assessment">
-        <?= field_error($errors, 'waiver_reason') ?>
+        <div class="form-text">Needed only when the fee is waived.</div>
+        <?= isset($errors['waiver_reason']) ? field_error($errors, 'waiver_reason') : '<div class="invalid-feedback">Write the basis for the waiver, at least 10 characters.</div>' ?>
       </section>
       <?php endif; ?>
     </div>

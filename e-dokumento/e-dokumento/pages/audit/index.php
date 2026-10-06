@@ -48,6 +48,7 @@ page_header('Audit log', 'Every sign-in, change, payment and status move, newest
 <?php if (!$result['rows']): ?>
   <?= empty_state('No entries match', 'Widen the date range or clear a filter.', '', '', 'journal-text') ?>
 <?php else: ?>
+  <p class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i>Swipe sideways to see every column.</p>
   <div class="table-responsive"><table class="table data-table audit-table">
     <thead><tr><th scope="col">When</th><th scope="col">Who</th><th scope="col">Action</th><th scope="col">Record</th><th scope="col">Details</th></tr></thead>
     <tbody>

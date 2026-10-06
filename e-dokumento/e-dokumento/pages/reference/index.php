@@ -68,6 +68,7 @@ page_header('Puroks, purposes and IDs', 'Lists used in forms across the system. 
   <div class="col-lg-8">
     <section class="panel p-0">
       <?php if (!$rows): ?><?= empty_state('Nothing here yet', 'Add the first ' . $cfg['singular'] . ' with the form.', '', '', 'tags') ?><?php else: ?>
+      <p class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i>Swipe sideways to see every column.</p>
       <div class="table-responsive"><table class="table data-table">
         <thead><tr><th scope="col">Name</th><th scope="col">In use</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
         <tbody>
@@ -76,11 +77,11 @@ page_header('Puroks, purposes and IDs', 'Lists used in forms across the system. 
             <td><strong><?= e($r['name']) ?></strong><?= !empty($r['description']) ? '<small class="d-block text-secondary">' . e($r['description']) . '</small>' : '' ?></td>
             <td><?= $n ?></td>
             <td><?= $r['is_active'] ? simple_badge('Active', 'success') : simple_badge('Inactive', 'neutral') ?></td>
-            <td class="text-end text-nowrap">
+            <td class="text-end text-nowrap"><div class="row-actions">
               <a class="btn btn-sm btn-outline-secondary" href="<?= e(url('reference', ['tab' => $tab, 'edit' => $r['id']])) ?>">Edit</a>
               <?= action_button($self, ['action' => 'toggle', 'row_id' => $r['id'], 'to' => $r['is_active'] ? '0' : '1'], $r['is_active'] ? 'Deactivate' : 'Activate', 'btn-sm btn-outline-secondary') ?>
               <?php if ($n === 0): ?><?= action_button($self, ['action' => 'delete', 'row_id' => $r['id']], 'Delete', 'btn-sm btn-outline-danger', 'Delete ' . $r['name'] . '?') ?><?php endif; ?>
-            </td>
+            </div></td>
           </tr>
         <?php endforeach; ?>
         </tbody>
