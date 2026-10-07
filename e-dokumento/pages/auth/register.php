@@ -98,7 +98,7 @@ guest_start('Create an account', 'guest auth');
         <?= csrf_field() ?>
         <fieldset class="form-section">
           <legend>Your name</legend>
-          <div class="row g-3">
+          <div class="row g-3 name-row">
             <div class="col-md-4">
               <label class="form-label" for="first_name">First name</label>
               <input class="form-control<?= invalid($errors, 'first_name') ?>" id="first_name" name="first_name" value="<?= e(old($old, 'first_name')) ?>" required maxlength="60" autocomplete="given-name">
