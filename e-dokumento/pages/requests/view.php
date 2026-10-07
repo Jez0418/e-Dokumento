@@ -28,6 +28,15 @@ $payments = $req['payments'] ?? [];
 $posted = array_values(array_filter($payments, static fn ($p) => $p['status'] === 'posted'))[0] ?? null;
 $issued = one($req['issued_documents'] ?? null);
 $status = $req['status'];
+
+/** Issuing needs an active Punong Barangay record to print as signatory; warn before the click fails. */
+$missingSignatory = false;
+if (($role === 'secretary' && $status === 'processing') || ($role === 'captain' && $status === 'for_approval')) {
+    $missingSignatory = $db->first('barangay_officials', [['position', 'eq.punong_barangay'], ['is_active', 'eq.true'], ['select', 'id']]) === null;
+}
+$signatoryWarning = '<div class="notice notice-warning"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><div>'
+    . '<strong>No active Punong Barangay is on record.</strong> Documents cannot be issued until the Administrator adds one under Officials, '
+    . 'with the position Punong Barangay and the record marked active.</div></div>';
 $isOwner = $role === 'resident' && ($res['profile_id'] ?? null) === Auth::id();
 $extra = is_array($req['extra_details'] ?? null) ? $req['extra_details'] : [];
 
@@ -81,6 +90,9 @@ layout_start($req['control_no'], $role === 'captain' && $status === 'for_approva
             echo action_button($act, $hidden + ['action' => 'reject'], 'Reject request', 'btn-outline-danger', 'Reject this request? The resident will see your reason.', true, 'x-circle');
             echo '</div>';
         } elseif ($status === 'processing') {
+            if ($missingSignatory) {
+                echo $signatoryWarning;
+            }
             if ($type['requires_captain_approval']) {
                 echo '<p>This document needs the Punong Barangay\'s approval before it can be issued.</p>';
                 echo action_button($act, $hidden + ['action' => 'to_approval'], 'Send for approval', 'btn-primary', '', false, 'send');
@@ -118,6 +130,9 @@ layout_start($req['control_no'], $role === 'captain' && $status === 'for_approva
             echo action_button($act, ['id' => $id, '_back' => $self, 'action' => 'void_payment', 'payment_id' => $posted['id']], 'Void payment', 'btn-outline-danger', 'Void OR ' . $posted['or_number'] . '? The request returns to For payment.', true, 'arrow-counterclockwise');
         }
     } elseif ($role === 'captain' && $status === 'for_approval') {
+        if ($missingSignatory) {
+            echo $signatoryWarning;
+        }
         echo '<p>Approving signs off the document under your name and issues it.</p><div class="d-flex flex-wrap gap-2">';
         echo action_button($act, $hidden + ['action' => 'approve'], 'Approve and issue', 'btn-primary', 'Approve and issue this document under your name?', false, 'pen');
         echo action_button($act, $hidden + ['action' => 'reject'], 'Reject', 'btn-outline-danger', 'Reject this request? The resident will see your reason.', true, 'x-circle');
