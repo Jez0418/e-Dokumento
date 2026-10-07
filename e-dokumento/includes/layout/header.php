@@ -1,6 +1,6 @@
 <?php /** @var string $pageTitle */ /** @var string $bodyClass */ ?>
 <!doctype html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,3 +17,8 @@
 </head>
 <body class="<?= e($bodyClass) ?>">
 <a class="skip-link" href="#main">Skip to content</a>
+<?php if (empty($user) && !str_contains($bodyClass, 'print-page')): ?>
+<button type="button" class="btn btn-icon theme-float no-print" data-theme-toggle aria-label="Switch to light theme">
+  <i class="bi bi-sun ti-to-light" aria-hidden="true"></i><i class="bi bi-moon ti-to-dark" aria-hidden="true"></i>
+</button>
+<?php endif; ?>

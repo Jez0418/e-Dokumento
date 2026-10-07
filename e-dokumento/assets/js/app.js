@@ -7,7 +7,7 @@
   function toast(type, message) {
     if (!toastBox || !window.bootstrap) return;
     const el = document.createElement('div');
-    el.className = 'toast align-items-center bg-white toast-' + (type === 'error' ? 'error' : 'success');
+    el.className = 'toast align-items-center toast-' + (type === 'error' ? 'error' : 'success');
     el.setAttribute('role', type === 'error' ? 'alert' : 'status');
     const icon = type === 'error' ? 'bi-x-octagon text-danger' : 'bi-check-circle text-success';
     el.innerHTML = '<div class="d-flex"><div class="toast-body d-flex gap-2"><i class="bi ' + icon + '" aria-hidden="true"></i><span></span></div>' +

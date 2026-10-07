@@ -10,6 +10,9 @@
     <input id="topbar-q" name="q" type="search" placeholder="Control number or name" autocomplete="off" maxlength="80">
   </form>
   <div class="topbar-right">
+    <button type="button" class="btn btn-icon" data-theme-toggle aria-label="Switch to light theme">
+      <i class="bi bi-sun ti-to-light" aria-hidden="true"></i><i class="bi bi-moon ti-to-dark" aria-hidden="true"></i>
+    </button>
     <a href="/notifications" class="btn btn-icon position-relative" aria-label="Notifications<?= $unread ? ', ' . (int) $unread . ' unread' : '' ?>">
       <i class="bi bi-bell" aria-hidden="true"></i>
       <?php if ($unread > 0): ?><span class="dot-count"><?= $unread > 9 ? '9+' : (int) $unread ?></span><?php endif; ?>
@@ -24,7 +27,6 @@
         <li class="dropdown-header d-sm-none"><strong class="d-block text-body"><?= e($user['full_name'] ?? '') ?></strong><?= e($user['role_name'] ?? '') ?></li>
         <li class="d-sm-none"><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item" href="/profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Profile</a></li>
-        <li><button class="dropdown-item" type="button" data-theme-toggle><i class="bi bi-moon me-2" aria-hidden="true"></i><span data-theme-label>Dark mode</span></button></li>
         <li><hr class="dropdown-divider"></li>
         <li>
           <form action="/logout" method="post" class="m-0">

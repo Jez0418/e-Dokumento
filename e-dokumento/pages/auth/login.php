@@ -56,5 +56,6 @@ guest_start('Sign in', 'guest auth');
       <p class="auth-switch">New resident? <a href="/register">Create an account</a></p>
     </div>
   </main>
+  <?php require __DIR__ . '/_foot.php'; ?>
 </div>
 <?php guest_end(['auth.js']); ?>

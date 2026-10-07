@@ -45,5 +45,6 @@ guest_start('Reset your password', 'guest auth');
       <?php endif; ?>
     </div>
   </main>
+  <?php require __DIR__ . '/_foot.php'; ?>
 </div>
 <?php guest_end(); ?>

@@ -9,45 +9,70 @@
   const peso = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' });
   const charts = {};
 
+  // Emerald line with a soft gradient under it; the gradient follows the chart area
+  function areaFill(hex, strength) {
+    return (ctx) => {
+      const { chart } = ctx;
+      const a = chart.chartArea;
+      if (!a) return 'transparent';
+      const g = chart.ctx.createLinearGradient(0, a.top, 0, a.bottom);
+      g.addColorStop(0, hex + strength);
+      g.addColorStop(1, hex + '00');
+      return g;
+    };
+  }
+  const withAlpha = (hex, alpha) => hex + alpha; // hex is #RRGGBB
+
   function buildCharts(s) {
     if (!window.Chart || role === 'resident') return;
+    const accent = color('--accent');
+    const grid = color('--border-soft');
+    const muted = color('--text-muted');
     Chart.defaults.font.family = color('--font-sans');
-    Chart.defaults.color = color('--ink-2');
-    Chart.defaults.font.size = 14;
+    Chart.defaults.color = muted;
+    Chart.defaults.font.size = 12;
+    const tooltip = { backgroundColor: color('--surface-raised'), titleColor: color('--text'), bodyColor: color('--text'), borderColor: color('--border-hi'), borderWidth: 1, padding: 10, cornerRadius: 10, boxPadding: 4, displayColors: true, usePointStyle: true };
+    const line = (label, data, hex, fill) => ({
+      type: 'line', label, data, borderColor: hex, borderWidth: 2, tension: 0.4, cubicInterpolationMode: 'monotone',
+      fill: !!fill, backgroundColor: fill ? areaFill(hex, '40') : hex, pointRadius: 0, pointHoverRadius: 5, pointHoverBackgroundColor: hex, pointHoverBorderColor: color('--surface'), pointHoverBorderWidth: 2,
+    });
+    const scales = (money) => ({
+      y: { beginAtZero: true, border: { display: false }, ticks: money ? { callback: (v) => peso.format(v), maxTicksLimit: 5 } : { precision: 0, maxTicksLimit: 5 }, grid: { color: grid, drawTicks: false } },
+      x: { border: { display: false }, grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } },
+    });
     const main = document.getElementById('mainChart');
     if (main) {
       if (role === 'treasurer') {
         const rows = s.daily_collections || [];
         charts.main = new Chart(main, {
-          type: 'bar',
-          data: { labels: rows.map((r) => r.label), datasets: [{ label: 'Collected', data: rows.map((r) => Number(r.total)), backgroundColor: color('--carbon'), borderRadius: 4 }] },
-          options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => peso.format(c.parsed.y) } } },
-                     scales: { y: { beginAtZero: true, ticks: { callback: (v) => peso.format(v) }, grid: { color: color('--rule-soft') } }, x: { grid: { display: false } } } },
+          type: 'line',
+          data: { labels: rows.map((r) => r.label), datasets: [line('Collected', rows.map((r) => Number(r.total)), accent, true)] },
+          options: { maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: false }, tooltip: { ...tooltip, callbacks: { label: (c) => ' ' + peso.format(c.parsed.y) } } }, scales: scales(true) },
         });
       } else {
         const rows = s.by_month || [];
         charts.main = new Chart(main, {
-          type: 'bar',
+          type: 'line',
           data: {
             labels: rows.map((r) => r.label),
             datasets: [
-              { label: 'Filed', data: rows.map((r) => r.submitted), backgroundColor: color('--carbon'), borderRadius: 4 },
-              { label: 'Released', data: rows.map((r) => r.released), backgroundColor: color('--approve'), borderRadius: 4 },
-              { label: 'Rejected', data: rows.map((r) => r.rejected), backgroundColor: color('--stamp'), borderRadius: 4 },
+              line('Filed', rows.map((r) => r.submitted), accent, true),
+              line('Released', rows.map((r) => r.released), muted, false),
+              { ...line('Rejected', rows.map((r) => r.rejected), color('--status-rejected'), false), borderDash: [4, 4], borderWidth: 1.5 },
             ],
           },
-          options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 14, font: { size: 14 } } } },
-                     scales: { y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: color('--rule-soft') } }, x: { grid: { display: false } } } },
+          options: { maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, boxHeight: 8, usePointStyle: true, padding: 16, color: muted, generateLabels: (chart) => chart.data.datasets.map((d, i) => ({ text: d.label, fillStyle: d.borderColor, strokeStyle: d.borderColor, fontColor: muted, pointStyle: 'circle', hidden: !chart.isDatasetVisible(i), datasetIndex: i })) } }, tooltip }, scales: scales(false) },
         });
       }
     }
     const typeEl = document.getElementById('typeChart');
     if (typeEl && (s.by_type || []).length) {
-      const palette = [color('--carbon'), color('--gold'), color('--approve'), color('--violet'), color('--stamp'), color('--ink-3')];
+      // Emerald ramp, then neutral greys: the legend carries the names
+      const palette = [accent, withAlpha(accent, 'B3'), withAlpha(accent, '73'), muted, color('--text-subtle'), color('--border-hi')];
       charts.type = new Chart(typeEl, {
         type: 'doughnut',
-        data: { labels: s.by_type.map((t) => t.name), datasets: [{ data: s.by_type.map((t) => t.total), backgroundColor: s.by_type.map((_, i) => palette[i % palette.length]), borderWidth: 2, borderColor: color('--sheet') }] },
-        options: { maintainAspectRatio: false, cutout: '58%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 14, font: { size: 14 } } } } },
+        data: { labels: s.by_type.map((t) => t.name), datasets: [{ data: s.by_type.map((t) => t.total), backgroundColor: s.by_type.map((_, i) => palette[i % palette.length]), borderWidth: 2, borderColor: color('--surface') }] },
+        options: { maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, boxHeight: 8, usePointStyle: true, padding: 14, color: muted } }, tooltip } },
       });
     }
   }

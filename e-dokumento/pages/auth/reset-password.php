@@ -56,5 +56,6 @@ guest_start('Set a new password', 'guest auth');
       </form>
     </div>
   </main>
+  <?php require __DIR__ . '/_foot.php'; ?>
 </div>
 <?php guest_end(['auth.js']); ?>
