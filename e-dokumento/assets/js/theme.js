@@ -1,10 +1,12 @@
 /* Theme: dark by default. The choice made with the toggle is remembered in this browser.
-   Loaded in <head> so the right theme is set before first paint. */
+   Stored under edk_theme_v2: the old edk_theme key held a choice made under the previous
+   light-first design, and honouring it would keep returning users on light. Loaded in <head>
+   so the right theme is set before first paint. */
 (() => {
   'use strict';
   const root = document.documentElement;
-  const read = () => { try { return localStorage.getItem('edk_theme'); } catch (e) { return null; } };
-  const write = (v) => { try { localStorage.setItem('edk_theme', v); } catch (e) { /* storage blocked: choice lasts for this page only */ } };
+  const read = () => { try { return localStorage.getItem('edk_theme_v2'); } catch (e) { return null; } };
+  const write = (v) => { try { localStorage.setItem('edk_theme_v2', v); } catch (e) { /* storage blocked: choice lasts for this page only */ } };
   const current = () => (read() === 'light' ? 'light' : 'dark');
   const apply = (t) => {
     root.setAttribute('data-bs-theme', t);
