@@ -28,6 +28,12 @@
         <li class="d-sm-none"><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item" href="/profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Profile</a></li>
         <li><hr class="dropdown-divider"></li>
+        <li class="theme-seg" role="group" aria-label="Theme">
+          <button type="button" class="seg-btn" data-theme-set="dark"><i class="bi bi-moon" aria-hidden="true"></i>Dark</button>
+          <button type="button" class="seg-btn" data-theme-set="light"><i class="bi bi-sun" aria-hidden="true"></i>Light</button>
+          <button type="button" class="seg-btn" data-theme-set="system"><i class="bi bi-display" aria-hidden="true"></i>System</button>
+        </li>
+        <li><hr class="dropdown-divider"></li>
         <li>
           <form action="/logout" method="post" class="m-0">
             <?= csrf_field() ?>

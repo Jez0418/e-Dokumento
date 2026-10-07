@@ -20,33 +20,36 @@ $f = [
     'open'   => q('open') === '1',
 ];
 
-$query = [['select', '*']];
+// Every filter except the status tab; the tab counts are taken over these
+$base = [];
 if ($f['q'] !== '') {
-    $query[] = ['search_text', 'ilike.*' . mb_strtolower($f['q']) . '*'];
+    $base[] = ['search_text', 'ilike.*' . mb_strtolower($f['q']) . '*'];
 }
+if ($f['type'] !== '') {
+    $base[] = ['document_type_id', 'eq.' . $f['type']];
+}
+if ($f['purok'] !== '') {
+    $base[] = ['purok_id', 'eq.' . $f['purok']];
+}
+if ($f['channel'] !== '') {
+    $base[] = ['channel', 'eq.' . $f['channel']];
+}
+if ($f['from'] !== '') {
+    $base[] = ['submitted_at', 'gte.' . $f['from'] . 'T00:00:00+08:00'];
+}
+if ($f['to'] !== '') {
+    $base[] = ['submitted_at', 'lte.' . $f['to'] . 'T23:59:59+08:00'];
+}
+if ($f['overdue']) {
+    $base[] = ['is_overdue', 'is.true'];
+}
+
+$query = array_merge([['select', '*']], $base);
 if ($f['status'] !== '') {
     $query[] = ['status', 'eq.' . $f['status']];
 }
 if ($f['open']) {
     $query[] = ['status', 'not.in.(released,rejected,cancelled)'];
-}
-if ($f['type'] !== '') {
-    $query[] = ['document_type_id', 'eq.' . $f['type']];
-}
-if ($f['purok'] !== '') {
-    $query[] = ['purok_id', 'eq.' . $f['purok']];
-}
-if ($f['channel'] !== '') {
-    $query[] = ['channel', 'eq.' . $f['channel']];
-}
-if ($f['from'] !== '') {
-    $query[] = ['submitted_at', 'gte.' . $f['from'] . 'T00:00:00+08:00'];
-}
-if ($f['to'] !== '') {
-    $query[] = ['submitted_at', 'lte.' . $f['to'] . 'T23:59:59+08:00'];
-}
-if ($f['overdue']) {
-    $query[] = ['is_overdue', 'is.true'];
 }
 $query[] = ['order', $sort . '.' . $dir . ',id.asc'];
 
@@ -58,6 +61,20 @@ try {
     $rows = [];
     $total = 0;
     flash_error(db_error($e));
+}
+
+// Counts for the status tabs: one light query over the same filters. Skipped on very large
+// result sets, where the tabs simply show no numbers.
+$tabCountLimit = 2000;
+$tabCounts = null;
+try {
+    $countResult = $db->select('request_list', array_merge([['select', 'status']], $base, [['order', 'id.asc']]), true, 0, $tabCountLimit);
+    if (is_int($countResult['total']) && $countResult['total'] <= $tabCountLimit) {
+        $tabCounts = array_count_values(array_column($countResult['rows'], 'status'));
+        $tabCounts[''] = $countResult['total'];
+    }
+} catch (Throwable) {
+    $tabCounts = null;
 }
 
 $types = $db->select('document_types', [['select', 'id,name'], ['order', 'name.asc']])['rows'];
@@ -79,7 +96,7 @@ $chips = ['' => 'All'] + REQUEST_STATUSES;
 <nav class="status-tabs" aria-label="Filter by status">
   <?php foreach ($chips as $key => $label): ?>
     <?php $p = $_GET; $p['status'] = $key; unset($p['page'], $p['open']); ?>
-    <a href="?<?= e(http_build_query(array_filter($p, static fn ($v) => $v !== '' && $v !== null))) ?>" class="<?= $f['status'] === (string) $key && !$f['open'] ? 'active' : '' ?>"<?= $f['status'] === (string) $key ? ' aria-current="true"' : '' ?>><?= e($label) ?></a>
+    <a href="?<?= e(http_build_query(array_filter($p, static fn ($v) => $v !== '' && $v !== null))) ?>" class="<?= $f['status'] === (string) $key && !$f['open'] ? 'active' : '' ?>"<?= $f['status'] === (string) $key ? ' aria-current="true"' : '' ?>><?= e($label) ?><?php if ($tabCounts !== null): ?> <span class="tab-count"><span class="visually-hidden">, </span><?= (int) ($tabCounts[(string) $key] ?? 0) ?></span><?php endif; ?></a>
   <?php endforeach; ?>
 </nav>
 

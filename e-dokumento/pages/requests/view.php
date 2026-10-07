@@ -71,6 +71,10 @@ layout_start($req['control_no'], $role === 'captain' && $status === 'for_approva
 
 <?= claim_stub($req['control_no'], ($type['name'] ?? 'Document') . ((int) $req['copies'] > 1 ? ' × ' . (int) $req['copies'] : ''), $status, $note) ?>
 
+<?php if ($isOwner): ?>
+  <section class="panel tracker-panel" aria-label="Progress"><?= request_tracker($req, $type, $history) ?></section>
+<?php endif; ?>
+
 <?php if ($status === 'rejected' && $req['rejection_reason']): ?>
   <div class="notice notice-danger"><i class="bi bi-x-octagon" aria-hidden="true"></i><div><strong>Reason:</strong> <?= e($req['rejection_reason']) ?></div></div>
 <?php endif; ?>

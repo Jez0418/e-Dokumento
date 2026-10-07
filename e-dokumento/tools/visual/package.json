@@ -1,0 +1,12 @@
+{
+  "name": "e-dokumento-visual-checks",
+  "private": true,
+  "description": "Renders every page against a fake Supabase and checks for overflow and console errors. Not deployed.",
+  "scripts": {
+    "check": "node run.js",
+    "check:quick": "node run.js --quick"
+  },
+  "dependencies": {
+    "playwright-core": "^1.50.0"
+  }
+}

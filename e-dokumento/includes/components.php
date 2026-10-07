@@ -159,6 +159,45 @@ function action_button(string $action, array $fields, string $label, string $cla
     return $html;
 }
 
+/**
+ * Progress tracker for the resident: the steps this request goes through, with the current one lit.
+ * Payment and captain approval only appear when this request actually needs them.
+ * @param list<array{to_status:string}> $history
+ */
+function request_tracker(array $req, ?array $type, array $history): string
+{
+    $status = (string) $req['status'];
+    $steps = ['pending', 'under_review'];
+    if ((float) ($req['fee_amount'] ?? 0) > 0 && empty($req['fee_waived'])) {
+        $steps[] = 'for_payment';
+    }
+    $steps[] = 'processing';
+    if (!empty($type['requires_captain_approval'])) {
+        $steps[] = 'for_approval';
+    }
+    array_push($steps, 'ready_for_release', 'released');
+
+    $reached = array_column($history, 'to_status');
+    $current = array_search($status, $steps, true);
+    $terminal = in_array($status, ['rejected', 'cancelled'], true);
+
+    $html = '<ol class="tracker" aria-label="Request progress">';
+    foreach ($steps as $i => $key) {
+        $done = $current !== false ? ($i < $current || $status === 'released') : in_array($key, $reached, true);
+        $isCurrent = $current !== false && $i === $current && $status !== 'released';
+        $state = $done ? 'is-done' : ($isCurrent ? 'is-current' : '');
+        $hint = $done ? ' (done)' : ($isCurrent ? ' (current step)' : '');
+        $icon = $done ? '<i class="bi bi-check-lg" aria-hidden="true"></i>' : '';
+        $html .= '<li class="' . $state . '"' . ($isCurrent ? ' aria-current="step"' : '') . '><span class="tracker-dot">' . $icon . '</span>'
+            . '<span class="tracker-label">' . e(status_label($key)) . '<span class="visually-hidden">' . e($hint) . '</span></span></li>';
+    }
+    if ($terminal) {
+        $html .= '<li class="is-end is-' . e($status) . '" aria-current="step"><span class="tracker-dot"><i class="bi bi-' . ($status === 'rejected' ? 'x-lg' : 'dash-lg') . '" aria-hidden="true"></i></span>'
+            . '<span class="tracker-label">' . e(status_label($status)) . '<span class="visually-hidden"> (final status)</span></span></li>';
+    }
+    return $html . '</ol>';
+}
+
 /** The manila claim stub that carries a control number. */
 function claim_stub(string $controlNo, string $documentType, string $status, string $note = ''): string
 {

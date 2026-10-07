@@ -106,7 +106,13 @@
     }
   }
 
-  buildCharts(summary || {});
+  let latest = summary || {};
+  buildCharts(latest);
+  // Theme change: redraw with the new colours instead of reloading the page
+  document.addEventListener('edk:themechange', () => {
+    Object.keys(charts).forEach((k) => { charts[k].destroy(); delete charts[k]; });
+    buildCharts(latest);
+  });
 
   // Refresh every 60 s while the tab is visible, so the board reflects new requests and payments
   async function refresh() {
@@ -116,6 +122,7 @@
       if (res.status === 401 || res.redirected) return;
       const body = await res.json();
       if (!body.ok) return;
+      latest = body.summary;
       updateCards(body.summary);
       updateCharts(body.summary);
       const stamp = document.getElementById('dash-updated');

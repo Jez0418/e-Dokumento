@@ -75,7 +75,7 @@ page_header('Reports', 'Every figure is read live from the database for the filt
       <tbody>
         <?php foreach ($data['rows'] as $row): ?>
           <tr><?php foreach ($data['columns'] as $col => $label): $fmt = $data['formats'][$col] ?? ''; ?>
-            <td class="<?= in_array($fmt, ['money', 'int', 'decimal'], true) ? 'text-end num' : ($fmt === 'mono' ? 'mono' : '') ?>"><?= e(report_cell($row[$col] ?? null, $fmt)) ?></td>
+            <td class="<?= in_array($fmt, ['money', 'int', 'decimal'], true) ? 'text-end num' : ($fmt === 'mono' ? 'mono' : (in_array($fmt, ['date', 'datetime'], true) ? 'text-nowrap' : '')) ?>"><?= e(report_cell($row[$col] ?? null, $fmt)) ?></td>
           <?php endforeach; ?></tr>
         <?php endforeach; ?>
       </tbody>
