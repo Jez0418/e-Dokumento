@@ -22,6 +22,7 @@ final class SupabaseException extends RuntimeException
  */
 final class Supabase
 {
+    private static ?\CurlHandle $ch = null;
     private string $url;
 
     public function __construct(private ?string $accessToken = null, private bool $useSecret = false)
@@ -78,8 +79,13 @@ final class Supabase
             $url .= '?' . $qs;
         }
         $hdrs = $this->headers($headers);
-        $ch = curl_init($url);
+        // One shared handle per PHP process: curl_reset() keeps the open connection,
+        // so later calls skip the DNS lookup and TLS handshake.
+        self::$ch ??= curl_init();
+        $ch = self::$ch;
+        curl_reset($ch);
         $opts = [
+            CURLOPT_URL            => $url,
             CURLOPT_CUSTOMREQUEST  => $method,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HEADER         => true,
@@ -102,12 +108,10 @@ final class Supabase
         $raw = curl_exec($ch);
         if ($raw === false) {
             $err = curl_error($ch);
-            curl_close($ch);
             throw new SupabaseException('Could not reach the database service. ' . $err, 0, 'network');
         }
         $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         $headerSize = (int) curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-        curl_close($ch);
 
         $rawHeaders = substr((string) $raw, 0, $headerSize);
         $rawBodyText = substr((string) $raw, $headerSize);
