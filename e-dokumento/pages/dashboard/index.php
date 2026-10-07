@@ -45,7 +45,7 @@ layout_start('Dashboard', 'dashboard');
 
 if ($role === 'resident'):
     $resident = Auth::resident();
-    $vstatus = $resident['verification_status'] ?? 'unverified';
+    $vstatus = id_verification_required() ? ($resident['verification_status'] ?? 'unverified') : 'verified';
 ?>
   <?php page_header($greeting . ', ' . ($resident['first_name'] ?? $user['full_name']) . '.', 'Here is where your documents stand.',
       $vstatus === 'verified' ? '<a class="btn btn-primary" href="/requests/new"><i class="bi bi-file-earmark-plus me-1" aria-hidden="true"></i>Request a document</a>' : ''); ?>

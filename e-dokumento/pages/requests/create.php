@@ -154,7 +154,7 @@ if ($isSecretary):
     <?php layout_end(); return; endif;
 else:
     page_header('Request a document', 'Choose the document, tell us what it is for, and upload the required files.');
-    if (!$resident || $resident['verification_status'] !== 'verified'):
+    if (!$resident || (id_verification_required() && $resident['verification_status'] !== 'verified')):
         echo empty_state('Verify your residency first', 'Online requests open once the Secretary approves your ID. It usually takes one working day.', '/profile#verification', 'Go to verification', 'person-vcard');
         layout_end();
         return;

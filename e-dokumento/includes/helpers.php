@@ -260,6 +260,12 @@ function setting(string $key, string $default = ''): string
     return is_scalar($v) && (string) $v !== '' ? (string) $v : $default;
 }
 
+/** False while the 'require_id_verification' setting is 'off' (testing mode). Defaults to on. */
+function id_verification_required(): bool
+{
+    return setting('require_id_verification', 'on') !== 'off';
+}
+
 function barangay_name(): string
 {
     return setting('barangay_name', 'Barangay');

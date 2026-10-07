@@ -67,7 +67,7 @@ $active = $role === 'captain' && $f['status'] === 'for_approval' ? 'approvals' :
 layout_start($isResident ? 'My requests' : 'Requests', $active);
 
 $action = '';
-if ($role === 'resident' && (Auth::resident()['verification_status'] ?? '') === 'verified') {
+if ($role === 'resident' && (!id_verification_required() || (Auth::resident()['verification_status'] ?? '') === 'verified')) {
     $action = '<a class="btn btn-primary" href="/requests/new"><i class="bi bi-file-earmark-plus me-1" aria-hidden="true"></i>Request a document</a>';
 } elseif ($role === 'secretary') {
     $action = '<a class="btn btn-primary" href="/requests/new"><i class="bi bi-person-plus me-1" aria-hidden="true"></i>Walk-in request</a>';
