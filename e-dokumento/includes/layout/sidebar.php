@@ -9,7 +9,7 @@ $groups = nav_for_role($user['role'] ?? null);
       <span class="brand-name">e-Dokumento</span>
       <span class="brand-sub">Barangay <?= e(barangay_name()) ?></span>
     </div>
-    <button type="button" class="btn-close btn-close-white d-lg-none ms-auto" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close menu"></button>
+    <button type="button" class="btn-close d-lg-none ms-auto" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close menu"></button>
   </div>
   <div class="sidebar-scroll">
     <?php foreach ($groups as [$label, $items]): ?>

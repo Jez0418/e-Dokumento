@@ -24,6 +24,7 @@
         <li class="dropdown-header d-sm-none"><strong class="d-block text-body"><?= e($user['full_name'] ?? '') ?></strong><?= e($user['role_name'] ?? '') ?></li>
         <li class="d-sm-none"><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item" href="/profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Profile</a></li>
+        <li><button class="dropdown-item" type="button" data-theme-toggle><i class="bi bi-moon me-2" aria-hidden="true"></i><span data-theme-label>Dark mode</span></button></li>
         <li><hr class="dropdown-divider"></li>
         <li>
           <form action="/logout" method="post" class="m-0">

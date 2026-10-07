@@ -46,7 +46,7 @@
       const palette = [color('--carbon'), color('--gold'), color('--approve'), color('--violet'), color('--stamp'), color('--ink-3')];
       charts.type = new Chart(typeEl, {
         type: 'doughnut',
-        data: { labels: s.by_type.map((t) => t.name), datasets: [{ data: s.by_type.map((t) => t.total), backgroundColor: s.by_type.map((_, i) => palette[i % palette.length]), borderWidth: 2, borderColor: '#fff' }] },
+        data: { labels: s.by_type.map((t) => t.name), datasets: [{ data: s.by_type.map((t) => t.total), backgroundColor: s.by_type.map((_, i) => palette[i % palette.length]), borderWidth: 2, borderColor: color('--sheet') }] },
         options: { maintainAspectRatio: false, cutout: '58%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 14, font: { size: 14 } } } } },
       });
     }
