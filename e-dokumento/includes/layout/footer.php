@@ -31,9 +31,9 @@
   <?php if (str_starts_with($script, 'https://')): ?>
 <script src="<?= e($script) ?>"></script>
   <?php else: ?>
-<script src="/assets/js/<?= e($script) ?>"></script>
+<script src="/assets/js/<?= e($script) ?>?v=<?= e(asset_ver('js/' . $script)) ?>"></script>
   <?php endif; ?>
 <?php endforeach; ?>
-<script src="/assets/js/app.js"></script>
+<script src="/assets/js/app.js?v=<?= e(asset_ver('js/app.js')) ?>"></script>
 </body>
 </html>

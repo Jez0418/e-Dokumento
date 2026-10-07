@@ -29,6 +29,20 @@ function app_url(string $path = ''): string
     return $base . '/' . ltrim($path, '/');
 }
 
+/**
+ * Cache-busting suffix for /assets files. Vercel resets file modified times on
+ * every deploy, so the commit (or deployment) id is used there; locally the
+ * file's own modified time changes whenever it is edited.
+ */
+function asset_ver(string $relativePath): string
+{
+    $build = getenv('VERCEL_GIT_COMMIT_SHA') ?: getenv('VERCEL_DEPLOYMENT_ID');
+    if (is_string($build) && $build !== '') {
+        return substr($build, 0, 12);
+    }
+    return (string) (int) @filemtime(BASE_PATH . '/assets/' . ltrim($relativePath, '/'));
+}
+
 /** HTML-escape for output. Every dynamic value printed in a page goes through this. */
 function e(mixed $value): string
 {
