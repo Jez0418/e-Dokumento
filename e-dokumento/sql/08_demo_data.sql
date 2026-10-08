@@ -59,6 +59,19 @@ as $$
                       greatest((now() - interval '5 minutes' - p_at) / 4, interval '1 minute'));
 $$;
 
+-- Squeeze a week into its office hours (Monday to Friday, 8:00 AM to 5:00 PM,
+-- Manila). Order is kept, so each request's steps stay in sequence.
+create or replace function pg_temp.demo_office(p_at timestamptz)
+returns timestamptz
+language sql immutable strict
+as $$
+  select (w.monday + make_interval(days => floor(w.b / 32400)::integer) + interval '8 hours'
+          + make_interval(secs => w.b - floor(w.b / 32400) * 32400)) at time zone 'Asia/Manila'
+  from (select date_trunc('week', p_at at time zone 'Asia/Manila') as monday,
+               extract(epoch from (p_at at time zone 'Asia/Manila')
+                                  - date_trunc('week', p_at at time zone 'Asia/Manila')) * 45 / 168 as b) w;
+$$;
+
 do $demo$
 declare
   v_sec    uuid;
@@ -301,6 +314,38 @@ begin
       perform pg_temp.demo_stamp(v_t);
     end if;
   end loop;
+
+  -- Move every request step into office hours ----------------------------------
+  create temporary table demo_ids on commit drop as
+    select d.id as request_id, p.id as payment_id, i.id as issued_id
+    from public.document_requests d
+    left join public.payments p on p.request_id = d.id
+    left join public.issued_documents i on i.request_id = d.id
+    where d.resident_id = any (v_res);
+
+  update public.request_status_history set changed_at = pg_temp.demo_office(changed_at)
+   where request_id in (select request_id from demo_ids);
+  update public.document_requests
+     set submitted_at = pg_temp.demo_office(submitted_at), created_at = pg_temp.demo_office(created_at),
+         released_at = pg_temp.demo_office(released_at)
+   where id in (select request_id from demo_ids);
+  update public.payments set paid_at = pg_temp.demo_office(paid_at), created_at = pg_temp.demo_office(created_at)
+   where id in (select payment_id from demo_ids);
+  update public.issued_documents i
+     set issued_at = pg_temp.demo_office(i.issued_at), created_at = pg_temp.demo_office(i.created_at),
+         revoked_at = pg_temp.demo_office(i.revoked_at),
+         valid_until = (pg_temp.demo_office(i.issued_at) at time zone 'Asia/Manila')::date + t.validity_days::integer
+    from public.document_requests d
+    join public.document_types t on t.id = d.document_type_id
+   where i.request_id = d.id and i.id in (select issued_id from demo_ids);
+  update public.notifications
+     set created_at = pg_temp.demo_office(created_at),
+         is_read = pg_temp.demo_office(created_at) < now() - interval '3 days'
+   where request_id in (select request_id from demo_ids);
+  update public.audit_logs set created_at = pg_temp.demo_office(created_at)
+   where entity_id in (select request_id::text from demo_ids
+                       union select payment_id::text from demo_ids where payment_id is not null
+                       union select issued_id::text from demo_ids where issued_id is not null);
 
   raise notice 'Loaded % demo residents and 43 demo requests.', array_length(v_res, 1);
 end
