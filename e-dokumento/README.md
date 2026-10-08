@@ -53,6 +53,8 @@ Open **SQL Editor → New query** and run each file, in this order, one at a tim
 
 `05_seed.sql` contains configuration only. No residents, requests or payments are seeded; everything you see in the app was entered through it. Set the **fees to your barangay's revenue ordinance** under Document types.
 
+For a demonstration, `sql/08_demo_data.sql` adds 24 sample residents and 43 walk-in requests spread over the last six months, in every status. It runs each request through the real workflow functions as the test accounts from `sql/07_test_accounts.sql`, so run 07 first and add the active Punong Barangay under Officials. Demo residents have emails ending in `@demo.e-dokumento.test`; the block at the bottom of the file removes them. Do not load it into a real barangay's database.
+
 If a file fails partway, read the error, fix it, and rerun that file. Most statements fail cleanly when the object already exists. To start over, run `drop schema public cascade; create schema public;` and reapply the standard grants Supabase documents for the public schema. Only do this on a fresh project.
 
 ## 3. Configure RLS policies
