@@ -18,16 +18,20 @@ Results of running the checklist in `docs/TESTING.md` against production.
 
 | Section | Pass | Fail | Open | Manual |
 | --- | --- | --- | --- | --- |
-| Authentication and authorization | 6 | 0 | 2 | 1 |
-| Create | 5 | 0 | 1 | 0 |
+| Authentication and authorization | 8 | 0 | 0 | 1 |
+| Create | 6 | 0 | 0 | 0 |
 | Read | 3 | 0 | 0 | 0 |
 | Update | 4 | 0 | 0 | 0 |
-| Delete, deactivate, cancel, void | 3 | 0 | 1 | 0 |
+| Delete, deactivate, cancel, void | 4 | 0 | 0 | 0 |
 | Relationships | 3 | 0 | 0 | 0 |
 | Dashboard, reports, audit | 3 | 0 | 0 | 1 |
 | Deployment | 2 | 0 | 0 | 1 |
 | Certificate QR code | 1 | 0 | 0 | 0 |
-| **Total** | **30** | **0** | **4** | **3** |
+| **Total** | **34** | **0** | **0** | **3** |
+
+The three Manual checks are for a person: the one-hour session refresh (A5), opening the CSV export in Excel (DR3) and the links in confirmation and reset emails (DP2).
+
+**Left on production by testing:** request REQ-2026-000133 (Certificate of Indigency, filed online by Test Resident, Pending) from C1; REQ-2026-000129 moved from Pending to Under review in DR1; Kenneth Tan's occupation changed in U4. Purok 7 and the Test Resident account were deactivated for D4 and A3 and reactivated straight after.
 
 ## Findings
 
@@ -35,15 +39,15 @@ Results of running the checklist in `docs/TESTING.md` against production.
    `update public.system_settings set value = '"on"' where key = 'require_id_verification';`
 2. **The `X-Powered-By: PHP/8.3.8` header reveals the PHP version.** Low risk. `header_remove('X-Powered-By');` in `includes/bootstrap.php` would drop it.
 3. **Two accounts have placeholder names.** The residents list and Users page show "ADAZXZAS, NJSAHBXJXA" (`jeztempest@gmail.com`, Resident) and "dadads, adada" (`jezreelblanza480@gmail.com`, Secretary). They are real accounts, so rename them rather than delete them.
-4. **Some demo steps are timed outside office hours** (for example "Under review 2:22 AM"). `sql/08_demo_data.sql` now moves every step into Monday to Friday, 8:00 AM to 5:00 PM. The data already loaded on production still has the old times.
+4. **Some demo steps are timed outside office hours** (for example "Under review 2:22 AM"). Fixed: `sql/08_demo_data.sql` now moves every step into Monday to Friday, 8:00 AM to 5:00 PM, and the data on production was updated the same way (225 steps, none outside office hours, none out of order). As a result, more open demo requests are now past their target, and the dashboard shows 8 overdue.
 
 ## Authentication and authorization
 
 | ID | Check | Expected | Actual | Result |
 | --- | --- | --- | --- | --- |
-| A1 | Valid login reaches the dashboard for each of the five roles | Dashboard for each role | Secretary and Administrator reach their dashboards. Treasurer, Punong Barangay and Resident not signed in yet. | Open |
+| A1 | Valid login reaches the dashboard for each of the five roles | Dashboard for each role | Administrator, Punong Barangay, Secretary and Treasurer each reached their dashboard with their own menu; the Resident reached the resident menu (Request a document, My requests). The Punong Barangay can open the Audit log and is refused `/users` (403). | Pass |
 | A2 | Wrong password and unknown email | Both show "Incorrect email or password." | POST /login with a valid CSRF token: `nobody.unknown@example.test` and `resident.test@example.test` with a wrong password both returned "Incorrect email or password." | Pass |
-| A3 | A deactivated user cannot sign in | Sign-in refused | | Open |
+| A3 | A deactivated user cannot sign in | Sign-in refused | The Administrator deactivated Test Resident (prompt: "Deactivate Test Resident? They will be signed out and cannot sign in."; result: "Account deactivated. The user can no longer sign in."). Signing in with its password was refused with "Incorrect email or password." After reactivation, the same password signed in, so the refusal was the deactivation and not a typo. | Pass |
 | A4 | Session survives a refresh and a new deployment; Sign out ends it | Still signed in; signed out after Sign out | As the Secretary: after a reload the dashboard still showed "Test Secretary". After Sign out, opening `/dashboard` went to Sign in. The new-deployment part was not run, because it needs a redeploy. | Pass |
 | A5 | Session refreshes silently after an hour | No sign-in prompt after the access token expires | | Manual |
 | A6 | Opening `/residents` while signed out | Redirect to Sign in | `303` to `/login?next=%2Fresidents` | Pass |
@@ -55,10 +59,10 @@ Results of running the checklist in `docs/TESTING.md` against production.
 
 | ID | Check | Expected | Actual | Result |
 | --- | --- | --- | --- | --- |
-| C1 | A verified resident submits a request and receives a control number | Control number shown | | Open |
+| C1 | A verified resident submits a request and receives a control number | Control number shown | Test Resident filed a Certificate of Indigency online with a PDF ID: the page opened REQ-2026-000133, Pending, with `test-id.pdf` attached and "Submitted online" on the timeline. The account is not verified; it could file because ID verification is off (Finding 1). | Pass |
 | C2 | An unverified resident requests online | Refused | With `require_id_verification` on: "Your residency must be verified before you can request documents online." (see Finding 1) | Pass |
 | C3 | A second open request for the same document | Refused | "There is already an open request for Barangay Clearance. Track it in Requests." | Pass |
-| C4 | Missing required file, 3 MB file, .docx | Each refused | Missing: "Upload the required files: Valid government-issued ID, Proof of residency." 3 MB: "Each attachment must be 2 MB or smaller." .docx type: "Attachments must be PDF, JPG or PNG files." The upload page's content check on a renamed .docx is still to be tried in the browser. | Pass |
+| C4 | Missing required file, 3 MB file, .docx | Each refused | Missing: "Upload the required files: Valid government-issued ID, Proof of residency." 3 MB: "Each attachment must be 2 MB or smaller." .docx type: "Attachments must be PDF, JPG or PNG files." In the browser, a Word file renamed to `.pdf` was posted from the request form and refused by the server: "Valid government-issued ID must be a PDF, JPG or PNG file." (`includes/upload.php` checks the file's first bytes, not its name.) | Pass |
 | C5 | A resident with the same name and birth date as an existing one | Refused | `23505` unique violation on `residents_identity_uniq` | Pass |
 | C6 | A second First Time Jobseeker request after one was released | Refused | "First Time Jobseeker Certification can only be issued once per resident." | Pass |
 
@@ -83,10 +87,10 @@ Results of running the checklist in `docs/TESTING.md` against production.
 
 | ID | Check | Expected | Actual | Result |
 | --- | --- | --- | --- | --- |
-| D1 | Every destructive button asks for confirmation; reject, void and revoke ask for a reason | Confirmation; reason where needed | Cancel walk-in request: confirmation. Reject request: confirmation plus reason; with an empty reason the dialog said "Write a reason of at least 10 characters" and did not submit, and Go back left the request unchanged. Revoke (15 on the Issued documents page): confirmation plus reason. Void is the Treasurer's and was not opened in the browser. | Pass |
+| D1 | Every destructive button asks for confirmation; reject, void and revoke ask for a reason | Confirmation; reason where needed | Cancel walk-in request: confirmation. Reject request: confirmation plus reason; with an empty reason the dialog said "Write a reason of at least 10 characters" and did not submit, and Go back left the request unchanged. Revoke (15 on the Issued documents page): confirmation plus reason. Void payment (Treasurer, REQ-2026-000125): "Void OR 1001224? The request returns to For payment." plus reason; Go back left the payment posted and the request in Processing. Deactivating a user also asks for confirmation. | Pass |
 | D2 | Cancelled, voided and revoked rows stay with their reason | Rows kept | Voiding a payment kept the row as `voided / Wrong OR booklet used for this receipt.` Rows kept: 1 cancelled request, 2 rejected requests with reasons, 1 revoked certificate with its reason | Pass |
 | D3 | A requirement linked to a document type cannot be deleted | Refused | `23503` foreign key violation from `document_type_requirements` | Pass |
-| D4 | A deactivated purok disappears from forms but stays on existing residents | | | Open |
+| D4 | A deactivated purok disappears from forms but stays on existing residents | Gone from forms; kept on residents | Deactivated Purok 7 on Reference data: the registration form listed Purok 1 to 6 only, and its 3 residents (Dizon, Flores, Robles) still showed Purok 7. Reactivated straight after; the form lists Purok 1 to 7 again. | Pass |
 
 ## Relationships
 
