@@ -14,12 +14,12 @@ Run every item on the **production Vercel URL**, not only locally. Create one ac
 - [ ] Submitting a form copied to another site fails with "This form expired" (CSRF) — auto: `tests/Http/FrontControllerTest.php`
 
 ## Create
-- [ ] A verified resident submits a request and receives a control number
-- [ ] An unverified resident sees "Verify your residency first"
-- [ ] A second open request for the same document is refused
+- [ ] A verified resident submits a request and receives a control number — auto: `supabase/tests/02_submit_request.test.sql`
+- [ ] An unverified resident sees "Verify your residency first" — auto: `supabase/tests/02_submit_request.test.sql`
+- [ ] A second open request for the same document is refused — auto: `supabase/tests/02_submit_request.test.sql`
 - [ ] A missing required file, a 3 MB file, or a .docx renamed to .pdf is refused — auto: `tests/Unit/UploadTest.php`
-- [ ] Adding a resident with the same name and birth date as an existing one is refused
-- [ ] A second First Time Jobseeker request after one was released is refused
+- [ ] Adding a resident with the same name and birth date as an existing one is refused — auto: `supabase/tests/03_integrity.test.sql`
+- [ ] A second First Time Jobseeker request after one was released is refused — auto: `supabase/tests/02_submit_request.test.sql`
 
 ## Read
 - [ ] Requests and Residents search, filter, sort and paginate
@@ -35,13 +35,13 @@ Run every item on the **production Vercel URL**, not only locally. Create one ac
 ## Delete, deactivate, cancel, void
 - [ ] Every destructive button asks for confirmation; reject, void and revoke ask for a reason
 - [ ] Cancelled, voided and revoked rows remain in the database with their reason
-- [ ] A requirement linked to a document type cannot be deleted
+- [ ] A requirement linked to a document type cannot be deleted — auto: `supabase/tests/03_integrity.test.sql`
 - [ ] A deactivated purok disappears from forms but stays on existing residents
 
 ## Relationships
-- [ ] Inserting a request with a random resident_id in the SQL editor fails on the foreign key
-- [ ] A request accepts only one posted payment and one issued document
-- [ ] Deleting a request that has a payment fails (ON DELETE RESTRICT)
+- [ ] Inserting a request with a random resident_id in the SQL editor fails on the foreign key — auto: `supabase/tests/03_integrity.test.sql`
+- [ ] A request accepts only one posted payment and one issued document — auto: `supabase/tests/03_integrity.test.sql`
+- [ ] Deleting a request that has a payment fails (ON DELETE RESTRICT) — auto: `supabase/tests/03_integrity.test.sql`
 
 ## Dashboard, reports, audit
 - [ ] Filing, paying and releasing a request changes the pipeline counts and the chart
