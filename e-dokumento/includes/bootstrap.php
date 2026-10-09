@@ -5,6 +5,7 @@ define('BASE_PATH', dirname(__DIR__));
 
 require BASE_PATH . '/includes/env.php';
 Env::load(BASE_PATH . '/.env'); // local development only; Vercel uses real env vars
+require BASE_PATH . '/includes/mailer.php';
 
 require BASE_PATH . '/includes/helpers.php';
 require BASE_PATH . '/includes/supabase.php';

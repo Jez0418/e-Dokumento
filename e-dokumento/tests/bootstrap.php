@@ -27,6 +27,6 @@ mb_internal_encoding('UTF-8');
 // Buffer output so setcookie() works under the CLI.
 ob_start();
 
-foreach (['env', 'helpers', 'supabase', 'auth', 'permissions', 'csrf', 'flash', 'validator', 'upload', 'reports'] as $file) {
+foreach (['env', 'mailer', 'helpers', 'supabase', 'auth', 'permissions', 'csrf', 'flash', 'validator', 'upload', 'reports'] as $file) {
     require BASE_PATH . "/includes/{$file}.php";
 }
