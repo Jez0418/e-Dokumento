@@ -8,3 +8,5 @@ Thumbs.db
 *.log
 tests/vendor/
 tests/.phpunit.cache/
+supabase/.branches/
+supabase/.temp/

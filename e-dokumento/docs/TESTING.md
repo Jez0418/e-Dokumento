@@ -10,7 +10,7 @@ Run every item on the **production Vercel URL**, not only locally. Create one ac
 - [ ] After an hour the session refreshes silently (access token expiry)
 - [ ] Opening `/residents` while signed out redirects to Sign in — auto: `tests/Http/FrontControllerTest.php`
 - [ ] Opening `/users` as a Secretary shows the Access Denied page — auto (route map): `tests/Unit/RoutesTest.php`
-- [ ] With a resident's access token, `GET /rest/v1/residents` returns only their own row (RLS)
+- [ ] With a resident's access token, `GET /rest/v1/residents` returns only their own row (RLS) — auto: `supabase/tests/01_rls.test.sql`
 - [ ] Submitting a form copied to another site fails with "This form expired" (CSRF) — auto: `tests/Http/FrontControllerTest.php`
 
 ## Create

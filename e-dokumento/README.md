@@ -179,6 +179,18 @@ npm run test:php
 
 `npm run test:php` runs `php tests/vendor/bin/phpunit -c tests/phpunit.xml`. Add `-- --testsuite unit` or `-- --testsuite http` to run one suite. The tests set their own environment and point Supabase at an unreachable address, so `.env` is not needed and the live project is never contacted.
 
+### Database tests
+
+The database tests need Docker Desktop, running. They check RLS, the workflow functions and the constraints with pgTAP on a throwaway local Supabase stack.
+
+```bash
+npm run test:db
+```
+
+`npm run test:db` runs `tests/sql/run.sh`. It starts the local stack (`npx supabase start`; the first run downloads the images), resets the local database, applies `sql/01`–`05` plus `tests/sql/fixtures.sql`, and runs `supabase/tests/*.test.sql`. Each test file rolls back. The script works only on the local container `supabase_db_e-dokumento` and stops if that container is not running. It takes no database URL, so the live project is never used. Run it from Git Bash: in PowerShell or cmd, `bash` can resolve to WSL instead.
+
+`npm test` runs the PHP tests, then the database tests. `npx supabase stop` shuts the local stack down when you are done.
+
 ## 10. Troubleshooting
 
 | Symptom | Likely cause and fix |
