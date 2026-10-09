@@ -15,8 +15,8 @@ begin
 end $$;
 
 select is(
-  (select count(*)::int from pg_tables where schemaname = 'public' and rowsecurity),
-  19, 'RLS is enabled on all 19 public tables');
+  (select string_agg(tablename, ', ') from pg_tables where schemaname = 'public' and not rowsecurity),
+  null, 'RLS is enabled on every public table');
 
 select ok(
   (select 'security_invoker=on' = any (reloptions) from pg_class where oid = 'public.request_list'::regclass),
