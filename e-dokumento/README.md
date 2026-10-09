@@ -149,7 +149,7 @@ In **Project Settings → Environment Variables**, add these for Production (and
 | `APP_URL` | `https://<your-app>.vercel.app` | No trailing slash; used in email links |
 | `APP_SECRET` | 64 random hex characters | Signs CSRF tokens and flash messages |
 | `APP_DEBUG` | `false` | |
-| `MAIL_USERNAME` | `your-barangay@gmail.com` | Optional; status emails. The Gmail account that sends them |
+| `MAIL_USERNAME` | `your-barangay@gmail.com` | Optional; status emails. A Gmail account made for the system, not a personal one |
 | `MAIL_APP_PASSWORD` | 16-character Gmail app password | Optional; status emails. Not the Gmail password |
 | `MAIL_FROM_NAME` | `Barangay San Isidro e-Dokumento` | Optional; the sender name residents see. Defaults to `Barangay <name> e-Dokumento` |
 
@@ -160,10 +160,11 @@ Redeploy after changing variables (**Deployments → ⋯ → Redeploy**).
 Residents with an email address can get an email when a request needs them to act: it is ready for payment, ready for pickup, or rejected. This is optional and off by default.
 
 1. Run `sql/09_email_outbox.sql` in the SQL Editor. Nothing changes for users yet.
-2. On the Gmail account that will send the emails, turn on 2-Step Verification, then create an app password at **myaccount.google.com → Security → App passwords**.
-3. Set `MAIL_USERNAME`, `MAIL_APP_PASSWORD` and `MAIL_FROM_NAME` in Vercel (Production), then redeploy.
-4. Sign in as the Administrator and open **Settings → Email notifications**. Click **Send test email** and check your inbox.
-5. Turn the switch on and click **Save**.
+2. Create a Gmail account just for the system, for example `barangayname.edokumento@gmail.com`, named after the barangay. Do not use a personal account: residents see the sending account's profile photo next to every email. On **myaccount.google.com**, set the account's photo to [`docs/img/email-sender-logo.png`](docs/img/email-sender-logo.png), the e-Dokumento logo. Gmail can take up to a day to show a new photo, and some other mail apps show initials instead.
+3. On that account, turn on 2-Step Verification, then create an app password at **myaccount.google.com → Security → App passwords**.
+4. Set `MAIL_USERNAME` (the new account), `MAIL_APP_PASSWORD` and `MAIL_FROM_NAME` in Vercel (Production), then redeploy.
+5. Sign in as the Administrator and open **Settings → Email notifications**. Click **Send test email** and check your inbox.
+6. Turn the switch on and click **Save**.
 
 Emails are sent right after a staff member's action. A failed send stays queued and is tried again after the next staff action; after 5 failed attempts it is marked failed and waits for **Retry** on the same card. Gmail allows about 500 emails a day.
 
