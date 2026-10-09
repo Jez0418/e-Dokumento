@@ -9,7 +9,7 @@ Run every item on the **production Vercel URL**, not only locally. Create one ac
 - [ ] Session survives a page refresh and a new deployment; Sign out ends it
 - [ ] After an hour the session refreshes silently (access token expiry)
 - [ ] Opening `/residents` while signed out redirects to Sign in
-- [ ] Opening `/users` as a Secretary shows the Access Denied page
+- [ ] Opening `/users` as a Secretary shows the Access Denied page — auto (route map): `tests/Unit/RoutesTest.php`
 - [ ] With a resident's access token, `GET /rest/v1/residents` returns only their own row (RLS)
 - [ ] Submitting a form copied to another site fails with "This form expired" (CSRF)
 
