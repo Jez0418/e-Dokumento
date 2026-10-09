@@ -28,7 +28,8 @@ Results of running the checklist in `docs/TESTING.md` against production.
 | Deployment | 2 | 0 | 0 | 1 |
 | Certificate QR code | 1 | 0 | 0 | 0 |
 | Production walk-through | 1 | 0 | 0 | 0 |
-| **Total** | **35** | **0** | **0** | **3** |
+| Email | 0 | 0 | 1 | 0 |
+| **Total** | **35** | **0** | **1** | **3** |
 
 The three Manual checks are for a person: the one-hour session refresh (A5), opening the CSV export in Excel (DR3) and the links in confirmation and reset emails (DP2).
 
@@ -131,3 +132,11 @@ README section 9, step 6, run on October 9, 2026 against REQ-2026-000133. Step 5
 | ID | Check | Expected | Actual | Result |
 | --- | --- | --- | --- | --- |
 | W1 | `/verify` with the certificate's code, and the dashboards, reports and audit log reflect each step | Certificate valid; every step visible in each place | **Verify:** `/verify?code=D748382504` (signed out) shows "Genuine and valid", Certificate of Indigency COI-2026-00090, issued to Test Resident on Oct 9, 2026, valid until Jan 7, 2027, signed by Juan Santos, Punong Barangay. **Request page:** as the Secretary, the timeline lists all five steps with their actors, the accepted ID, the issued document and "Mark as released"; as the Resident, My requests shows it Ready for release and the timeline matches. **Dashboards:** Secretary, Treasurer and Punong Barangay all get the same `/api/dashboard` counts, and each matches a direct `count(*)`: Ready for release 6, For approval 0, Pending 2, Under review 3, Open 15, Released 28. The Punong Barangay's "For my approval" list is empty. **Reports** (Oct 8 to 9, as the Secretary): the Request register lists REQ-2026-000133, Online, ₱0.00, Ready for release; the Issuance summary shows 3 issued (2 Certificate of Indigency, 1 Barangay Clearance, ₱50.00), which matches the 3 `issued_documents` rows for those days. **Audit log** (filtered to the request, as the Administrator and as the Punong Barangay): 6 entries, which are create (Test Resident), status change to Under review, attachment accepted, status change to Processing, status change to For approval (Test Secretary), and approve with COI-2026-00090 (Test Punong Barangay). | Pass |
+
+## Email
+
+Status emails (`sql/09_email_outbox.sql`). Run after the rollout in README, "Turn on status emails".
+
+| ID | Check | Expected | Actual | Result |
+| --- | --- | --- | --- | --- |
+| E1 | A real request taken through For payment, Ready for release and Rejected emails a test inbox | Three emails, each with the right control number; the fee `PHP 50.00`; the office hours; the rejection reason | | Open |

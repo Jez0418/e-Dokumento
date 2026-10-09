@@ -16,7 +16,7 @@ fi
 
 npx --yes supabase db reset --local
 
-for f in sql/01_schema.sql sql/02_functions.sql sql/03_policies.sql sql/04_storage.sql sql/05_seed.sql tests/sql/fixtures.sql; do
+for f in sql/01_schema.sql sql/02_functions.sql sql/03_policies.sql sql/04_storage.sql sql/05_seed.sql sql/09_email_outbox.sql tests/sql/fixtures.sql; do
   echo "Applying $f"
   docker exec -i "$container" psql -U postgres -d postgres -v ON_ERROR_STOP=1 -q < "$f"
 done
