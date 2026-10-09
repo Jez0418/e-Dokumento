@@ -24,17 +24,17 @@ Run every item on the **production Vercel URL**, not only locally. Create one ac
 ## Read
 - [ ] Requests and Residents search, filter, sort and paginate
 - [ ] Request details show the full timeline with who changed each status
-- [ ] `/verify` shows a valid certificate, an expired one, and rejects a revoked or unknown code
+- [ ] `/verify` shows a valid certificate, an expired one, and rejects a revoked or unknown code — auto: `supabase/tests/06_documents.test.sql`
 
 ## Update
-- [ ] Each transition in the lifecycle works for its role and adds a history row
-- [ ] A resident cannot move their own request to Released (call `transition_request` directly to confirm the database refuses)
-- [ ] Payment with a wrong amount, or a reused OR number, is refused
+- [ ] Each transition in the lifecycle works for its role and adds a history row — auto: `supabase/tests/04_lifecycle.test.sql`
+- [ ] A resident cannot move their own request to Released (call `transition_request` directly to confirm the database refuses) — auto: `supabase/tests/04_lifecycle.test.sql`
+- [ ] Payment with a wrong amount, or a reused OR number, is refused — auto: `supabase/tests/05_payments.test.sql`
 - [ ] Editing a resident changes the row in Supabase Table Editor
 
 ## Delete, deactivate, cancel, void
 - [ ] Every destructive button asks for confirmation; reject, void and revoke ask for a reason
-- [ ] Cancelled, voided and revoked rows remain in the database with their reason
+- [ ] Cancelled, voided and revoked rows remain in the database with their reason — auto: `supabase/tests/04_lifecycle.test.sql` (cancelled), `05_payments.test.sql` (voided), `06_documents.test.sql` (revoked)
 - [ ] A requirement linked to a document type cannot be deleted — auto: `supabase/tests/03_integrity.test.sql`
 - [ ] A deactivated purok disappears from forms but stays on existing residents
 
@@ -45,9 +45,9 @@ Run every item on the **production Vercel URL**, not only locally. Create one ac
 
 ## Dashboard, reports, audit
 - [ ] Filing, paying and releasing a request changes the pipeline counts and the chart
-- [ ] Report totals match `select count(*)` for the same filters in the SQL editor
+- [ ] Report totals match `select count(*)` for the same filters in the SQL editor — auto: `supabase/tests/06_documents.test.sql`
 - [ ] CSV export opens in Excel with ñ and ₱ shown correctly
-- [ ] Sign-ins, edits, status changes, payments and voids appear in the Audit log
+- [ ] Sign-ins, edits, status changes, payments and voids appear in the Audit log — auto (status changes, payments, voids): `supabase/tests/04_lifecycle.test.sql`, `05_payments.test.sql`
 
 ## Deployment
 - [ ] No secret key appears in page source or browser network responses — auto: `tests/Http/FrontControllerTest.php`
