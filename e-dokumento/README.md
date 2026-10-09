@@ -50,6 +50,7 @@ Open **SQL Editor → New query** and run each file, in this order, one at a tim
 | 3 | `sql/03_policies.sql` | Enables RLS on every table and creates the policies |
 | 4 | `sql/04_storage.sql` | Private Storage buckets for ID photos and request files, with Storage policies |
 | 5 | `sql/05_seed.sql` | Starting reference data: puroks, accepted IDs, purposes, requirements, five document types, settings |
+| 9 | `sql/09_email_outbox.sql` | Optional. Email outbox, queueing trigger and sending functions for status emails (see [Turn on status emails](#turn-on-status-emails)). Safe to rerun; emails stay off until an Administrator turns them on |
 
 `05_seed.sql` contains configuration only. No residents, requests or payments are seeded; everything you see in the app was entered through it. Set the **fees to your barangay's revenue ordinance** under Document types.
 
@@ -148,8 +149,23 @@ In **Project Settings → Environment Variables**, add these for Production (and
 | `APP_URL` | `https://<your-app>.vercel.app` | No trailing slash; used in email links |
 | `APP_SECRET` | 64 random hex characters | Signs CSRF tokens and flash messages |
 | `APP_DEBUG` | `false` | |
+| `MAIL_USERNAME` | `your-barangay@gmail.com` | Optional; status emails. The Gmail account that sends them |
+| `MAIL_APP_PASSWORD` | 16-character Gmail app password | Optional; status emails. Not the Gmail password |
+| `MAIL_FROM_NAME` | `Barangay San Isidro e-Dokumento` | Optional; the sender name residents see. Defaults to `Barangay <name> e-Dokumento` |
 
 Redeploy after changing variables (**Deployments → ⋯ → Redeploy**).
+
+### Turn on status emails
+
+Residents with an email address can get an email when a request needs them to act: it is ready for payment, ready for pickup, or rejected. This is optional and off by default.
+
+1. Run `sql/09_email_outbox.sql` in the SQL Editor. Nothing changes for users yet.
+2. On the Gmail account that will send the emails, turn on 2-Step Verification, then create an app password at **myaccount.google.com → Security → App passwords**.
+3. Set `MAIL_USERNAME`, `MAIL_APP_PASSWORD` and `MAIL_FROM_NAME` in Vercel (Production), then redeploy.
+4. Sign in as the Administrator and open **Settings → Email notifications**. Click **Send test email** and check your inbox.
+5. Turn the switch on and click **Save**.
+
+Emails are sent right after a staff member's action. A failed send stays queued and is tried again after the next staff action; after 5 failed attempts it is marked failed and waits for **Retry** on the same card. Gmail allows about 500 emails a day.
 
 ## 9. Verify the production deployment
 
@@ -187,7 +203,7 @@ The database tests need Docker Desktop, running. They check RLS, the workflow fu
 npm run test:db
 ```
 
-`npm run test:db` runs `tests/sql/run.sh`. It starts the local stack (`npx supabase start`; the first run downloads the images), resets the local database, applies `sql/01`–`05` plus `tests/sql/fixtures.sql`, and runs `supabase/tests/*.test.sql`. Each test file rolls back. The script works only on the local container `supabase_db_e-dokumento` and stops if that container is not running. It takes no database URL, so the live project is never used. Run it from Git Bash: in PowerShell or cmd, `bash` can resolve to WSL instead.
+`npm run test:db` runs `tests/sql/run.sh`. It starts the local stack (`npx supabase start`; the first run downloads the images), resets the local database, applies `sql/01`–`05` and `09` plus `tests/sql/fixtures.sql`, and runs `supabase/tests/*.test.sql`. Each test file rolls back. The script works only on the local container `supabase_db_e-dokumento` and stops if that container is not running. It takes no database URL, so the live project is never used. Run it from Git Bash: in PowerShell or cmd, `bash` can resolve to WSL instead.
 
 `npm test` runs the PHP tests, then the database tests. `npx supabase stop` shuts the local stack down when you are done.
 
@@ -223,7 +239,7 @@ The UI was built from the design plan in the design document. To add the UI/UX P
 ## Known limitations
 
 - Payments through GCash or Maya are recorded by reference number; the app does not collect money.
-- Notifications are in-app only.
+- Notifications are in-app; residents with an email address also get an email when a request needs payment, is ready for pickup, or is rejected (Gmail, about 500 a day).
 - Printed certificates still need the dry seal and a wet signature; the verification code lets offices confirm them online.
 - The Treasurer's database access includes resident rows (needed to show names on payments); the interface shows names only.
 - One barangay per deployment.

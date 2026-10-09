@@ -49,6 +49,12 @@ Run every item on the **production Vercel URL**, not only locally. Create one ac
 - [ ] CSV export opens in Excel with ñ and ₱ shown correctly
 - [ ] Sign-ins, edits, status changes, payments and voids appear in the Audit log — auto (status changes, payments, voids): `supabase/tests/04_lifecycle.test.sql`, `05_payments.test.sql`
 
+## Email
+- [ ] Each of For payment, Ready for release and Rejected queues one email — auto: `supabase/tests/07_email_queue.test.sql`
+- [ ] Failed sends retry and stop at 5 attempts — auto: `supabase/tests/08_email_send.test.sql`
+- [ ] Message headers and UTF-8 encoding — auto: `tests/Unit/MailerTest.php`
+- [ ] A real request taken through all three statuses emails a test inbox with the right control number, fee, reason and office hours
+
 ## Deployment
 - [ ] No secret key appears in page source or browser network responses — auto: `tests/Http/FrontControllerTest.php`
 - [ ] Confirmation and password reset emails link to the production URL
