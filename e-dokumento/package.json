@@ -8,6 +8,7 @@
     "dev:vercel": "vercel dev",
     "deploy": "vercel --prod",
     "visual": "cd tools/visual && npm install && node run.js",
-    "visual:quick": "cd tools/visual && npm install && node run.js --quick"
+    "visual:quick": "cd tools/visual && npm install && node run.js --quick",
+    "test:php": "php tests/vendor/bin/phpunit -c tests/phpunit.xml"
   }
 }

@@ -166,6 +166,19 @@ Redeploy after changing variables (**Deployments → ⋯ → Redeploy**).
 6. Check `/verify` with the certificate's code, and check that the dashboards, reports and audit log reflect each step.
 7. Work through `docs/TESTING.md`.
 
+## Running the tests
+
+### PHP tests
+
+The PHP tests need PHP 8.1 or newer (8.3 recommended) with `curl`, `mbstring` and `openssl` enabled. XAMPP's PHP 8.0 cannot run them, so put the newer PHP ahead of `C:\xampp\php` on PATH; `php -v` should print 8.1 or later. The test tooling lives in `tests/`, so Vercel never sees it.
+
+```bash
+composer --working-dir=tests install
+npm run test:php
+```
+
+`npm run test:php` runs `php tests/vendor/bin/phpunit -c tests/phpunit.xml`. Add `-- --testsuite unit` or `-- --testsuite http` to run one suite. The tests set their own environment and point Supabase at an unreachable address, so `.env` is not needed and the live project is never contacted.
+
 ## 10. Troubleshooting
 
 | Symptom | Likely cause and fix |

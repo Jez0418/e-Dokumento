@@ -1,0 +1,11 @@
+{
+    "name": "e-dokumento/tests",
+    "description": "PHPUnit tooling for e-Dokumento. Kept under tests/ so Vercel never sees a root composer.json.",
+    "type": "project",
+    "require-dev": {
+        "phpunit/phpunit": "^10.5"
+    },
+    "config": {
+        "platform-check": false
+    }
+}
