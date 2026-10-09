@@ -11,8 +11,9 @@ declare(strict_types=1);
 const OUTBOX_TRIGGER_FUNCTIONS = ['transition_request', 'record_payment', 'issue_document', 'void_payment'];
 
 /**
- * Claims and sends one email at a time. No new send starts once $budgetSeconds
- * have passed, so the staff action stays well inside Vercel's 30-second limit.
+ * Claims and sends one email at a time, and stops at the first failure. No new
+ * send starts once $budgetSeconds have passed, so the staff action stays well
+ * inside Vercel's 30-second limit.
  *
  * @param callable(string, array): mixed $rpc
  * @param (callable(string, string, string): void)|null $send  defaults to send_mail
@@ -35,6 +36,8 @@ function flush_outbox(callable $rpc, ?callable $send = null, float $budgetSecond
             $sent++;
         } catch (Throwable $e) {
             $rpc('finish_outbox_email', ['p_id' => $row['id'], 'p_ok' => false, 'p_error' => $e->getMessage()]);
+            // The failed row is queued again and would be claimed next; leave it for the next staff action.
+            break;
         }
     }
     return $sent;

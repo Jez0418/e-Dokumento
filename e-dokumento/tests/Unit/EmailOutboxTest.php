@@ -79,6 +79,25 @@ final class EmailOutboxTest extends TestCase
         );
     }
 
+    public function test_flush_stops_after_a_failure(): void
+    {
+        // A failed row goes back to the queue, so the next claim would return it again.
+        $rpc = function (string $function, array $params): mixed {
+            $this->calls[] = [$function, $params];
+            return $function === 'claim_outbox_emails' ? [self::row(1)] : null;
+        };
+        $sends = 0;
+        $send = function () use (&$sends): void {
+            $sends++;
+            throw new RuntimeException('535 bad credentials');
+        };
+
+        flush_outbox($rpc, $send);
+
+        $this->assertSame(1, $sends, 'A failing email is tried once per staff action');
+        $this->assertSame(['claim_outbox_emails', 'finish_outbox_email'], array_column($this->calls, 0));
+    }
+
     public function test_flush_stops_starting_sends_after_budget(): void
     {
         $this->queue = [self::row(1), self::row(2), self::row(3)];
@@ -121,7 +140,7 @@ final class EmailOutboxTest extends TestCase
         };
         outbox_after_rpc('issue_document', $this->rpc(), true, true, $send);
 
-        $this->assertSame(['claim_outbox_emails', 'finish_outbox_email', 'claim_outbox_emails'], array_column($this->calls, 0));
+        $this->assertSame(['claim_outbox_emails', 'finish_outbox_email'], array_column($this->calls, 0));
     }
 
     public function test_trigger_functions(): void
