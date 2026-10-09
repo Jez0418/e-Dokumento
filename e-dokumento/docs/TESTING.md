@@ -17,7 +17,7 @@ Run every item on the **production Vercel URL**, not only locally. Create one ac
 - [ ] A verified resident submits a request and receives a control number
 - [ ] An unverified resident sees "Verify your residency first"
 - [ ] A second open request for the same document is refused
-- [ ] A missing required file, a 3 MB file, or a .docx renamed to .pdf is refused
+- [ ] A missing required file, a 3 MB file, or a .docx renamed to .pdf is refused — auto: `tests/Unit/UploadTest.php`
 - [ ] Adding a resident with the same name and birth date as an existing one is refused
 - [ ] A second First Time Jobseeker request after one was released is refused
 
