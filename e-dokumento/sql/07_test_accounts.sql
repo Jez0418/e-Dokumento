@@ -2,7 +2,8 @@
 --
 -- 1. Replace CHANGE_ME below with a password you choose (12+ characters).
 --    Do NOT commit the real password to GitHub.
--- 2. Run the script. It is safe to rerun: existing emails are skipped.
+-- 2. Run the script. It is safe to rerun: existing accounts keep their data
+--    and get the new password, so rerun it if you forget the password.
 -- 3. Delete the accounts when testing is done (see the bottom of this file).
 --
 -- Sign in with:  admin.test@example.test, captain.test@example.test,
@@ -34,7 +35,11 @@ begin
     ) as t(role_code, email, full_name)
   loop
     if exists (select 1 from auth.users where email = r.email) then
-      raise notice 'Skipped % (already exists)', r.email;
+      update auth.users
+         set encrypted_password = extensions.crypt(v_password, extensions.gen_salt('bf')),
+             updated_at = now()
+       where email = r.email;
+      raise notice 'Reset password for % (already exists)', r.email;
       continue;
     end if;
 

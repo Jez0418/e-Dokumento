@@ -27,11 +27,12 @@ Results of running the checklist in `docs/TESTING.md` against production.
 | Dashboard, reports, audit | 3 | 0 | 0 | 1 |
 | Deployment | 2 | 0 | 0 | 1 |
 | Certificate QR code | 1 | 0 | 0 | 0 |
-| **Total** | **34** | **0** | **0** | **3** |
+| Production walk-through | 1 | 0 | 0 | 0 |
+| **Total** | **35** | **0** | **0** | **3** |
 
 The three Manual checks are for a person: the one-hour session refresh (A5), opening the CSV export in Excel (DR3) and the links in confirmation and reset emails (DP2).
 
-**Left on production by testing:** request REQ-2026-000133 (Certificate of Indigency, filed online by Test Resident, Pending) from C1; REQ-2026-000129 moved from Pending to Under review in DR1; Kenneth Tan's occupation changed in U4. Purok 7 and the Test Resident account were deactivated for D4 and A3 and reactivated straight after.
+**Left on production by testing:** request REQ-2026-000133 (Certificate of Indigency, filed online by Test Resident in C1, then walked through to Ready for release with certificate COI-2026-00090; not yet marked released) from C1 and W1; REQ-2026-000129 moved from Pending to Under review in DR1; Kenneth Tan's occupation changed in U4. Purok 7 and the Test Resident account were deactivated for D4 and A3 and reactivated straight after. On October 9 the five test accounts were given the password set in `sql/07_test_accounts.sql`, because the original one was lost; rerunning that script now resets the password of existing test accounts.
 
 ## Findings
 
@@ -122,3 +123,11 @@ The three Manual checks are for a person: the one-hour session refresh (A5), ope
 | ID | Check | Expected | Actual | Result |
 | --- | --- | --- | --- | --- |
 | Q1 | The printed certificate shows a QR code that opens `/verify` with its code | Scanning opens the matching result | BBC-2026-00068 print view: the QR code is drawn next to "Verify at e-dokumento.vercel.app/verify · Code 5213AE2A83" and encodes `https://e-dokumento.vercel.app/verify?code=5213AE2A83`. That link shows "Genuine and valid". Viewing the page did not change the print count (0). A phone scan of the printed copy is still worth doing once. | Pass |
+
+## Production walk-through
+
+README section 9, step 6, run on October 9, 2026 against REQ-2026-000133. Step 5 had already moved it through the workflow on October 9: filed online by Test Resident (1:04 AM), Under review and the ID accepted by Test Secretary (1:51 AM), Processing and For approval by Test Secretary (1:52 AM), approved by Test Punong Barangay (1:52 AM). A Certificate of Indigency has no fee, so it skips For payment and the Treasurer has no step. The last step of step 5, Secretary marks it released, has not been done, so the request is at Ready for release.
+
+| ID | Check | Expected | Actual | Result |
+| --- | --- | --- | --- | --- |
+| W1 | `/verify` with the certificate's code, and the dashboards, reports and audit log reflect each step | Certificate valid; every step visible in each place | **Verify:** `/verify?code=D748382504` (signed out) shows "Genuine and valid", Certificate of Indigency COI-2026-00090, issued to Test Resident on Oct 9, 2026, valid until Jan 7, 2027, signed by Juan Santos, Punong Barangay. **Request page:** as the Secretary, the timeline lists all five steps with their actors, the accepted ID, the issued document and "Mark as released"; as the Resident, My requests shows it Ready for release and the timeline matches. **Dashboards:** Secretary, Treasurer and Punong Barangay all get the same `/api/dashboard` counts, and each matches a direct `count(*)`: Ready for release 6, For approval 0, Pending 2, Under review 3, Open 15, Released 28. The Punong Barangay's "For my approval" list is empty. **Reports** (Oct 8 to 9, as the Secretary): the Request register lists REQ-2026-000133, Online, ₱0.00, Ready for release; the Issuance summary shows 3 issued (2 Certificate of Indigency, 1 Barangay Clearance, ₱50.00), which matches the 3 `issued_documents` rows for those days. **Audit log** (filtered to the request, as the Administrator and as the Punong Barangay): 6 entries, which are create (Test Resident), status change to Under review, attachment accepted, status change to Processing, status change to For approval (Test Secretary), and approve with COI-2026-00090 (Test Punong Barangay). | Pass |
