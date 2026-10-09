@@ -8,10 +8,10 @@ Run every item on the **production Vercel URL**, not only locally. Create one ac
 - [ ] A deactivated user (Users page) cannot sign in
 - [ ] Session survives a page refresh and a new deployment; Sign out ends it
 - [ ] After an hour the session refreshes silently (access token expiry)
-- [ ] Opening `/residents` while signed out redirects to Sign in
+- [ ] Opening `/residents` while signed out redirects to Sign in — auto: `tests/Http/FrontControllerTest.php`
 - [ ] Opening `/users` as a Secretary shows the Access Denied page — auto (route map): `tests/Unit/RoutesTest.php`
 - [ ] With a resident's access token, `GET /rest/v1/residents` returns only their own row (RLS)
-- [ ] Submitting a form copied to another site fails with "This form expired" (CSRF)
+- [ ] Submitting a form copied to another site fails with "This form expired" (CSRF) — auto: `tests/Http/FrontControllerTest.php`
 
 ## Create
 - [ ] A verified resident submits a request and receives a control number
@@ -50,5 +50,5 @@ Run every item on the **production Vercel URL**, not only locally. Create one ac
 - [ ] Sign-ins, edits, status changes, payments and voids appear in the Audit log
 
 ## Deployment
-- [ ] No secret key appears in page source or browser network responses
+- [ ] No secret key appears in page source or browser network responses — auto: `tests/Http/FrontControllerTest.php`
 - [ ] Confirmation and password reset emails link to the production URL
