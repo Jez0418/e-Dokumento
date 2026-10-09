@@ -228,7 +228,12 @@ final class Supabase
     public function rpc(string $function, array $params = []): mixed
     {
         $res = $this->request('POST', '/rest/v1/rpc/' . $function, [], (object) $params);
-        return $res['data'];
+        $data = $res['data'];
+        // Status changes can queue emails; send them as this staff member. Never alters $data.
+        if ($this->accessToken !== null && !$this->useSecret && in_array($function, OUTBOX_TRIGGER_FUNCTIONS, true)) {
+            outbox_after_rpc($function, fn (string $f, array $p): mixed => $this->rpc($f, $p), is_staff(), mail_configured());
+        }
+        return $data;
     }
 
     // ------------------------------------------------------------------

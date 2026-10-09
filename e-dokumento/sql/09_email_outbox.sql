@@ -114,3 +114,84 @@ create trigger document_requests_email
   for each row
   when (old.status is distinct from new.status and new.status in ('for_payment','ready_for_release','rejected'))
   execute function public.queue_status_email();
+
+-- ---------------------------------------------------------------------
+-- Sending (PHP calls these as the signed-in staff member)
+-- ---------------------------------------------------------------------
+create or replace function public.claim_outbox_emails(p_limit integer default 5)
+returns table (id uuid, to_email text, subject text, body text)
+language plpgsql security definer
+set search_path = ''
+as $$
+#variable_conflict use_column
+begin
+  if not public.is_staff() then
+    raise exception 'Only barangay staff can send email notifications.';
+  end if;
+
+  -- A send that never finished (PHP stopped partway) is retried after 10 minutes.
+  update public.email_outbox o
+     set status = 'queued'
+   where o.status = 'sending' and o.claimed_at < now() - interval '10 minutes';
+
+  return query
+  update public.email_outbox o
+     set status = 'sending', claimed_at = now()
+   where o.id in (
+     select q.id from public.email_outbox q
+     where q.status = 'queued'
+     order by q.created_at
+     limit greatest(coalesce(p_limit, 5), 1)
+     for update skip locked)
+  returning o.id, o.to_email, o.subject, o.body;
+end;
+$$;
+
+create or replace function public.finish_outbox_email(p_id uuid, p_ok boolean, p_error text default null)
+returns void
+language plpgsql security definer
+set search_path = ''
+as $$
+begin
+  if not public.is_staff() then
+    raise exception 'Only barangay staff can send email notifications.';
+  end if;
+  if p_ok then
+    update public.email_outbox
+       set status = 'sent', sent_at = now()
+     where id = p_id and status = 'sending';
+  else
+    update public.email_outbox
+       set attempts = attempts + 1,
+           last_error = left(coalesce(p_error, 'Unknown error'), 500),
+           status = case when attempts + 1 >= 5 then 'failed' else 'queued' end
+     where id = p_id and status = 'sending';
+  end if;
+end;
+$$;
+
+create or replace function public.retry_outbox_email(p_id uuid)
+returns void
+language plpgsql security definer
+set search_path = ''
+as $$
+begin
+  if not public.has_role('admin') then
+    raise exception 'Only the Administrator can retry emails.';
+  end if;
+  update public.email_outbox
+     set status = 'queued', attempts = 0, claimed_at = null
+   where id = p_id and status = 'failed';
+  if not found then
+    raise exception 'Only failed emails can be retried.';
+  end if;
+  perform public.write_audit('email_retry', 'email_outbox', p_id::text, '{}'::jsonb);
+end;
+$$;
+
+revoke execute on function public.claim_outbox_emails(integer) from public, anon;
+revoke execute on function public.finish_outbox_email(uuid, boolean, text) from public, anon;
+revoke execute on function public.retry_outbox_email(uuid) from public, anon;
+grant execute on function public.claim_outbox_emails(integer) to authenticated;
+grant execute on function public.finish_outbox_email(uuid, boolean, text) to authenticated;
+grant execute on function public.retry_outbox_email(uuid) to authenticated;
