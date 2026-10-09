@@ -1,6 +1,6 @@
 -- Issuing, verifying and revoking documents, and report totals.
 begin;
-select plan(13);
+select plan(14);
 
 -- Setup as postgres. Ids live in transaction-local settings so every role can read them.
 -- No Punong Barangay exists yet.
@@ -52,6 +52,8 @@ select throws_ok(
 select public.revoke_document(current_setting('t.doc')::uuid, 'Issued to the wrong resident');
 select is((select status from public.issued_documents where id = current_setting('t.doc')::uuid),
   'revoked', 'A revoked document stays in the database');
+select is((select revoked_reason from public.issued_documents where id = current_setting('t.doc')::uuid),
+  'Issued to the wrong resident', 'The revocation reason is stored');
 select is(public.verify_document(current_setting('t.code')) ->> 'status', 'revoked', '/verify reports a revoked document');
 
 select is(public.verify_document('ZZZZZZZZZZ') ->> 'found', 'false', 'A code that is not hex is not found');
