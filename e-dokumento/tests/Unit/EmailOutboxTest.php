@@ -98,6 +98,31 @@ final class EmailOutboxTest extends TestCase
         $this->assertSame(['claim_outbox_emails', 'finish_outbox_email'], array_column($this->calls, 0));
     }
 
+    public function test_delivered_email_is_never_reported_as_failed(): void
+    {
+        // The email went out, then recording the success failed.
+        $rpc = function (string $function, array $params): mixed {
+            $this->calls[] = [$function, $params];
+            if ($function === 'finish_outbox_email') {
+                throw new SupabaseException('network', 0, 'network');
+            }
+            return [self::row(1)];
+        };
+        $send = static function (): void {
+        };
+
+        try {
+            flush_outbox($rpc, $send);
+        } catch (SupabaseException) {
+            // outbox_after_rpc swallows it; the row stays sending and is reclaimed later.
+        }
+
+        $this->assertSame([
+            ['claim_outbox_emails', ['p_limit' => 1]],
+            ['finish_outbox_email', ['p_id' => 'id-1', 'p_ok' => true]],
+        ], $this->calls);
+    }
+
     public function test_flush_stops_starting_sends_after_budget(): void
     {
         $this->queue = [self::row(1), self::row(2), self::row(3)];

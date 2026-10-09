@@ -32,13 +32,14 @@ function flush_outbox(callable $rpc, ?callable $send = null, float $budgetSecond
         }
         try {
             $send((string) $row['to_email'], (string) $row['subject'], (string) $row['body']);
-            $rpc('finish_outbox_email', ['p_id' => $row['id'], 'p_ok' => true]);
-            $sent++;
         } catch (Throwable $e) {
             $rpc('finish_outbox_email', ['p_id' => $row['id'], 'p_ok' => false, 'p_error' => $e->getMessage()]);
             // The failed row is queued again and would be claimed next; leave it for the next staff action.
             break;
         }
+        // Outside the try: a delivered email must never be recorded as a failed attempt.
+        $rpc('finish_outbox_email', ['p_id' => $row['id'], 'p_ok' => true]);
+        $sent++;
     }
     return $sent;
 }
