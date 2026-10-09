@@ -80,7 +80,11 @@ try {
 $types = $db->select('document_types', [['select', 'id,name'], ['order', 'name.asc']])['rows'];
 $puroks = $isResident ? [] : $db->select('puroks', [['select', 'id,name'], ['order', 'name.asc']])['rows'];
 
-$active = $role === 'captain' && $f['status'] === 'for_approval' ? 'approvals' : 'requests';
+$active = match (true) {
+    $role === 'captain' && $f['status'] === 'for_approval'    => 'approvals',
+    $role === 'admin' && $f['status'] === 'ready_for_release' => 'release',
+    default                                                   => 'requests',
+};
 layout_start($isResident ? 'My requests' : 'Requests', $active);
 
 $action = '';

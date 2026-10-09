@@ -79,6 +79,7 @@ function nav_for_role(?string $role): array
         'admin' => [
             $overview,
             ['Records', [
+                ['release', '/requests?status=ready_for_release', 'box-arrow-up-right', 'Ready for release'],
                 ['requests', '/requests', 'files', 'Requests'],
                 ['residents', '/residents', 'people', 'Residents'],
                 ['documents', '/documents', 'patch-check', 'Issued documents'],

@@ -744,7 +744,7 @@ begin
     end if;
     v_ok := true;
 
-  elsif v_from = 'ready_for_release' and p_to_status = 'released' and v_role = 'secretary' then
+  elsif v_from = 'ready_for_release' and p_to_status = 'released' and v_role in ('secretary', 'admin') then
     if p_released_to is null or char_length(trim(p_released_to)) not between 2 and 120 then
       raise exception 'Enter the name of the person who claimed the document.';
     end if;

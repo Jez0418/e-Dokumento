@@ -65,7 +65,11 @@ $note = match ($status) {
     default             => '',
 };
 
-layout_start($req['control_no'], $role === 'captain' && $status === 'for_approval' ? 'approvals' : 'requests');
+layout_start($req['control_no'], match (true) {
+    $role === 'captain' && $status === 'for_approval'    => 'approvals',
+    $role === 'admin' && $status === 'ready_for_release' => 'release',
+    default                                              => 'requests',
+});
 ?>
 <nav aria-label="Breadcrumb" class="crumbs"><a href="/requests"><?= $role === 'resident' ? 'My requests' : 'Requests' ?></a> <span aria-hidden="true">/</span> <span class="mono"><?= e($req['control_no']) ?></span></nav>
 
@@ -82,6 +86,17 @@ layout_start($req['control_no'], $role === 'captain' && $status === 'for_approva
     <?php /* ---------------- Next step for this role ---------------- */ ?>
     <?php
     $panel = '';
+    // The Secretary releases at the counter; the Administrator can too, so a
+    // claimed document is never stuck when the Secretary is away.
+    $releaseForm = '';
+    if ($status === 'ready_for_release') {
+        $releaseForm = '<form method="post" action="' . e($act) . '" class="row g-2 align-items-end needs-validation" novalidate>' . csrf_field();
+        foreach ($hidden + ['action' => 'release'] as $k => $v) {
+            $releaseForm .= '<input type="hidden" name="' . e($k) . '" value="' . e($v) . '">';
+        }
+        $releaseForm .= '<div class="col-md-7"><label class="form-label" for="released_to">Claimed by</label><input class="form-control" id="released_to" name="released_to" required minlength="2" maxlength="120" value="' . e(resident_name($res)) . '"><div class="form-text">Name of the person who received it, after checking their ID.</div></div>';
+        $releaseForm .= '<div class="col-md-5"><button class="btn btn-primary w-100" type="submit"><i class="bi bi-box-arrow-up-right me-1" aria-hidden="true"></i>Mark as released</button></div></form>';
+    }
     ob_start();
     if ($role === 'secretary') {
         if ($status === 'pending') {
@@ -105,12 +120,7 @@ layout_start($req['control_no'], $role === 'captain' && $status === 'for_approva
                 echo action_button($act, $hidden + ['action' => 'issue'], 'Issue document', 'btn-primary', 'Issue this document now?', false, 'patch-check');
             }
         } elseif ($status === 'ready_for_release') {
-            echo '<form method="post" action="' . e($act) . '" class="row g-2 align-items-end needs-validation" novalidate>' . csrf_field();
-            foreach ($hidden + ['action' => 'release'] as $k => $v) {
-                echo '<input type="hidden" name="' . e($k) . '" value="' . e($v) . '">';
-            }
-            echo '<div class="col-md-7"><label class="form-label" for="released_to">Claimed by</label><input class="form-control" id="released_to" name="released_to" required minlength="2" maxlength="120" value="' . e(resident_name($res)) . '"><div class="form-text">Name of the person who received it, after checking their ID.</div></div>';
-            echo '<div class="col-md-5"><button class="btn btn-primary w-100" type="submit"><i class="bi bi-box-arrow-up-right me-1" aria-hidden="true"></i>Mark as released</button></div></form>';
+            echo $releaseForm;
             if ($issued) {
                 echo '<p class="mt-3 mb-0"><a class="btn btn-outline-primary" href="' . e(url('documents/print', ['id' => $issued['id']])) . '"><i class="bi bi-printer me-1" aria-hidden="true"></i>Print certificate</a></p>';
             }
@@ -133,6 +143,8 @@ layout_start($req['control_no'], $role === 'captain' && $status === 'for_approva
             echo '<p>Paid with OR <span class="mono">' . e($posted['or_number']) . '</span>. A payment can be voided while the request is still in Processing.</p>';
             echo action_button($act, ['id' => $id, '_back' => $self, 'action' => 'void_payment', 'payment_id' => $posted['id']], 'Void payment', 'btn-outline-danger', 'Void OR ' . $posted['or_number'] . '? The request returns to For payment.', true, 'arrow-counterclockwise');
         }
+    } elseif ($role === 'admin' && $status === 'ready_for_release') {
+        echo $releaseForm;
     } elseif ($role === 'captain' && $status === 'for_approval') {
         if ($missingSignatory) {
             echo $signatoryWarning;
