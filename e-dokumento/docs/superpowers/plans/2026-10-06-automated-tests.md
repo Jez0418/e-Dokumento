@@ -263,7 +263,7 @@ git commit -m "test: add HTTP smoke tests for routing, CSRF, headers and secret 
 **Interfaces:**
 - Produces, in `tests/sql/fixtures.sql` (schema `tests`). Data helpers are called only while running as `postgres`:
   - `tests.create_staff(p_email text, p_role text) returns uuid` inserts into `auth.users` and returns the profile id. Columns: `id, instance_id='00000000-0000-0000-0000-000000000000', aud='authenticated', role='authenticated', email, encrypted_password='', email_confirmed_at=now(), raw_app_meta_data={"app_role": p_role}, raw_user_meta_data={"full_name": p_email}, created_at, updated_at`. The `handle_new_user` trigger creates the profile.
-  - `tests.create_resident(p_email text, p_first text, p_last text, p_verified boolean default true) returns uuid` returns the profile id. User metadata is the names plus `purok_id` (Purok 1), `birth_date '1990-01-01'`, `sex 'female'`, `civil_status 'single'`, `street_address '123 Rizal St'` and `resident_since '2015-01-01'`. When `p_verified`, it sets `verification_status = 'verified'`.
+  - `tests.create_resident(p_email text, p_first text, p_last text, p_verified boolean default true) returns uuid` returns the profile id. User metadata is the names plus `purok_id` (Purok 1), `birth_date '1990-01-01'`, `sex 'female'`, `civil_status 'single'`, `street_address '123 Rizal St'` and `resident_since '2015-01-01'`. When `p_verified`, it sets `verification_status = 'verified'`. `residents.email` must match `^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$`, so every test address uses the form `<name>@example.test`. A residents shorthand like `ana` in later tasks means `ana@example.test`.
   - `tests.resident_of(p_profile uuid) returns uuid` returns the resident id.
   - `tests.type_id(p_code text) returns smallint` and `tests.purpose_id() returns smallint` (`'Employment'`).
   - `tests.id_attachments(p_resident uuid) returns jsonb`: `[{"path":"<resident>/id.pdf","name":"id.pdf","mime":"application/pdf","size":1000,"requirement_id":<id of 'Valid government-issued ID'>}]`.
@@ -293,7 +293,7 @@ It runs with `set -euo pipefail`, from the app root (`cd "$(dirname "$0")/../.."
 
 - [ ] **Step 3: Write `supabase/tests/01_rls.test.sql`**
 
-Setup as `postgres`: residents `ana@test` and `ben@test`, plus staff `treasurer@test` (treasurer) and `sec@test` (secretary), and one `request_in(ana, 'COR', 'pending')`.
+Setup as `postgres`: residents `ana@example.test` and `ben@example.test`, plus staff `treasurer@example.test` (treasurer) and `sec@example.test` (secretary), and one `request_in(ana, 'COR', 'pending')`.
 
 - 19 rows: `select count(*) from pg_tables where schemaname = 'public' and rowsecurity`.
 - `request_list`, `payment_list` and `issued_document_list` have `security_invoker=on` in `pg_class.reloptions`.
