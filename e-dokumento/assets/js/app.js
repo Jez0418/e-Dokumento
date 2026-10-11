@@ -157,4 +157,26 @@
   });
 
   document.querySelectorAll('[data-print]').forEach((b) => b.addEventListener('click', () => window.print()));
+
+  // ---- Sidebar keeps its scroll position -------------------------------------------
+  // Each link is a full page load and the server renders a fresh menu that starts at the top.
+  // Remember where it was, and make sure the link for the current page is in view.
+  const menu = document.querySelector('.sidebar-scroll');
+  if (menu) {
+    const KEY = 'edk_sidebar_scroll';
+    try {
+      const saved = Number(sessionStorage.getItem(KEY));
+      if (saved > 0) menu.scrollTop = saved;
+    } catch (_) { /* storage blocked: the menu starts at the top */ }
+    const current = menu.querySelector('[aria-current="page"]');
+    if (current) {
+      const box = menu.getBoundingClientRect();
+      const link = current.getBoundingClientRect();
+      if (link.top < box.top) menu.scrollTop -= box.top - link.top;
+      else if (link.bottom > box.bottom) menu.scrollTop += link.bottom - box.bottom;
+    }
+    window.addEventListener('pagehide', () => {
+      try { sessionStorage.setItem(KEY, String(menu.scrollTop)); } catch (_) { /* ignore */ }
+    });
+  }
 })();

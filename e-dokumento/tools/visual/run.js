@@ -4,6 +4,7 @@
 //
 //   node run.js            all roles, both themes, both sizes
 //   node run.js --quick    dark theme only
+//   node run.js --sidebar-only   just the sidebar scroll-position check
 //
 // Needs: PHP 8.1+ (PHP_BIN), Python 3 (PYTHON), Google Chrome, and `npm install` in this folder.
 'use strict';
@@ -20,6 +21,7 @@ const APP_PORT = Number(process.env.APP_PORT || 8124);
 const FAKE_PORT = Number(process.env.FAKE_PORT || 8125);
 const BASE = `http://127.0.0.1:${APP_PORT}`;
 const quick = process.argv.includes('--quick');
+const sidebarOnly = process.argv.includes('--sidebar-only');
 
 const uuid = (n) => '00000000-0000-4000-8000-' + String(n).padStart(12, '0');
 const ROLE_ID = { admin: 1, captain: 2, secretary: 3, treasurer: 4, resident: 5 };
@@ -45,6 +47,31 @@ function waitFor(url, ms = 15000) {
       .on('error', () => (Date.now() > end ? reject(new Error('Timed out waiting for ' + url)) : setTimeout(tryOnce, 250)));
     tryOnce();
   });
+}
+
+// The sidebar is rendered by the server on every page, so a click is a full page load. The menu
+// must come back at the same scroll position, not jump to the top.
+async function checkSidebarScroll(browser, problems) {
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 480 } });
+  await ctx.addCookies([{ name: 'edk_at', value: token('admin'), url: BASE }, { name: 'edk_rt', value: 'rt-admin', url: BASE }]);
+  const page = await ctx.newPage();
+  await page.goto(BASE + '/dashboard', { waitUntil: 'networkidle' });
+  const before = await page.evaluate(() => {
+    const box = document.querySelector('.sidebar-scroll');
+    box.scrollTop = box.scrollHeight;
+    return box.scrollTop;
+  });
+  if (before < 20) {
+    problems.push('sidebar scroll: the menu does not overflow at 1280x480, so the check cannot run');
+  } else {
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'networkidle' }),
+      page.click('.sidebar-scroll .nav-link-item:last-of-type >> nth=-1'),
+    ]);
+    const after = await page.evaluate(() => document.querySelector('.sidebar-scroll').scrollTop);
+    if (Math.abs(after - before) > 2) problems.push(`sidebar scroll: menu was scrolled to ${before}px, but is at ${after}px after clicking a link`);
+  }
+  await ctx.close();
 }
 
 (async () => {
@@ -73,7 +100,8 @@ function waitFor(url, ms = 15000) {
     const sizes = { desktop: { width: 1440, height: 900 }, phone: { width: 390, height: 844 } };
     let shots = 0;
     const problems = [];
-    for (const [role, pages] of Object.entries(PAGES)) {
+    await checkSidebarScroll(browser, problems);
+    for (const [role, pages] of Object.entries(sidebarOnly ? {} : PAGES)) {
       for (const theme of themes) {
         for (const [sizeName, viewport] of Object.entries(sizes)) {
           const ctx = await browser.newContext({ viewport, isMobile: sizeName === 'phone', hasTouch: sizeName === 'phone' });
