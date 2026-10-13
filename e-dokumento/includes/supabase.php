@@ -3,13 +3,20 @@ declare(strict_types=1);
 
 final class SupabaseException extends RuntimeException
 {
+    public int $status;
+    public ?string $errorCode;
+    public $body;
+
     public function __construct(
         string $message,
-        public readonly int $status = 0,
-        public readonly ?string $errorCode = null,
-        public readonly mixed $body = null
+        int $status = 0,
+        ?string $errorCode = null,
+        mixed $body = null
     ) {
         parent::__construct($message, $status);
+        $this->status = $status;
+        $this->errorCode = $errorCode;
+        $this->body = $body;
     }
 }
 
