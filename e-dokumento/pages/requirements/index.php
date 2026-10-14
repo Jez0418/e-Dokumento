@@ -20,7 +20,7 @@ if (is_post()) {
             ];
             if (!$v->fails()) {
                 if (preg_match('/^\d{1,5}$/', $rid)) {
-                    $db->update('requirements', [['id', 'eq.' . $rid]], $data);
+                    $db->update('requirements', [['id', 'eq.' . $rid]], $data + ['is_active' => ($_POST['is_active'] ?? '1') === '1']);
                     flash_success('Requirement saved.');
                 } else {
                     $db->insert('requirements', $data + ['is_active' => true]);
@@ -29,10 +29,6 @@ if (is_post()) {
                 redirect('/requirements');
             }
             $errors = $v->errors();
-        } elseif ($action === 'toggle' && preg_match('/^\d{1,5}$/', $rid)) {
-            $db->update('requirements', [['id', 'eq.' . $rid]], ['is_active' => post('to') === '1']);
-            flash_success(post('to') === '1' ? 'Requirement activated.' : 'Requirement deactivated.');
-            redirect('/requirements');
         } elseif ($action === 'delete' && preg_match('/^\d{1,5}$/', $rid)) {
             $db->delete('requirements', [['id', 'eq.' . $rid]]);
             flash_success('Requirement deleted.');
@@ -65,7 +61,6 @@ page_header('Requirements', 'Files or checks a document can ask for. Link them t
             <td><?= $r['is_active'] ? simple_badge('Active', 'success') : simple_badge('Inactive', 'neutral') ?></td>
             <td class="text-end text-nowrap"><div class="row-actions">
               <a class="btn btn-sm btn-outline-secondary" href="?edit=<?= e($r['id']) ?>">Edit</a>
-              <?= action_button('/requirements', ['action' => 'toggle', 'requirement_id' => $r['id'], 'to' => $r['is_active'] ? '0' : '1'], $r['is_active'] ? 'Deactivate' : 'Activate', 'btn-sm btn-outline-secondary') ?>
               <?php if ($usedBy === 0): ?><?= action_button('/requirements', ['action' => 'delete', 'requirement_id' => $r['id']], 'Delete', 'btn-sm btn-outline-danger', 'Delete this requirement? Files already uploaded against it keep the link and block deletion.') ?><?php endif; ?>
             </div></td>
           </tr>
@@ -82,6 +77,7 @@ page_header('Requirements', 'Files or checks a document can ask for. Link them t
         <?= csrf_field() ?><input type="hidden" name="action" value="save"><input type="hidden" name="requirement_id" value="<?= e($editing['id'] ?? '') ?>">
         <div class="mb-3"><label class="form-label" for="name">Name</label><input class="form-control<?= invalid($errors, 'name') ?>" id="name" name="name" value="<?= e(old($old, 'name')) ?>" required minlength="3" maxlength="120"><?= field_error($errors, 'name') ?></div>
         <div class="mb-3"><label class="form-label" for="description">Guidance for residents</label><textarea class="form-control<?= invalid($errors, 'description') ?>" id="description" name="description" rows="3" maxlength="500"><?= e(old($old, 'description')) ?></textarea><?= field_error($errors, 'description') ?></div>
+        <?php if ($editing): ?><div class="mb-3"><label class="form-label" for="is_active">Status</label><select class="form-select" id="is_active" name="is_active"><?= options(['1' => 'Active', '0' => 'Inactive'], !empty($old['is_active']) && $old['is_active'] !== '0' ? '1' : '0') ?></select><small class="d-block text-secondary">Inactive requirements can no longer be added to document types.</small></div><?php endif; ?>
         <div class="form-check mb-3"><input class="form-check-input" type="checkbox" id="accepts_upload" name="accepts_upload" value="1"<?= chk(!empty($old['accepts_upload'])) ?>><label class="form-check-label" for="accepts_upload">Residents upload a file for this</label></div>
         <button class="btn btn-primary" type="submit"><?= $editing ? 'Save requirement' : 'Add requirement' ?></button>
       </form>

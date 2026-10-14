@@ -28,7 +28,7 @@ if (is_post()) {
             }
             if (!$v->fails()) {
                 if (preg_match('/^\d{1,5}$/', $rid)) {
-                    $db->update($tab, [['id', 'eq.' . $rid]], $data);
+                    $db->update($tab, [['id', 'eq.' . $rid]], $data + ['is_active' => ($_POST['is_active'] ?? '1') === '1']);
                 } else {
                     $db->insert($tab, $data);
                 }
@@ -36,10 +36,6 @@ if (is_post()) {
                 redirect($self);
             }
             $errors = $v->errors();
-        } elseif ($action === 'toggle' && preg_match('/^\d{1,5}$/', $rid)) {
-            $db->update($tab, [['id', 'eq.' . $rid]], ['is_active' => post('to') === '1']);
-            flash_success(ucfirst($cfg['singular']) . (post('to') === '1' ? ' activated.' : ' deactivated.'));
-            redirect($self);
         } elseif ($action === 'delete' && preg_match('/^\d{1,5}$/', $rid)) {
             $db->delete($tab, [['id', 'eq.' . $rid]]);
             flash_success(ucfirst($cfg['singular']) . ' deleted.');
@@ -79,7 +75,6 @@ page_header('Puroks, purposes and IDs', 'Lists used in forms across the system. 
             <td><?= $r['is_active'] ? simple_badge('Active', 'success') : simple_badge('Inactive', 'neutral') ?></td>
             <td class="text-end text-nowrap"><div class="row-actions">
               <a class="btn btn-sm btn-outline-secondary" href="<?= e(url('reference', ['tab' => $tab, 'edit' => $r['id']])) ?>">Edit</a>
-              <?= action_button($self, ['action' => 'toggle', 'row_id' => $r['id'], 'to' => $r['is_active'] ? '0' : '1'], $r['is_active'] ? 'Deactivate' : 'Activate', 'btn-sm btn-outline-secondary') ?>
               <?php if ($n === 0): ?><?= action_button($self, ['action' => 'delete', 'row_id' => $r['id']], 'Delete', 'btn-sm btn-outline-danger', 'Delete ' . $r['name'] . '?') ?><?php endif; ?>
             </div></td>
           </tr>
@@ -96,6 +91,7 @@ page_header('Puroks, purposes and IDs', 'Lists used in forms across the system. 
         <?= csrf_field() ?><input type="hidden" name="action" value="save"><input type="hidden" name="row_id" value="<?= e($editing['id'] ?? '') ?>">
         <div class="mb-3"><label class="form-label" for="name">Name</label><input class="form-control<?= invalid($errors, 'name') ?>" id="name" name="name" value="<?= e(old($old, 'name')) ?>" required maxlength="<?= (int) $cfg['max'] ?>"><?= field_error($errors, 'name') ?></div>
         <?php if ($cfg['desc']): ?><div class="mb-3"><label class="form-label" for="description">Description <span class="optional">optional</span></label><input class="form-control<?= invalid($errors, 'description') ?>" id="description" name="description" value="<?= e(old($old, 'description')) ?>" maxlength="255" placeholder="Landmarks or streets covered"><?= field_error($errors, 'description') ?></div><?php endif; ?>
+        <?php if ($editing): ?><div class="mb-3"><label class="form-label" for="is_active">Status</label><select class="form-select" id="is_active" name="is_active"><?= options(['1' => 'Active', '0' => 'Inactive'], !empty($editing['is_active']) && ($old['is_active'] ?? '1') !== '0' ? '1' : '0') ?></select></div><?php endif; ?>
         <button class="btn btn-primary" type="submit">Save</button>
       </form>
     </section>

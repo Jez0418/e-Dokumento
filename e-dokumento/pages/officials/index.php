@@ -20,7 +20,7 @@ if (is_post()) {
                 'committee'  => null,
                 'term_start' => $start,
                 'term_end'   => $v->date('term_end', 'Term end', true, null, $start ? (new DateTimeImmutable($start))->modify('+1 day')->format('Y-m-d') : null),
-                'is_active'  => $v->bool('is_active'),
+                'is_active'  => ($_POST['is_active'] ?? '1') === '1',
             ];
             if (!$v->fails()) {
                 if (preg_match('/^\d{1,5}$/', $oid)) {
@@ -35,10 +35,6 @@ if (is_post()) {
         } elseif ($action === 'reset_signature' && preg_match('/^\d{1,5}$/', $oid)) {
             $db->update('barangay_officials', [['id', 'eq.' . $oid]], ['profile_id' => null, 'signature_path' => null]);
             flash_success('Signature link reset. The Punong Barangay can sign again from their profile.');
-            redirect('/officials');
-        } elseif ($action === 'toggle' && preg_match('/^\d{1,5}$/', $oid)) {
-            $db->update('barangay_officials', [['id', 'eq.' . $oid]], ['is_active' => post('to') === '1']);
-            flash_success(post('to') === '1' ? 'Official marked as serving.' : 'Official marked as no longer serving.');
             redirect('/officials');
         }
     } catch (Throwable $e) {
@@ -72,7 +68,6 @@ page_header('Barangay Captain', 'The serving Barangay Captain (Punong Barangay) 
             <td class="text-end text-nowrap"><div class="row-actions">
               <a class="btn btn-sm btn-outline-secondary" href="?edit=<?= e($o['id']) ?>">Edit</a>
               <?php if ($o['position'] === 'punong_barangay' && ($o['signature_path'] || $o['profile_id'])): ?><?= action_button('/officials', ['action' => 'reset_signature', 'official_id' => $o['id']], 'Reset signature', 'btn-sm btn-outline-secondary', 'Remove the signature and let the current Punong Barangay sign again?') ?><?php endif; ?>
-              <?= action_button('/officials', ['action' => 'toggle', 'official_id' => $o['id'], 'to' => $o['is_active'] ? '0' : '1'], $o['is_active'] ? 'End service' : 'Reinstate', 'btn-sm btn-outline-secondary', $o['is_active'] ? 'Mark ' . $o['full_name'] . ' as no longer serving?' : '') ?>
             </div></td>
           </tr>
         <?php endforeach; ?>
@@ -91,7 +86,7 @@ page_header('Barangay Captain', 'The serving Barangay Captain (Punong Barangay) 
           <div class="col"><label class="form-label" for="term_start">Term start</label><input class="form-control<?= invalid($errors, 'term_start') ?>" id="term_start" name="term_start" type="date" value="<?= e(old($old, 'term_start')) ?>" required><?= field_error($errors, 'term_start') ?></div>
           <div class="col"><label class="form-label" for="term_end">Term end</label><input class="form-control<?= invalid($errors, 'term_end') ?>" id="term_end" name="term_end" type="date" value="<?= e(old($old, 'term_end')) ?>" required><?= field_error($errors, 'term_end') ?></div>
         </div>
-        <div class="form-check mb-3"><input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1"<?= chk(!empty($old['is_active'])) ?>><label class="form-check-label" for="is_active">Currently serving</label></div>
+        <div class="mb-3"><label class="form-label" for="is_active">Status</label><select class="form-select" id="is_active" name="is_active"><?= options(['1' => 'Serving', '0' => 'Former'], !empty($old['is_active']) && $old['is_active'] !== '0' ? '1' : '0') ?></select></div>
         <button class="btn btn-primary" type="submit">Save</button>
       </form>
     </section>

@@ -40,30 +40,23 @@ if (is_post()) {
                 redirect('/users');
             }
             $errors = $v->errors();
-        } elseif ($action === 'role' && is_uuid($uid)) {
-            $role = post('role');
+        } elseif ($action === 'update' && is_uuid($uid)) {
             if ($uid === $me) {
-                throw new RuntimeException('You cannot change your own role.');
+                throw new RuntimeException('You cannot change your own role or deactivate your own account.');
             }
+            $role = post('role');
             if (!isset($roleByCode[$role])) {
                 abort(400);
             }
-            $db->update('profiles', [['id', 'eq.' . $uid]], ['role_id' => (int) $roleByCode[$role]['id']]);
-            flash_success('Role changed to ' . $roleByCode[$role]['name'] . '.');
-            redirect('/users');
-        } elseif ($action === 'status' && is_uuid($uid)) {
-            if ($uid === $me) {
-                throw new RuntimeException('You cannot deactivate your own account.');
-            }
-            $to = post('to') === 'active' ? 'active' : 'inactive';
-            $db->update('profiles', [['id', 'eq.' . $uid]], ['status' => $to]);
+            $to = post('status') === 'active' ? 'active' : 'inactive';
+            $db->update('profiles', [['id', 'eq.' . $uid]], ['role_id' => (int) $roleByCode[$role]['id'], 'status' => $to]);
             try {
                 // Also block (or unblock) sign-in at Supabase Auth itself
                 Supabase::admin()->adminUpdateUser($uid, ['ban_duration' => $to === 'active' ? 'none' : '876000h']);
             } catch (Throwable $e) {
                 error_log('ban: ' . $e->getMessage());
             }
-            flash_success($to === 'active' ? 'Account reactivated.' : 'Account deactivated. The user can no longer sign in.');
+            flash_success('Account saved.' . ($to === 'inactive' ? ' The user can no longer sign in.' : ''));
             redirect('/users');
         }
     } catch (SupabaseException $e) {
@@ -96,6 +89,11 @@ if ($f['status'] !== '') {
 $query[] = ['order', 'role_id.asc,full_name.asc'];
 $result = $db->select('profiles', $query, true, $offset, $per);
 
+$editUser = null;
+if (is_uuid(q('edit')) && q('edit') !== $me) {
+    $editUser = $db->first('profiles', [['select', 'id,email,full_name,status,roles(code,name)'], ['id', 'eq.' . q('edit')]]);
+}
+
 layout_start('Users', 'users');
 page_header('Users', 'Staff accounts are created here. Residents create their own accounts by registering.');
 ?>
@@ -117,24 +115,10 @@ page_header('Users', 'Staff accounts are created here. Residents create their ow
         <?php foreach ($result['rows'] as $u): $code = one($u['roles'])['code'] ?? 'resident'; $self = $u['id'] === $me; ?>
           <tr class="<?= $u['status'] === 'active' ? '' : 'row-muted' ?>">
             <td><strong><?= e($u['full_name']) ?></strong><?= $self ? ' <span class="tag tag-neutral">You</span>' : '' ?><small class="d-block text-secondary"><?= e($u['email']) ?></small></td>
-            <td>
-              <?php if ($self): ?><?= e(one($u['roles'])['name'] ?? '') ?>
-              <?php else: ?>
-                <form method="post" class="d-flex gap-2" data-confirm="Change this user's role? Their menu and permissions change immediately.">
-                  <?= csrf_field() ?><input type="hidden" name="action" value="role"><input type="hidden" name="user_id" value="<?= e($u['id']) ?>">
-                  <label class="visually-hidden" for="role-<?= e($u['id']) ?>">Role</label>
-                  <select class="form-select form-select-sm" id="role-<?= e($u['id']) ?>" name="role"><?= options($roleChoices($u['id']), $code) ?></select>
-                  <button class="btn btn-sm btn-outline-primary" type="submit">Change role</button>
-                </form>
-              <?php endif; ?>
-            </td>
+            <td><?= e(one($u['roles'])['name'] ?? '') ?></td>
             <td><?= e($u['last_login_at'] ? time_ago($u['last_login_at']) : 'Never') ?></td>
             <td><?= $u['status'] === 'active' ? simple_badge('Active', 'success') : simple_badge('Inactive', 'neutral') ?></td>
-            <td class="text-end">
-              <?php if (!$self): ?>
-                <?= action_button('/users', ['action' => 'status', 'user_id' => $u['id'], 'to' => $u['status'] === 'active' ? 'inactive' : 'active'], $u['status'] === 'active' ? 'Deactivate' : 'Reactivate', 'btn-sm ' . ($u['status'] === 'active' ? 'btn-outline-danger' : 'btn-outline-success'), $u['status'] === 'active' ? 'Deactivate ' . $u['full_name'] . '? They will be signed out and cannot sign in.' : '') ?>
-              <?php endif; ?>
-            </td>
+            <td class="text-end"><?php if (!$self): ?><a class="btn btn-sm btn-outline-secondary" href="<?= e(url('users', ['edit' => $u['id']])) ?>">Edit</a><?php endif; ?></td>
           </tr>
         <?php endforeach; ?>
         </tbody>
@@ -144,6 +128,18 @@ page_header('Users', 'Staff accounts are created here. Residents create their ow
     </section>
   </div>
   <div class="col-xl-4">
+    <?php if ($editUser): $euCode = one($editUser['roles'])['code'] ?? 'resident'; ?>
+    <section class="panel mb-4">
+      <div class="panel-head"><h2>Edit account</h2><a href="/users" class="small">Cancel</a></div>
+      <p class="mb-3"><strong><?= e($editUser['full_name']) ?></strong><small class="d-block text-secondary"><?= e($editUser['email']) ?></small></p>
+      <form method="post" novalidate data-confirm="Save changes to this account? Role and status changes apply immediately.">
+        <?= csrf_field() ?><input type="hidden" name="action" value="update"><input type="hidden" name="user_id" value="<?= e($editUser['id']) ?>">
+        <div class="mb-3"><label class="form-label" for="edit-role">Role</label><select class="form-select" id="edit-role" name="role"><?= options($roleChoices($editUser['id']), $euCode) ?></select></div>
+        <div class="mb-3"><label class="form-label" for="edit-status">Status</label><select class="form-select" id="edit-status" name="status"><?= options(['active' => 'Active', 'inactive' => 'Inactive'], $editUser['status']) ?></select><small class="d-block text-secondary">Inactive accounts are signed out and cannot sign in.</small></div>
+        <button class="btn btn-primary w-100" type="submit">Save account</button>
+      </form>
+    </section>
+    <?php endif; ?>
     <section class="panel">
       <div class="panel-head"><h2>Add a staff account</h2></div>
       <form method="post" novalidate class="needs-validation">
