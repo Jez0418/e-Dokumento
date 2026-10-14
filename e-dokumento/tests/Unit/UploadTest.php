@@ -69,31 +69,56 @@ final class UploadTest extends TestCase
         $this->assertSame(2097152, Upload::MAX_BYTES);
     }
 
-    public function test_signature_is_required(): void
+    /** A real RGBA PNG of the given size, built without GD. */
+    private static function png(int $w, int $h, int $alpha = 255): string
     {
-        $this->assertSame('Signature is required.', Upload::checkSignature(null));
-        $this->assertSame('Signature is required.', Upload::checkSignature(['error' => UPLOAD_ERR_NO_FILE]));
+        $chunk = static fn (string $type, string $data): string => pack('N', strlen($data)) . $type . $data . pack('N', crc32($type . $data));
+        $row = "\x00" . str_repeat("\x10\x20\x40" . chr($alpha), $w);
+        return "\x89PNG\r\n\x1A\n"
+            . $chunk('IHDR', pack('NNCCCCC', $w, $h, 8, 6, 0, 0, 0))
+            . $chunk('IDAT', gzcompress(str_repeat($row, $h)))
+            . $chunk('IEND', '');
     }
 
-    public function test_signature_over_the_php_limit_says_1_mb(): void
+    private static function dataUrl(string $bytes, string $mime = 'image/png'): string
     {
-        $this->assertSame('Signature must be 1 MB or smaller.', Upload::checkSignature(['error' => UPLOAD_ERR_INI_SIZE]));
+        return 'data:' . $mime . ';base64,' . base64_encode($bytes);
     }
 
-    public static function signatureFiles(): array
+    public function test_data_url_png_is_accepted(): void
+    {
+        $info = Upload::fromDataUrl(self::dataUrl(self::png(300, 100)));
+
+        $this->assertIsArray($info);
+        $this->assertSame('image/png', $info['mime']);
+        $this->assertSame('png', $info['ext']);
+        $this->assertSame(self::png(300, 100), file_get_contents($info['tmp']));
+        @unlink($info['tmp']);
+    }
+
+    public static function badDataUrls(): array
     {
         return [
-            'png'          => [['mime' => 'image/png', 'size' => 1000], null],
-            'jpeg'         => [['mime' => 'image/jpeg', 'size' => 1000], null],
-            'exactly 1 MB' => [['mime' => 'image/png', 'size' => 1048576], null],
-            'pdf'          => [['mime' => 'application/pdf', 'size' => 1000], 'Signature must be a PNG or JPG image.'],
-            'over 1 MB'    => [['mime' => 'image/png', 'size' => 1048577], 'Signature must be 1 MB or smaller.'],
+            'empty'            => ['', 'Draw your signature first.'],
+            'not a data url'   => ['hello', 'Draw your signature first.'],
+            'jpeg mime'        => [self::dataUrl("\xFF\xD8\xFF\xE0", 'image/jpeg'), 'Signature must be a PNG image.'],
+            'bad base64'       => ['data:image/png;base64,@@@', 'Signature must be a PNG image.'],
+            'not really a png' => [self::dataUrl('<svg></svg>'), 'Signature must be a PNG image.'],
+            'too small'        => [self::dataUrl(self::png(5, 5)), 'Signature is too small. Draw it larger.'],
+            'too large'        => [self::dataUrl(self::png(3000, 100)), 'Signature is too large.'],
         ];
     }
 
-    #[DataProvider('signatureFiles')]
-    public function test_signature_problem(array $info, ?string $expected): void
+    #[DataProvider('badDataUrls')]
+    public function test_data_url_problems(string $data, string $expected): void
     {
-        $this->assertSame($expected, Upload::signatureProblem($info));
+        $this->assertSame($expected, Upload::fromDataUrl($data));
+    }
+
+    public function test_data_url_over_1_mb(): void
+    {
+        $big = self::png(300, 100) . str_repeat('x', Upload::SIGNATURE_MAX_BYTES);
+
+        $this->assertSame('Signature must be 1 MB or smaller.', Upload::fromDataUrl(self::dataUrl($big)));
     }
 }

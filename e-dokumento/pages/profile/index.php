@@ -122,11 +122,15 @@ if (is_post() && $isCaptain && $section === 'signature') {
             $db->rpc('set_captain_signature', ['p_path' => null]);
             flash_success('Signature removed.');
         } else {
-            $file = Upload::checkSignature($_FILES['signature'] ?? null);
+            $file = Upload::fromDataUrl(post('signature_data'));
             if (is_string($file)) {
                 $errors['signature'] = $file;
             } else {
-                $newPath = Upload::store($db, 'signatures', (string) $user['id'], $file);
+                try {
+                    $newPath = Upload::store($db, 'signatures', (string) $user['id'], $file);
+                } finally {
+                    @unlink($file['tmp']);
+                }
                 $db->rpc('set_captain_signature', ['p_path' => $newPath]);
                 flash_success('Signature saved.');
             }
@@ -296,15 +300,17 @@ page_header('Profile', $isResident ? 'Your account, your resident record, and yo
         <?php else: ?>
           <p class="text-secondary">No signature on file yet.</p>
         <?php endif; ?>
-        <form method="post" enctype="multipart/form-data" novalidate>
+        <form method="post" novalidate>
           <?= csrf_field() ?>
           <input type="hidden" name="_section" value="signature">
-          <label class="form-label" for="signature_file">Signature image</label>
-          <input class="form-control<?= invalid($errors, 'signature') ?>" id="signature_file" name="signature" type="file" accept="image/png,image/jpeg" required>
-          <?= field_error($errors, 'signature') ?>
-          <div class="form-text">PNG with a transparent background works best. 1 MB at most.</div>
+          <input type="hidden" name="signature_data" id="signature_data" value="">
+          <label class="form-label" for="signature-pad">Draw your signature</label>
+          <canvas id="signature-pad" class="signature-pad<?= invalid($errors, 'signature') ?>" aria-label="Signature pad: draw your signature with a mouse, finger or stylus"></canvas>
+          <div class="form-text" id="signature-msg" role="status"><?= e($errors['signature'] ?? '') ?></div>
+          <div class="form-text">Sign inside the box. It is saved as a transparent image of the ink only.</div>
           <button class="btn btn-outline-primary mt-3" type="submit" name="action" value="save">Save signature</button>
-          <?php if (!empty($captainOfficial['signature_path'])): ?><button class="btn btn-outline-danger mt-3" type="submit" name="action" value="remove" formnovalidate>Remove</button><?php endif; ?>
+          <button class="btn btn-outline-secondary mt-3" type="button" id="signature-clear">Clear</button>
+          <?php if (!empty($captainOfficial['signature_path'])): ?><button class="btn btn-outline-danger mt-3" type="submit" name="action" value="remove">Remove</button><?php endif; ?>
         </form>
       <?php endif; ?>
     </section>
@@ -315,4 +321,4 @@ page_header('Profile', $isResident ? 'Your account, your resident record, and yo
     </section>
   </div>
 </div>
-<?php layout_end(); ?>
+<?php layout_end($isCaptain ? ['signature-pad.js'] : []); ?>

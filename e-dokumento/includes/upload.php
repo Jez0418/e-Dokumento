@@ -41,32 +41,47 @@ final class Upload
     public const SIGNATURE_MAX_BYTES = 1048576; // 1 MB
 
     /**
-     * The captain's signature image: PNG or JPG, 1 MB or smaller, required.
+     * A signature drawn on the pad: a PNG data URL posted by the browser. Written to a
+     * temporary file so it can go through store() like an upload; the caller unlinks it.
+     * Pixels are not inspected (no GD on the host), so an empty pad is stopped in the browser.
      *
      * @return array{tmp:string,name:string,mime:string,ext:string,size:int}|string file info or an error message
      */
-    public static function checkSignature(?array $file): array|string
+    public static function fromDataUrl(?string $data): array|string
     {
-        if (in_array($file['error'] ?? null, [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)) {
+        $data = trim((string) $data);
+        if ($data === '' || !str_starts_with($data, 'data:')) {
+            return 'Draw your signature first.';
+        }
+        $prefix = 'data:image/png;base64,';
+        if (!str_starts_with($data, $prefix)) {
+            return 'Signature must be a PNG image.';
+        }
+        if (strlen($data) > (int) ceil(self::SIGNATURE_MAX_BYTES * 4 / 3) + strlen($prefix) + 4) {
             return 'Signature must be 1 MB or smaller.';
         }
-        $info = self::check($file, 'Signature', true);
-        if (!is_array($info)) {
-            return (string) $info;
+        $bytes = base64_decode(substr($data, strlen($prefix)), true);
+        if ($bytes === false || $bytes === '') {
+            return 'Signature must be a PNG image.';
         }
-        return self::signatureProblem($info) ?? $info;
-    }
-
-    /** Why a checked file cannot be a signature image, or null when it can. */
-    public static function signatureProblem(array $info): ?string
-    {
-        if (!in_array($info['mime'], ['image/png', 'image/jpeg'], true)) {
-            return 'Signature must be a PNG or JPG image.';
-        }
-        if ($info['size'] > self::SIGNATURE_MAX_BYTES) {
+        if (strlen($bytes) > self::SIGNATURE_MAX_BYTES) {
             return 'Signature must be 1 MB or smaller.';
         }
-        return null;
+        if (strlen($bytes) < 33 || !str_starts_with($bytes, hex2bin('89504e470d0a1a0a')) || substr($bytes, 12, 4) !== 'IHDR') {
+            return 'Signature must be a PNG image.';
+        }
+        $dims = unpack('Nw/Nh', substr($bytes, 16, 8));
+        if ($dims['w'] < 20 || $dims['h'] < 10) {
+            return 'Signature is too small. Draw it larger.';
+        }
+        if ($dims['w'] > 2000 || $dims['h'] > 1000) {
+            return 'Signature is too large.';
+        }
+        $tmp = tempnam(sys_get_temp_dir(), 'edk-sig');
+        if ($tmp === false || file_put_contents($tmp, $bytes) === false) {
+            return 'Signature could not be saved. Try again.';
+        }
+        return ['tmp' => $tmp, 'name' => 'signature.png', 'mime' => 'image/png', 'ext' => 'png', 'size' => strlen($bytes)];
     }
 
     private static function sniff(string $path): ?string
