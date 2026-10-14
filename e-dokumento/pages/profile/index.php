@@ -109,6 +109,48 @@ if (is_post()) {
     }
 }
 
+$isCaptain = Auth::role() === 'captain';
+$captainOfficial = $isCaptain
+    ? $db->first('barangay_officials', [['select', 'id,signature_path'], ['position', 'eq.punong_barangay'], ['is_active', 'eq.true']])
+    : null;
+
+if (is_post() && $isCaptain && $section === 'signature') {
+    $oldPath = $captainOfficial['signature_path'] ?? null;
+    $newPath = null;
+    try {
+        if (post('action') === 'remove') {
+            $db->rpc('set_captain_signature', ['p_path' => null]);
+            flash_success('Signature removed.');
+        } else {
+            $file = Upload::checkSignature($_FILES['signature'] ?? null);
+            if (is_string($file)) {
+                $errors['signature'] = $file;
+            } else {
+                $newPath = Upload::store($db, 'signatures', (string) $user['id'], $file);
+                $db->rpc('set_captain_signature', ['p_path' => $newPath]);
+                flash_success('Signature saved.');
+            }
+        }
+        if (!isset($errors['signature'])) {
+            if ($oldPath && $oldPath !== $newPath) {
+                try {
+                    $db->removeObjects('signatures', [$oldPath]);
+                } catch (Throwable) {
+                }
+            }
+            redirect('/profile');
+        }
+    } catch (Throwable $e) {
+        if ($newPath !== null) {
+            try {
+                $db->removeObjects('signatures', [$newPath]);
+            } catch (Throwable) {
+            }
+        }
+        $errors['signature'] = db_error($e);
+    }
+}
+
 $puroks = $resident ? $db->select('puroks', [['select', 'id,name'], ['order', 'name.asc']])['rows'] : [];
 $idTypes = $resident ? $db->select('id_types', [['select', 'id,name'], ['is_active', 'eq.true'], ['order', 'name.asc']])['rows'] : [];
 $verifications = $resident ? $db->select('resident_verifications', [
@@ -242,6 +284,31 @@ page_header('Profile', $isResident ? 'Your account, your resident record, and yo
         <button class="btn btn-outline-primary" type="submit">Change password</button>
       </form>
     </section>
+    <?php if ($isCaptain): ?>
+    <section class="panel" id="signature">
+      <div class="panel-head"><h2>My signature</h2></div>
+      <p class="small text-secondary">Printed on every certificate that needs your approval. Only you can change it.</p>
+      <?php if (!$captainOfficial): ?>
+        <div class="notice notice-warning"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><div>An administrator must add you as the active Punong Barangay under Officials first.</div></div>
+      <?php else: ?>
+        <?php if (!empty($captainOfficial['signature_path'])): ?>
+          <p><img src="<?= e(url('files', ['bucket' => 'signatures', 'path' => $captainOfficial['signature_path']])) ?>" alt="Your signature" style="max-height:120px;max-width:100%;background:#fff;border:1px solid var(--bs-border-color);padding:.5rem"></p>
+        <?php else: ?>
+          <p class="text-secondary">No signature on file yet.</p>
+        <?php endif; ?>
+        <form method="post" enctype="multipart/form-data" novalidate>
+          <?= csrf_field() ?>
+          <input type="hidden" name="_section" value="signature">
+          <label class="form-label" for="signature_file">Signature image</label>
+          <input class="form-control<?= invalid($errors, 'signature') ?>" id="signature_file" name="signature" type="file" accept="image/png,image/jpeg" required>
+          <?= field_error($errors, 'signature') ?>
+          <div class="form-text">PNG with a transparent background works best. 1 MB at most.</div>
+          <button class="btn btn-outline-primary mt-3" type="submit" name="action" value="save">Save signature</button>
+          <?php if (!empty($captainOfficial['signature_path'])): ?><button class="btn btn-outline-danger mt-3" type="submit" name="action" value="remove" formnovalidate>Remove</button><?php endif; ?>
+        </form>
+      <?php endif; ?>
+    </section>
+    <?php endif; ?>
     <section class="panel">
       <div class="panel-head"><h2>Sign-in activity</h2></div>
       <p class="mb-0">Last sign-in: <?= e(fmt_datetime($user['last_login_at'] ?? null)) ?></p>
