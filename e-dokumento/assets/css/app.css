@@ -178,7 +178,7 @@ img, svg, video { max-width: 100%; }
 body { font-size: var(--text-md); line-height: 1.55; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 h1, h2, h3, .h5, .h6 { color: var(--text); }
 h1 { font-family: var(--font-display); font-size: clamp(1.375rem, 1.1rem + 1vw, var(--text-2xl)); font-weight: 500; line-height: 1.2; letter-spacing: -0.025em; overflow-wrap: anywhere; margin-bottom: 0; }
-h2 { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
+h2 { font-size: var(--text-lg); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
 h3, .h6 { font-size: 1rem; font-weight: 600; }
 .h5 { font-size: var(--text-lg); font-weight: 600; }
 p { margin-bottom: var(--s4); }
@@ -714,9 +714,9 @@ textarea.form-control { min-height: 0; }
 /* Sign-in pages: dark canvas with diagonal emerald light, one centered card ------ */
 body.auth { background: var(--bg); position: relative; overflow-x: hidden; }
 body.auth .theme-float { top: var(--s3); right: var(--s3); }
-.auth-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto 1fr auto;
+.auth-layout { background: linear-gradient(90deg, var(--surface) calc(50% - 1px), var(--border) calc(50% - 1px) 50%, var(--bg) 50%); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto 1fr auto;
   grid-template-areas: "aside badge" "aside main" "aside outro"; min-height: 100vh; min-height: 100dvh; width: 100%; }
-.auth-aside { grid-area: aside; display: flex; flex-direction: column; gap: var(--s5); padding: var(--s6) clamp(var(--s5), 4.5vw, 3.5rem); background: var(--surface); border-right: 1px solid var(--border); }
+.auth-aside { grid-area: aside; align-self: start; position: sticky; top: 0; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; gap: var(--s5); padding: var(--s6) clamp(var(--s5), 4.5vw, 3.5rem); }
 .auth-brand { display: flex; align-items: center; gap: var(--s3); }
 .auth-logo { width: 44px; height: 44px; border-radius: 12px; }
 .auth-brand-name { display: block; font-family: var(--font-display); font-size: 1.25rem; font-weight: 500; line-height: 1.2; }
@@ -763,8 +763,8 @@ body.auth .theme-float { top: var(--s3); right: var(--s3); }
 .auth-verify-link:hover { background: var(--accent-fill-hover); color: var(--on-accent); }
 .auth-copyright { margin: 0; font-size: var(--text-sm); color: var(--text-muted); }
 @media (max-width: 991.98px) {
-  .auth-layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; grid-template-areas: "badge" "main" "outro" "aside"; }
-  .auth-aside { border-right: 0; border-top: 1px solid var(--border); padding-top: var(--s6); }
+  .auth-layout { background: var(--bg); grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; grid-template-areas: "badge" "main" "outro" "aside"; }
+  .auth-aside { position: static; min-height: 0; background: var(--surface); border-right: 0; border-top: 1px solid var(--border); padding-top: var(--s6); }
   .auth-badge { justify-content: flex-start; padding: var(--s4) var(--s4) 0; }
   body.auth .theme-float { display: none; }
 }
