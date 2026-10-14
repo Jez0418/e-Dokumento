@@ -67,6 +67,7 @@ function nav_for_role(?string $role): array
             ['Approvals', [
                 ['approvals', '/requests?status=for_approval', 'pen', 'For my approval'],
                 ['requests', '/requests', 'files', 'All requests'],
+                ['profile', '/profile', 'vector-pen', 'My signature'],
             ]],
             ['Records', [
                 ['residents', '/residents', 'people', 'Residents'],

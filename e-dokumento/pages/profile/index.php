@@ -163,7 +163,7 @@ $r = $resident ?? [];
 $val = static fn (string $k, string $rk = '') => old($old, $k, (string) ($r[$rk !== '' ? $rk : $k] ?? ''));
 
 layout_start('Profile', 'profile');
-page_header('Profile', $isResident ? 'Your account, your resident record, and your verification.' : 'Your account and password.');
+page_header('Profile', $isResident ? 'Your account, your resident record, and your verification.' : ($isCaptain ? 'Your account, password and signature.' : 'Your account and password.'));
 ?>
 <?= isset($errors['_form']) ? '<div class="alert alert-danger" role="alert">' . e($errors['_form']) . '</div>' : '' ?>
 <div class="row g-4">
