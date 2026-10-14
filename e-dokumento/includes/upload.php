@@ -38,6 +38,37 @@ final class Upload
         return ['tmp' => (string) $file['tmp_name'], 'name' => mb_substr($name, 0, 200), 'mime' => $mime, 'ext' => self::TYPES[$mime], 'size' => $size];
     }
 
+    public const SIGNATURE_MAX_BYTES = 1048576; // 1 MB
+
+    /**
+     * The captain's signature image: PNG or JPG, 1 MB or smaller, required.
+     *
+     * @return array{tmp:string,name:string,mime:string,ext:string,size:int}|string file info or an error message
+     */
+    public static function checkSignature(?array $file): array|string
+    {
+        if (in_array($file['error'] ?? null, [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)) {
+            return 'Signature must be 1 MB or smaller.';
+        }
+        $info = self::check($file, 'Signature', true);
+        if (!is_array($info)) {
+            return (string) $info;
+        }
+        return self::signatureProblem($info) ?? $info;
+    }
+
+    /** Why a checked file cannot be a signature image, or null when it can. */
+    public static function signatureProblem(array $info): ?string
+    {
+        if (!in_array($info['mime'], ['image/png', 'image/jpeg'], true)) {
+            return 'Signature must be a PNG or JPG image.';
+        }
+        if ($info['size'] > self::SIGNATURE_MAX_BYTES) {
+            return 'Signature must be 1 MB or smaller.';
+        }
+        return null;
+    }
+
     private static function sniff(string $path): ?string
     {
         $head = @file_get_contents($path, false, null, 0, 8);

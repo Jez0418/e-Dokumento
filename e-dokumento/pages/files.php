@@ -5,7 +5,7 @@ declare(strict_types=1);
 // so Storage RLS decides whether this user may see the file.
 $bucket = q('bucket');
 $path = q('path');
-if (!in_array($bucket, ['verification-ids', 'request-files'], true)
+if (!in_array($bucket, ['verification-ids', 'request-files', 'signatures'], true)
     || !preg_match('#^[0-9a-f\-]{36}/[0-9a-f]{24}\.(pdf|jpg|png)$#', $path)) {
     abort(404);
 }
