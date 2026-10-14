@@ -29,8 +29,9 @@ guest_start('Sign in', 'guest auth');
   <?php require __DIR__ . '/_aside.php'; ?>
   <main class="auth-main" id="main">
     <div class="auth-card">
-      <h1>Sign in</h1>
-      <p class="auth-lead">Residents and barangay staff use the same sign-in.</p>
+      <p class="auth-eyebrow">Good to have you here</p>
+      <h1>Welcome back.</h1>
+      <p class="auth-lead">Sign in to manage your barangay requests.</p>
       <div id="hash-message" class="alert d-none" role="status"></div>
       <?php if (isset($errors['_form'])): ?>
         <div class="alert alert-danger" role="alert"><?= e($errors['_form']) ?></div>
@@ -38,22 +39,23 @@ guest_start('Sign in', 'guest auth');
       <form method="post" novalidate class="needs-validation" action="<?= e(url('login', ['next' => safe_next(q('next'))])) ?>">
         <?= csrf_field() ?>
         <div class="mb-3">
-          <label class="form-label" for="email">Email</label>
-          <input class="form-control<?= invalid($errors, 'email') ?>" id="email" name="email" type="email" value="<?= e($email) ?>" required autocomplete="email" maxlength="254" autofocus>
+          <label class="form-label" for="email">Email Address</label>
+          <input class="form-control<?= invalid($errors, 'email') ?>" id="email" name="email" type="email" value="<?= e($email) ?>" required autocomplete="email" maxlength="254" placeholder="Enter your email address" autofocus>
           <?= isset($errors['email']) ? field_error($errors, 'email') : '<div class="invalid-feedback">Enter your email address, for example juan@gmail.com.</div>' ?>
         </div>
         <div class="mb-2">
           <label class="form-label" for="password">Password</label>
           <div class="input-group has-validation">
-            <input class="form-control<?= invalid($errors, 'password') ?>" id="password" name="password" type="password" required autocomplete="current-password" maxlength="72">
+            <input class="form-control<?= invalid($errors, 'password') ?>" id="password" name="password" type="password" required autocomplete="current-password" maxlength="72" placeholder="Enter your password">
             <button class="btn btn-outline-secondary" type="button" data-toggle-password="password" aria-label="Show password"><i class="bi bi-eye" aria-hidden="true"></i></button>
             <?= isset($errors['password']) ? field_error($errors, 'password') : '<div class="invalid-feedback">Enter your password.</div>' ?>
           </div>
         </div>
         <p class="mb-4 text-end"><a href="/forgot-password">Forgot your password?</a></p>
-        <button class="btn btn-primary w-100 btn-lg" type="submit" data-loading-text="Signing in…">Sign in</button>
+        <button class="btn btn-primary w-100 btn-lg" type="submit" data-loading-text="Signing in…">Sign in <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></button>
       </form>
       <p class="auth-switch">New resident? <a href="/register">Create an account</a></p>
+      <p class="auth-secure"><i class="bi bi-people" aria-hidden="true"></i>One secure sign-in for all residents &amp; barangay staff.</p>
     </div>
   </main>
   <?php require __DIR__ . '/_foot.php'; ?>

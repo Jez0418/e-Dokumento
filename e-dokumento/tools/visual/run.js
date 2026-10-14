@@ -106,7 +106,7 @@ async function checkSidebarScroll(browser, problems) {
         for (const [sizeName, viewport] of Object.entries(sizes)) {
           const ctx = await browser.newContext({ viewport, isMobile: sizeName === 'phone', hasTouch: sizeName === 'phone' });
           if (role !== 'guest') await ctx.addCookies([{ name: 'edk_at', value: token(role), url: BASE }, { name: 'edk_rt', value: 'rt-' + role, url: BASE }]);
-          await ctx.addInitScript((t) => { try { localStorage.setItem('edk_theme_v2', t); } catch (e) { /* ignore */ } }, theme);
+          await ctx.addInitScript((t) => { try { localStorage.setItem('edk_theme_v3', t); } catch (e) { /* ignore */ } }, theme);
           const page = await ctx.newPage();
           const errors = [];
           page.on('pageerror', (e) => errors.push(e.message));

@@ -1,15 +1,15 @@
-/* Theme: dark by default. The account menu offers Dark, Light and System; the sun/moon button
+/* Theme: light (cream and green) by default. The account menu offers Dark, Light and System; the sun/moon button
    flips between dark and light. The choice is remembered in this browser.
-   Stored under edk_theme_v2: the old edk_theme key held a choice made under the previous
+   Stored under edk_theme_v3: the old edk_theme key held a choice made under the previous
    light-first design, and honouring it would keep returning users on light. Loaded in <head>
    so the right theme is set before first paint. */
 (() => {
   'use strict';
   const root = document.documentElement;
   const media = window.matchMedia('(prefers-color-scheme: dark)');
-  const read = () => { try { return localStorage.getItem('edk_theme_v2'); } catch (e) { return null; } };
-  const write = (v) => { try { localStorage.setItem('edk_theme_v2', v); } catch (e) { /* storage blocked: choice lasts for this page only */ } };
-  const choice = () => { const v = read(); return v === 'light' || v === 'system' ? v : 'dark'; };
+  const read = () => { try { return localStorage.getItem('edk_theme_v3'); } catch (e) { return null; } };
+  const write = (v) => { try { localStorage.setItem('edk_theme_v3', v); } catch (e) { /* storage blocked: choice lasts for this page only */ } };
+  const choice = () => { const v = read(); return v === 'dark' || v === 'system' ? v : 'light'; };
   const effective = () => { const c = choice(); return c === 'system' ? (media.matches ? 'dark' : 'light') : c; };
   const apply = (notify) => {
     const t = effective();

@@ -1,10 +1,10 @@
 <?php
-// Office details and the certificate check, shown under the sign-in card.
+// Under the card: the public certificate check and a short footer.
 ?>
 <footer class="auth-outro">
-  <dl class="auth-facts">
-    <div><dt>Office hours</dt><dd><?= e(setting('office_hours', 'Not set')) ?></dd></div>
-    <div><dt>Hall</dt><dd><?= e(setting('hall_address', '—')) ?></dd></div>
-  </dl>
-  <a class="auth-verify-link" href="/verify"><i class="bi bi-patch-check me-2" aria-hidden="true"></i>Check if a barangay certificate is genuine</a>
+  <section class="auth-services" aria-labelledby="auth-services-h">
+    <h2 id="auth-services-h">Public services</h2>
+    <a class="auth-verify-link" href="/verify"><i class="bi bi-patch-check" aria-hidden="true"></i><span>Verify certificate authenticity</span><i class="bi bi-arrow-up-right ms-auto" aria-hidden="true"></i></a>
+  </section>
+  <p class="auth-copyright">&copy; <?= (int) date('Y') ?> e-Dokumento &middot; Barangay <?= e(barangay_name()) ?></p>
 </footer>

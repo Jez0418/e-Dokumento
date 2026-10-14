@@ -10,7 +10,7 @@
     <input id="topbar-q" name="q" type="search" placeholder="Control number or name" autocomplete="off" maxlength="80">
   </form>
   <div class="topbar-right">
-    <button type="button" class="btn btn-icon" data-theme-toggle aria-label="Switch to light theme">
+    <button type="button" class="btn btn-icon" data-theme-toggle aria-label="Switch to dark theme">
       <i class="bi bi-sun ti-to-light" aria-hidden="true"></i><i class="bi bi-moon ti-to-dark" aria-hidden="true"></i>
     </button>
     <a href="/notifications" class="btn btn-icon position-relative" aria-label="Notifications<?= $unread ? ', ' . (int) $unread . ' unread' : '' ?>">
