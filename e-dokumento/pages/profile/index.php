@@ -110,9 +110,16 @@ if (is_post()) {
 }
 
 $isCaptain = Auth::role() === 'captain';
-$captainOfficial = $isCaptain
-    ? $db->first('barangay_officials', [['select', 'id,signature_path,profile_id'], ['position', 'eq.punong_barangay'], ['is_active', 'eq.true']])
-    : null;
+$captainOfficial = null;
+if ($isCaptain) {
+    $seatFilter = [['position', 'eq.punong_barangay'], ['is_active', 'eq.true']];
+    try {
+        $captainOfficial = $db->first('barangay_officials', array_merge([['select', 'id,signature_path,profile_id']], $seatFilter));
+    } catch (SupabaseException) {
+        // sql/10_captain_signature.sql has not been run since the account link was added.
+        $captainOfficial = $db->first('barangay_officials', array_merge([['select', 'id,signature_path']], $seatFilter));
+    }
+}
 
 if (is_post() && $isCaptain && $section === 'signature') {
     $newPath = null;
