@@ -10,6 +10,7 @@ if ($editing && !$resident) {
 }
 $then = q('then') === 'request' ? 'request' : '';
 $puroks = $db->select('puroks', [['select', 'id,name,is_active'], ['order', 'name.asc']])['rows'];
+$idTypes = $db->select('id_types', [['select', 'id,name'], ['is_active', 'eq.true'], ['order', 'name.asc']])['rows'];
 $errors = [];
 $old = is_post() ? $_POST : ($resident ?? []);
 
@@ -33,6 +34,29 @@ if (is_post()) {
         'occupation'          => $v->text('occupation', 'Occupation', false, 0, 100),
         'is_registered_voter' => $v->bool('is_registered_voter'),
     ];
+    $idTypeIn = trim((string) ($_POST['id_type_id'] ?? ''));
+    $idNumIn = trim((string) ($_POST['id_number'] ?? ''));
+    if ($idTypeIn !== '' || $idNumIn !== '') {
+        $typeName = null;
+        foreach ($idTypes as $t) {
+            if ((string) $t['id'] === $idTypeIn) {
+                $typeName = (string) $t['name'];
+            }
+        }
+        if ($typeName === null) {
+            $v->error('id_type_id', 'Choose the ID type that goes with this number.');
+        } elseif ($idNumIn === '') {
+            $v->error('id_number', 'Enter the ID number, or clear the ID type.');
+        } else {
+            [$normalised, $idErr] = IdFormat::check($typeName, $idNumIn);
+            if ($idErr !== null) {
+                $v->error('id_number', $idErr);
+            } else {
+                $data['id_type_id'] = (int) $idTypeIn;
+                $data['id_number'] = $normalised;
+            }
+        }
+    }
     if ($editing) {
         $data['status'] = $v->in('status', 'registry status', array_keys(RESIDENT_STATUSES));
     }
@@ -84,8 +108,10 @@ page_header($title, $editing ? resident_name($resident) : 'Encode a resident who
       </select><?= field_error($errors, 'purok_id') ?></div>
     <div class="col-md-6"><label class="form-label" for="street_address">House no. and street</label><input class="form-control<?= invalid($errors, 'street_address') ?>" id="street_address" name="street_address" value="<?= e(old($old, 'street_address')) ?>" required maxlength="200"><?= field_error($errors, 'street_address') ?></div>
     <div class="col-md-3"><label class="form-label" for="resident_since">Resident since</label><input class="form-control<?= invalid($errors, 'resident_since') ?>" id="resident_since" name="resident_since" type="date" value="<?= e(old($old, 'resident_since')) ?>" required max="<?= e(today_local()) ?>"><?= field_error($errors, 'resident_since') ?></div>
-    <div class="col-md-4"><label class="form-label" for="contact_no">Mobile number <span class="optional">optional</span></label><input class="form-control<?= invalid($errors, 'contact_no') ?>" id="contact_no" name="contact_no" value="<?= e(old($old, 'contact_no')) ?>" inputmode="tel" pattern="(\+63|63|0)?9[0-9]{9}"><?= field_error($errors, 'contact_no') ?></div>
+    <div class="col-md-4"><label class="form-label" for="contact_no">Mobile number <span class="optional">optional</span></label><input class="form-control<?= invalid($errors, 'contact_no') ?>" id="contact_no" name="contact_no" value="<?= e(old($old, 'contact_no')) ?>" inputmode="tel" pattern="(\+63|63|0)?<?= Validator::PH_MOBILE_HTML ?>"><?= field_error($errors, 'contact_no') ?></div>
     <div class="col-md-5"><label class="form-label" for="email">Email <span class="optional">optional</span></label><input class="form-control<?= invalid($errors, 'email') ?>" id="email" name="email" type="email" value="<?= e(old($old, 'email')) ?>" maxlength="254"><?= field_error($errors, 'email') ?></div>
+    <div class="col-md-5"><label class="form-label" for="id_type_id">ID type <span class="optional">optional</span></label><select class="form-select<?= invalid($errors, 'id_type_id') ?>" id="id_type_id" name="id_type_id" data-id-type="id_number" data-id-rules="<?= e(json_encode(IdFormat::forBrowser($idTypes))) ?>"><?= options(pluck($idTypes), old($old, 'id_type_id'), 'None') ?></select><?= field_error($errors, 'id_type_id') ?></div>
+    <div class="col-md-4"><label class="form-label" for="id_number">ID number <span class="optional">optional</span></label><input class="form-control<?= invalid($errors, 'id_number') ?>" id="id_number" name="id_number" value="<?= e(old($old, 'id_number')) ?>" maxlength="40" autocomplete="off" aria-describedby="id_number_hint"><div class="form-text" id="id_number_hint">Pick the ID type first. The number must match its format.</div><?= field_error($errors, 'id_number') ?></div>
     <?php if ($editing): ?>
       <div class="col-md-3"><label class="form-label" for="status">Registry status</label><select class="form-select<?= invalid($errors, 'status') ?>" id="status" name="status" required><?= options(RESIDENT_STATUSES, old($old, 'status')) ?></select><?= field_error($errors, 'status') ?></div>
     <?php endif; ?>

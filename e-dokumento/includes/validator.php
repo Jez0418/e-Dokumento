@@ -79,6 +79,12 @@ final class Validator
         return strtolower($v);
     }
 
+    /** Ten digits after the leading 0: a Philippine mobile prefix (0905 to 0999, minus unassigned ranges) plus 7 digits. */
+    public const PH_MOBILE = '9(?:0[5-9]|[1-4]\d|5[0-6]|6[0135-9]|7[03-9]|8[19]|9[1-9])\d{7}';
+
+    /** Same expression for the HTML pattern attribute (no non-capturing groups needed). */
+    public const PH_MOBILE_HTML = '9(0[5-9]|[1-4][0-9]|5[0-6]|6[0135-9]|7[03-9]|8[19]|9[1-9])[0-9]{7}';
+
     public function phone(string $field, string $label = 'Mobile number', bool $required = false): ?string
     {
         $v = preg_replace('/[\s\-().]/', '', $this->raw($field)) ?? '';
@@ -89,8 +95,8 @@ final class Validator
             return null;
         }
         // Philippine mobile numbers: +639xx, 639xx, 09xx or 9xx all become 09xxxxxxxxx (11 digits).
-        if (preg_match('/^(?:\+63|63|0)?(9\d{9})$/', $v, $m) !== 1) {
-            $this->error($field, "{$label} must be a Philippine mobile number with 11 digits, like 09171234567.");
+        if (preg_match('/^(?:\+63|63|0)?(' . self::PH_MOBILE . ')$/', $v, $m) !== 1) {
+            $this->error($field, "{$label} must be a valid Philippine mobile number: 11 digits starting with 09, like 09171234567.");
             return $v;
         }
         $v = '0' . $m[1];

@@ -58,6 +58,7 @@ page_header(resident_name($r), (one($r['puroks'])['name'] ?? '') . ', ' . $r['st
         <div><dt>Resident since</dt><dd><?= e(fmt_date($r['resident_since'], 'F Y')) ?></dd></div>
         <div><dt>Occupation</dt><dd><?= e($r['occupation'] ?: '—') ?></dd></div>
         <div><dt>Mobile</dt><dd><?= e($r['contact_no'] ?: '—') ?></dd></div>
+        <?php if (!empty($r['id_number'])): ?><div><dt>ID on file</dt><dd class="mono"><?= e($r['id_number']) ?></dd></div><?php endif; ?>
         <div><dt>Email</dt><dd><?= e($r['email'] ?: '—') ?></dd></div>
         <div><dt>Voter</dt><dd><?= $r['is_registered_voter'] ? 'Registered' : 'Not registered' ?></dd></div>
         <div><dt>Registry status</dt><dd><?= e(RESIDENT_STATUSES[$r['status']] ?? $r['status']) ?></dd></div>
