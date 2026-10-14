@@ -35,7 +35,7 @@ if (is_post()) {
         'once_per_lifetime'         => $v->bool('once_per_lifetime'),
         'max_copies'                => $v->integer('max_copies', 'Maximum copies', true, 1, 10),
         'template_key'              => $v->in('template_key', 'print template', array_keys(TEMPLATE_KEYS)),
-        'is_active'                 => $v->bool('is_active'),
+        'is_active'                 => ($_POST['is_active'] ?? '1') === '1',
     ];
     $picked = [];
     $validReq = array_map(static fn ($r) => (string) $r['id'], $requirements);
@@ -100,10 +100,10 @@ $isChecked = static function (string $key) use ($old): bool {
           <div class="col-md-4"><label class="form-label" for="min_residency_months">Minimum residency (months)</label><input class="form-control<?= invalid($errors, 'min_residency_months') ?>" id="min_residency_months" name="min_residency_months" type="number" min="0" max="600" value="<?= e(old($old, 'min_residency_months')) ?>" required><?= field_error($errors, 'min_residency_months') ?></div>
           <div class="col-md-4"><label class="form-label" for="max_copies">Maximum copies</label><input class="form-control<?= invalid($errors, 'max_copies') ?>" id="max_copies" name="max_copies" type="number" min="1" max="10" value="<?= e(old($old, 'max_copies')) ?>" required><?= field_error($errors, 'max_copies') ?></div>
           <div class="col-md-4"><label class="form-label" for="template_key">Print template</label><select class="form-select<?= invalid($errors, 'template_key') ?>" id="template_key" name="template_key" required><?= options(TEMPLATE_KEYS, old($old, 'template_key')) ?></select><?= field_error($errors, 'template_key') ?></div>
+          <div class="col-md-4"><label class="form-label" for="is_active">Status</label><select class="form-select" id="is_active" name="is_active"><?= options(['1' => 'Active', '0' => 'Inactive'], $isChecked('is_active') ? '1' : '0') ?></select><small class="d-block text-secondary">Inactive types cannot be requested. Open requests are not affected.</small></div>
           <div class="col-12">
             <div class="form-check"><input class="form-check-input" type="checkbox" id="requires_captain_approval" name="requires_captain_approval" value="1"<?= chk($isChecked('requires_captain_approval')) ?>><label class="form-check-label" for="requires_captain_approval">Needs the Punong Barangay's approval before release</label></div>
             <div class="form-check"><input class="form-check-input" type="checkbox" id="once_per_lifetime" name="once_per_lifetime" value="1"<?= chk($isChecked('once_per_lifetime')) ?>><label class="form-check-label" for="once_per_lifetime">Can be issued only once per resident</label></div>
-            <div class="form-check"><input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1"<?= chk($isChecked('is_active')) ?>><label class="form-check-label" for="is_active">Residents can request this document</label></div>
           </div>
         </div>
       </section>

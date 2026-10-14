@@ -51,7 +51,6 @@ page_header('Document types', 'What residents can request, its fee, how long it 
         <td><?= $t['is_active'] ? simple_badge('Active', 'success') : simple_badge('Inactive', 'neutral') ?></td>
         <td class="text-end text-nowrap"><div class="row-actions">
           <a class="btn btn-sm btn-outline-secondary" href="<?= e(url('document-types/form', ['id' => $t['id']])) ?>">Edit</a>
-          <?= action_button('/document-types', ['action' => 'toggle', 'type_id' => $t['id'], 'to' => $t['is_active'] ? '0' : '1'], $t['is_active'] ? 'Deactivate' : 'Activate', 'btn-sm btn-outline-secondary', $t['is_active'] ? 'Deactivate ' . $t['name'] . '? Open requests are not affected.' : '') ?>
           <?php if ($count === 0): ?>
             <?= action_button('/document-types', ['action' => 'delete', 'type_id' => $t['id']], 'Delete', 'btn-sm btn-outline-danger', 'Delete ' . $t['name'] . ' permanently? This cannot be undone.') ?>
           <?php endif; ?>
