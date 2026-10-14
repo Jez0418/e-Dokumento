@@ -14,11 +14,12 @@ $canEditResident = $resident && in_array($resident['verification_status'], ['unv
 if (is_post()) {
     $v = new Validator($_POST);
     if ($section === 'account') {
-        $name = $v->text('full_name', 'Display name', true, 2, 120);
-        $phone = $v->phone('contact_no');
+        // A resident's display name comes from the resident record (kept in step by the database).
+        $name = $isResident ? (string) $user['full_name'] : $v->text('full_name', 'Display name', true, 2, 120);
+        $phone = $v->phone('contact_no', 'Mobile number', $isResident);
         if (!$v->fails()) {
             try {
-                $db->update('profiles', [['id', 'eq.' . $user['id']]], ['full_name' => $name, 'contact_no' => $phone]);
+                $db->update('profiles', [['id', 'eq.' . $user['id']]], $isResident ? ['contact_no' => $phone] : ['full_name' => $name, 'contact_no' => $phone]);
                 flash_success('Account details saved.');
                 redirect('/profile');
             } catch (Throwable $e) {
@@ -290,8 +291,8 @@ page_header('Profile', $isResident ? 'Your account, your resident record, and yo
         <?= csrf_field() ?>
         <input type="hidden" name="_section" value="account">
         <div class="row g-3">
-          <div class="col-md-6"><label class="form-label" for="full_name">Display name</label><input class="form-control<?= invalid($errors, 'full_name') ?>" id="full_name" name="full_name" value="<?= e(old($old, 'full_name', (string) $user['full_name'])) ?>" required minlength="2" maxlength="120"><?= field_error($errors, 'full_name') ?></div>
-          <div class="col-md-6"><label class="form-label" for="contact_no">Mobile number <span class="optional">optional</span></label><input class="form-control<?= invalid($errors, 'contact_no') ?>" id="contact_no" name="contact_no" value="<?= e(old($old, 'contact_no', (string) ($user['contact_no'] ?? ''))) ?>" inputmode="tel" pattern="(\+63|63|0)?<?= Validator::PH_MOBILE_HTML ?>"><?= field_error($errors, 'contact_no') ?></div>
+          <div class="col-md-6"><label class="form-label" for="full_name">Display name</label><input class="form-control<?= invalid($errors, 'full_name') ?>" id="full_name" name="full_name" value="<?= e(old($old, 'full_name', (string) $user['full_name'])) ?>" required minlength="2" maxlength="120"<?= $isResident ? ' readonly aria-describedby="full_name_hint"' : '' ?>><?= $isResident ? '<div class="form-text" id="full_name_hint">Taken from your resident record above.</div>' : '' ?><?= field_error($errors, 'full_name') ?></div>
+          <div class="col-md-6"><label class="form-label" for="contact_no">Mobile number<?= $isResident ? '' : ' <span class="optional">optional</span>' ?></label><input class="form-control<?= invalid($errors, 'contact_no') ?>" id="contact_no" name="contact_no" value="<?= e(old($old, 'contact_no', (string) ($user['contact_no'] ?? ''))) ?>" inputmode="tel"<?= $isResident ? ' required' : '' ?> pattern="(\+63|63|0)?<?= Validator::PH_MOBILE_HTML ?>"><?= $isResident ? '<div class="form-text">Same number as in your resident record.</div>' : '' ?><?= field_error($errors, 'contact_no') ?></div>
           <div class="col-12"><label class="form-label" for="email_ro">Email</label><input class="form-control" id="email_ro" value="<?= e($user['email']) ?>" readonly></div>
         </div>
         <button class="btn btn-outline-primary mt-3" type="submit">Save account</button>
