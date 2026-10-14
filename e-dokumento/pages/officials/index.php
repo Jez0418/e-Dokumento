@@ -32,6 +32,10 @@ if (is_post()) {
                 redirect('/officials');
             }
             $errors = $v->errors();
+        } elseif ($action === 'reset_signature' && preg_match('/^\d{1,5}$/', $oid)) {
+            $db->update('barangay_officials', [['id', 'eq.' . $oid]], ['profile_id' => null, 'signature_path' => null]);
+            flash_success('Signature link reset. The Punong Barangay can sign again from their profile.');
+            redirect('/officials');
         } elseif ($action === 'toggle' && preg_match('/^\d{1,5}$/', $oid)) {
             $db->update('barangay_officials', [['id', 'eq.' . $oid]], ['is_active' => post('to') === '1']);
             flash_success(post('to') === '1' ? 'Official marked as serving.' : 'Official marked as no longer serving.');
@@ -68,6 +72,7 @@ page_header('Barangay officials', 'The active Punong Barangay is printed as the 
             <td><?= $o['is_active'] ? simple_badge('Serving', 'success') : simple_badge('Former', 'neutral') ?></td>
             <td class="text-end text-nowrap"><div class="row-actions">
               <a class="btn btn-sm btn-outline-secondary" href="?edit=<?= e($o['id']) ?>">Edit</a>
+              <?php if ($o['position'] === 'punong_barangay' && ($o['signature_path'] || $o['profile_id'])): ?><?= action_button('/officials', ['action' => 'reset_signature', 'official_id' => $o['id']], 'Reset signature', 'btn-sm btn-outline-secondary', 'Remove the signature and let the current Punong Barangay sign again?') ?><?php endif; ?>
               <?= action_button('/officials', ['action' => 'toggle', 'official_id' => $o['id'], 'to' => $o['is_active'] ? '0' : '1'], $o['is_active'] ? 'End service' : 'Reinstate', 'btn-sm btn-outline-secondary', $o['is_active'] ? 'Mark ' . $o['full_name'] . ' as no longer serving?' : '') ?>
             </div></td>
           </tr>

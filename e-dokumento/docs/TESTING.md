@@ -64,3 +64,6 @@ Run every item on the **production Vercel URL**, not only locally. Create one ac
 - [ ] An administrator cannot change the signature (no card; a direct update fails) — auto: `supabase/tests/09_captain_signature.test.sql`
 - [ ] A certificate that needs captain approval prints the signature image and the e-signature note; a revoked one, or a type that needs no approval, does not — auto (rule): `tests/Unit/HelpersTest.php`
 - [ ] `/verify` shows "Electronically signed by" for a signed certificate
+- [ ] A certificate issued before the captain replaced or removed the signature still prints with the old one — auto: `supabase/tests/09_captain_signature.test.sql`
+- [ ] Officials: renaming the Punong Barangay or ending their service clears the signature; **Reset signature** lets the current captain sign again
+- [ ] A resident without that certificate cannot open `/files?bucket=signatures&path=...` — auto (policy): `supabase/tests/09_captain_signature.test.sql`

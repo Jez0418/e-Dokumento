@@ -104,19 +104,17 @@ final class HelpersTest extends TestCase
 
     public static function esignCases(): array
     {
-        $needs = ['requires_captain_approval' => true];
         return [
-            'approved type with signature' => [$needs, 'valid', 'abc/x.png', true],
-            'type needs no approval'       => [['requires_captain_approval' => false], 'valid', 'abc/x.png', false],
-            'revoked'                      => [$needs, 'revoked', 'abc/x.png', false],
-            'no signature'                 => [$needs, 'valid', null, false],
-            'empty signature'              => [$needs, 'valid', '', false],
+            'snapshot present'    => ['valid', 'abc/x.png', true],
+            'revoked'             => ['revoked', 'abc/x.png', false],
+            'no snapshot'         => ['valid', null, false],
+            'empty snapshot'      => ['valid', '', false],
         ];
     }
 
     #[DataProvider('esignCases')]
-    public function test_cert_is_esigned(array $type, string $status, ?string $path, bool $expected): void
+    public function test_cert_is_esigned(string $status, ?string $snapshot, bool $expected): void
     {
-        $this->assertSame($expected, cert_is_esigned($type, $status, $path));
+        $this->assertSame($expected, cert_is_esigned($status, $snapshot));
     }
 }

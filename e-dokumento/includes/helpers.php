@@ -343,10 +343,8 @@ function field_error(array $errors, string $field): string
     return isset($errors[$field]) ? '<div class="invalid-feedback d-block">' . e($errors[$field]) . '</div>' : '';
 }
 
-/** True when a certificate should carry the captain's e-signature image. */
-function cert_is_esigned(array $type, string $docStatus, ?string $signaturePath): bool
+/** True when a certificate should carry the captain's e-signature image (the snapshot taken when it was issued). */
+function cert_is_esigned(string $docStatus, ?string $snapshotPath): bool
 {
-    return !empty($type['requires_captain_approval'])
-        && $docStatus !== 'revoked'
-        && $signaturePath !== null && $signaturePath !== '';
+    return $docStatus !== 'revoked' && $snapshotPath !== null && $snapshotPath !== '';
 }
