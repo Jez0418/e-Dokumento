@@ -731,9 +731,10 @@ body.auth .theme-float { top: var(--s3); right: var(--s3); }
 .auth-steps li + li::before { content: "\2193"; margin-bottom: var(--s2); color: var(--text-muted); font-size: 1rem; }
 .auth-steps i { font-size: 1.5rem; color: var(--accent); }
 .auth-photo { position: relative; margin: 0; }
-.auth-photo img, .auth-photo.is-empty { display: block; width: 100%; aspect-ratio: 16 / 7; object-fit: cover; border-radius: var(--radius); }
+.auth-photo img, .auth-photo.is-empty { display: block; width: 100%; aspect-ratio: 5 / 2; object-fit: cover; border-radius: var(--radius); }
 .auth-photo.is-empty { display: grid; place-items: center; background: linear-gradient(135deg, var(--accent-fill), color-mix(in srgb, var(--accent-fill) 55%, var(--bg))); color: var(--on-accent); }
 .auth-photo.is-empty > i { font-size: 3rem; opacity: .85; }
+.auth-photo img { box-shadow: 0 14px 30px -20px rgba(23, 35, 29, .55); }
 .auth-photo figcaption { margin-top: var(--s2); font-family: var(--font-display); font-style: italic; font-size: var(--text-sm); color: var(--text); }
 .auth-photo.is-empty figcaption { position: absolute; left: var(--s4); bottom: var(--s3); margin: 0; color: var(--on-accent); }
 .auth-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s4) var(--s6); margin: auto 0 0; padding-top: var(--s4); border-top: 1px solid var(--border); }

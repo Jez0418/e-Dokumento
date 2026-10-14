@@ -25,7 +25,7 @@ $hallAddress = (string) setting('hall_address', '');
   </div>
   <figure class="auth-photo<?= $hallPhoto ? '' : ' is-empty' ?>">
     <?php if ($hallPhoto): ?>
-      <img src="/assets/img/hall.jpg" alt="The barangay hall" loading="lazy">
+      <img src="/assets/img/hall.jpg" alt="The entrance arch of Barangay <?= e(barangay_name()) ?>" loading="lazy">
     <?php else: ?>
       <i class="bi bi-bank2" aria-hidden="true"></i>
     <?php endif; ?>
