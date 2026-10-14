@@ -58,3 +58,9 @@ Run every item on the **production Vercel URL**, not only locally. Create one ac
 ## Deployment
 - [ ] No secret key appears in page source or browser network responses â€” auto: `tests/Http/FrontControllerTest.php`
 - [ ] Confirmation and password reset emails link to the production URL
+
+## Captain's e-signature
+- [ ] The captain uploads a PNG on Profile and sees the preview; a PDF or an image over 1 MB is refused with a message — auto (rules): `tests/Unit/UploadTest.php`
+- [ ] An administrator cannot change the signature (no card; a direct update fails) — auto: `supabase/tests/09_captain_signature.test.sql`
+- [ ] A certificate that needs captain approval prints the signature image and the e-signature note; a revoked one, or a type that needs no approval, does not — auto (rule): `tests/Unit/HelpersTest.php`
+- [ ] `/verify` shows "Electronically signed by" for a signed certificate

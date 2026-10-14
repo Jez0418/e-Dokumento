@@ -20,7 +20,7 @@ if (is_post() && post('action') === 'print') {
 
 $doc = $db->first('issued_documents', [
     ['id', 'eq.' . $id],
-    ['select', '*,barangay_officials(full_name,position),document_requests(*,residents(*,puroks(name)),document_types(*),purposes(name),payments(or_number,amount,paid_at,status))'],
+    ['select', '*,barangay_officials(full_name,position,signature_path),document_requests(*,residents(*,puroks(name)),document_types(*),purposes(name),payments(or_number,amount,paid_at,status))'],
 ]);
 if (!$doc) {
     abort(404, 'This document does not exist, or it is not yours to view.');
@@ -30,6 +30,7 @@ $res = one($req['residents']);
 $type = one($req['document_types']);
 $purpose = one($req['purposes'])['name'] ?? '';
 $signatory = one($doc['barangay_officials']);
+$esigned = cert_is_esigned($type, (string) $doc['status'], $signatory['signature_path'] ?? null);
 $paid = array_values(array_filter($req['payments'] ?? [], static fn ($p) => $p['status'] === 'posted'))[0] ?? null;
 $extra = is_array($req['extra_details'] ?? null) ? $req['extra_details'] : [];
 $isOfficialCopy = has_role('secretary');
@@ -91,6 +92,7 @@ guest_start($doc['document_no'], 'print-page');
   <p class="cert-body"><?= $issuedLine ?></p>
 
   <div class="cert-sign">
+    <?php if ($esigned): ?><img class="cert-sign-img" src="<?= e(url('files', ['bucket' => 'signatures', 'path' => $signatory['signature_path']])) ?>" alt="Signature of the Punong Barangay"><?php endif; ?>
     <div class="cert-sign-line"><?= e(mb_strtoupper($signatory['full_name'] ?? '')) ?></div>
     <div>Punong Barangay</div>
   </div>
@@ -106,7 +108,7 @@ guest_start($doc['document_no'], 'print-page');
       <div id="qr" class="cert-qr" data-url="<?= e($verifyUrl) ?>" aria-hidden="true"></div>
       <p>Verify at <strong><?= e(preg_replace('#^https?://#', '', app_url('verify'))) ?></strong><br>Code <strong class="mono"><?= e($doc['verification_code']) ?></strong></p>
     </div>
-    <p class="cert-note">Not valid without the barangay dry seal and the wet signature of the Punong Barangay.</p>
+    <p class="cert-note"><?= $esigned ? 'Electronically signed by the Punong Barangay. Valid only with the barangay dry seal.' : 'Not valid without the barangay dry seal and the wet signature of the Punong Barangay.' ?></p>
   </footer>
 </article>
 <?php guest_end(['https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js', 'print.js']); ?>

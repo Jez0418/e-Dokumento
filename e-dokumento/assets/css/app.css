@@ -814,6 +814,7 @@ body.print-page { background: var(--bg); }
 .cert-salutation { font-weight: 600; font-size: 12pt; margin-bottom: 1rem; }
 .cert-body { font-size: 12.5pt; line-height: 1.75; text-align: justify; text-indent: 3em; margin-bottom: 1rem; max-width: 72ch; }
 .cert-sign { width: 3.2in; margin: 3rem 0 0 auto; text-align: center; font-size: 11.5pt; }
+.cert-sign-img { display: block; max-height: .9in; max-width: 100%; margin: 0 auto -.35rem; }
 .cert-sign-line { border-top: 1.5px solid #111; padding-top: .3rem; font-weight: 700; letter-spacing: .03em; }
 .cert-foot { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #999; font-family: var(--font-sans); font-size: 9.5pt; color: #333; display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: end; }
 .cert-foot dl { margin: 0; display: grid; grid-template-columns: repeat(2, auto); gap: .2rem 1.5rem; }

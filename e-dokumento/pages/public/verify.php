@@ -46,9 +46,9 @@ guest_start('Check a certificate', 'guest verify');
           <div><dt>Issued to</dt><dd><?= e($result['holder']) ?></dd></div>
           <div><dt>Issued on</dt><dd><?= e(fmt_date($result['issued_at'])) ?></dd></div>
           <div><dt>Valid until</dt><dd><?= e($result['valid_until'] ? fmt_date($result['valid_until']) : 'No expiry') ?></dd></div>
-          <div><dt>Signed by</dt><dd><?= e($result['signatory']) ?>, Punong Barangay</dd></div>
+          <div><dt><?= !empty($result['e_signed']) ? 'Electronically signed by' : 'Signed by' ?></dt><dd><?= e($result['signatory']) ?>, Punong Barangay</dd></div>
         </dl>
-        <p class="small text-secondary mb-0">Compare these details with the paper copy. A genuine copy also carries the barangay's dry seal and a wet signature.</p>
+        <p class="small text-secondary mb-0">Compare these details with the paper copy. A genuine copy also carries the barangay's dry seal<?= !empty($result['e_signed']) ? '.' : ' and a wet signature.' ?></p>
       <?php endif; ?>
     </section>
   <?php endif; ?>
