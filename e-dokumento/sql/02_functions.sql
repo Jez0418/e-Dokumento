@@ -164,7 +164,8 @@ language plpgsql security definer
 set search_path = ''
 as $$
 begin
-  if auth.uid() is null or public.has_role('admin') then
+  if auth.uid() is null or public.has_role('admin')
+     or coalesce(current_setting('app.account_sync', true), '') = 'on' then
     return new;
   end if;
   if new.id is distinct from old.id

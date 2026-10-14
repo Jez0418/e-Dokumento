@@ -52,6 +52,7 @@ Open **SQL Editor → New query** and run each file, in this order, one at a tim
 | 5 | `sql/05_seed.sql` | Starting reference data: puroks, accepted IDs, purposes, requirements, five document types, settings |
 | 9 | `sql/09_email_outbox.sql` | Optional. Email outbox, queueing trigger and sending functions for status emails (see [Turn on status emails](#turn-on-status-emails)). Safe to rerun; emails stay off until an Administrator turns them on |
 | 10 | `sql/10_captain_signature.sql` | The Punong Barangay's e-signature: private `signatures` bucket, guards so only the captain account linked to the office can sign (renaming or ending service clears it), a per-certificate signature snapshot, and the `e_signed` flag on the public check. Safe to rerun; run it again after updating |
+| 11 | `sql/11_close_account_on_exit.sql` | Marking a resident Moved out or Deceased deactivates their online account (and Active reactivates it). Also catches up residents already marked. Safe to rerun |
 
 `05_seed.sql` contains configuration only. No residents, requests or payments are seeded; everything you see in the app was entered through it. Set the **fees to your barangay's revenue ordinance** under Document types.
 
