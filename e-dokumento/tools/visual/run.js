@@ -34,7 +34,7 @@ const PAGES = {
   secretary: [['dashboard', '/dashboard'], ['requests', '/requests'], ['request-review', REQ(1)], ['walk-in', '/requests/new'], ['residents', '/residents'], ['resident', '/residents/view?id=' + uuid(101)], ['resident-form', '/residents/form'], ['verifications', '/verifications'], ['documents', '/documents'], ['certificate', '/documents/print?id=' + uuid(705)], ['reports', '/reports']],
   treasurer: [['dashboard', '/dashboard'], ['cashiering', '/payments'], ['payment-history', '/payments?tab=history'], ['payment', '/payments/view?id=' + uuid(503)], ['reports', '/reports']],
   captain: [['dashboard', '/dashboard'], ['approvals', '/requests?status=for_approval'], ['audit', '/audit']],
-  admin: [['dashboard', '/dashboard'], ['document-types', '/document-types'], ['document-type-form', '/document-types/form'], ['requirements', '/requirements'], ['reference', '/reference'], ['officials', '/officials'], ['users', '/users'], ['settings', '/settings'], ['audit', '/audit']],
+  admin: [['dashboard', '/dashboard'], ['release', '/requests?status=ready_for_release'], ['document-types', '/document-types'], ['document-type-form', '/document-types/form'], ['requirements', '/requirements'], ['reference', '/reference'], ['officials', '/officials'], ['users', '/users'], ['settings', '/settings'], ['audit', '/audit']],
 };
 
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');

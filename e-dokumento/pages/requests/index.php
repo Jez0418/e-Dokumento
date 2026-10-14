@@ -85,7 +85,15 @@ $active = match (true) {
     $role === 'admin' && $f['status'] === 'ready_for_release' => 'release',
     default                                                   => 'requests',
 };
-layout_start($isResident ? 'My requests' : 'Requests', $active);
+// The heading follows the sidebar item that led here
+[$heading, $lead] = match ($active) {
+    'release'   => ['Ready for release', 'Documents that are paid and signed, waiting for the resident to claim them.'],
+    'approvals' => ['For approval', 'Documents waiting for the Punong Barangay\'s approval.'],
+    default     => $isResident
+        ? ['My requests', 'Every document you have requested and where it is now.']
+        : ['Requests', 'Search the queue by control number or resident name.'],
+};
+layout_start($heading, $active);
 
 $action = '';
 if ($role === 'resident' && (!id_verification_required() || (Auth::resident()['verification_status'] ?? '') === 'verified')) {
@@ -93,7 +101,7 @@ if ($role === 'resident' && (!id_verification_required() || (Auth::resident()['v
 } elseif ($role === 'secretary') {
     $action = '<a class="btn btn-primary" href="/requests/new"><i class="bi bi-person-plus me-1" aria-hidden="true"></i>Walk-in request</a>';
 }
-page_header($isResident ? 'My requests' : 'Requests', $isResident ? 'Every document you have requested and where it is now.' : 'Search the queue by control number or resident name.', $action);
+page_header($heading, $lead, $action);
 
 $chips = ['' => 'All'] + REQUEST_STATUSES;
 ?>
@@ -113,16 +121,16 @@ $chips = ['' => 'All'] + REQUEST_STATUSES;
   </div>
   <div>
     <label class="form-label small" for="type">Document</label>
-    <select id="type" name="type" class="form-select"><?= options(pluck($types), $f['type'], 'All documents') ?></select>
+    <select id="type" name="type" class="form-select"><?= options(pluck($types), $f['type'], 'All') ?></select>
   </div>
   <?php if (!$isResident): ?>
   <div>
     <label class="form-label small" for="purok">Purok</label>
-    <select id="purok" name="purok" class="form-select"><?= options(pluck($puroks), $f['purok'], 'All puroks') ?></select>
+    <select id="purok" name="purok" class="form-select"><?= options(pluck($puroks), $f['purok'], 'All') ?></select>
   </div>
   <div>
     <label class="form-label small" for="channel">Filed</label>
-    <select id="channel" name="channel" class="form-select"><?= options(['online' => 'Online', 'walk_in' => 'Walk-in'], $f['channel'], 'Any way') ?></select>
+    <select id="channel" name="channel" class="form-select"><?= options(['online' => 'Online', 'walk_in' => 'Walk-in'], $f['channel'], 'Any') ?></select>
   </div>
   <?php endif; ?>
   <div>

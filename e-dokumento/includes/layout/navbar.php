@@ -4,11 +4,6 @@
     <i class="bi bi-list" aria-hidden="true"></i>
   </button>
   <span class="topbar-title d-md-none"><?= e($pageTitle) ?></span>
-  <form class="topbar-search d-none d-md-flex" action="/requests" method="get" role="search">
-    <i class="bi bi-search" aria-hidden="true"></i>
-    <label class="visually-hidden" for="topbar-q">Find a request by control number or name</label>
-    <input id="topbar-q" name="q" type="search" placeholder="Control number or name" autocomplete="off" maxlength="80">
-  </form>
   <div class="topbar-right">
     <button type="button" class="btn btn-icon" data-theme-toggle aria-label="Switch to dark theme">
       <i class="bi bi-sun ti-to-light" aria-hidden="true"></i><i class="bi bi-moon ti-to-dark" aria-hidden="true"></i>
