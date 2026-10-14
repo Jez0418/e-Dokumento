@@ -122,6 +122,7 @@ if ($isCaptain) {
 }
 
 if (is_post() && $isCaptain && $section === 'signature') {
+    $oldPath = $captainOfficial['signature_path'] ?? null;
     $newPath = null;
     try {
         if (post('action') === 'remove') {
@@ -142,6 +143,13 @@ if (is_post() && $isCaptain && $section === 'signature') {
             }
         }
         if (!isset($errors['signature'])) {
+            // Storage refuses to delete an image a certificate was issued with, so this is safe to try.
+            if ($oldPath && $oldPath !== $newPath) {
+                try {
+                    $db->removeObjects('signatures', [$oldPath]);
+                } catch (Throwable) {
+                }
+            }
             redirect('/profile');
         }
     } catch (Throwable $e) {

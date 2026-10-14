@@ -242,6 +242,6 @@ The UI was built from the design plan in the design document. To add the UI/UX P
 
 - Payments through GCash or Maya are recorded by reference number; the app does not collect money.
 - Notifications are in-app; residents with an email address also get an email when a request needs payment, is ready for pickup, or is rejected (Gmail, about 500 a day).
-- Printed certificates still need the dry seal and a wet signature; the verification code lets offices confirm them online.
+- Printed certificates still need the barangay's dry seal. Types that need the captain's approval carry the captain's e-signature (drawn on their Profile page); other types keep a wet signature. The verification code lets offices confirm them online.
 - The Treasurer's database access includes resident rows (needed to show names on payments); the interface shows names only.
 - One barangay per deployment.

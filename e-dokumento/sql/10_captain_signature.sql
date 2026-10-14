@@ -1,6 +1,7 @@
 -- =====================================================================
 -- 10_captain_signature.sql -- the Punong Barangay's e-signature image.
--- Run after 01-09. Safe to rerun.
+-- Run after 01-09. Safe to rerun. Run it again after rerunning 02_functions.sql,
+-- which would otherwise put back the original verify_document (no e_signed).
 --
 -- The image lives in the private "signatures" bucket and the active
 -- Punong Barangay's barangay_officials.signature_path points at it.
@@ -28,7 +29,8 @@ alter table public.issued_documents
 -- ---------------------------------------------------------------------
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('signatures', 'signatures', false, 1048576, array['image/jpeg', 'image/png'])
-on conflict (id) do nothing;
+on conflict (id) do update
+  set file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
 
 drop policy if exists "Captain uploads own signature" on storage.objects;
 create policy "Captain uploads own signature"
@@ -57,7 +59,8 @@ create policy "Captain removes own signature"
     bucket_id = 'signatures'
     and (storage.foldername(name))[1] = auth.uid()::text
     and public.has_role('captain')
-    and not exists (select 1 from public.issued_documents d where d.signature_path = name));
+    and not exists (select 1 from public.issued_documents d where d.signature_path = name)
+    and not exists (select 1 from public.barangay_officials o where o.signature_path = name));
 
 -- ---------------------------------------------------------------------
 -- Nobody changes their own role (the Users page only enforced this in PHP)
@@ -92,7 +95,9 @@ declare
   v_cleared boolean := false;
 begin
   if tg_op = 'INSERT' then
-    if (new.signature_path is not null or new.profile_id is not null) and not public.has_role('captain') then
+    if v_uid is not null
+       and (new.signature_path is not null or new.profile_id is not null)
+       and not public.has_role('captain') then
       raise exception 'Only the Punong Barangay can change the signature.';
     end if;
     return new;
@@ -172,6 +177,9 @@ begin
     end if;
     if split_part(p_path, '/', 1) <> auth.uid()::text then
       raise exception 'That signature file is not in your folder.';
+    end if;
+    if not exists (select 1 from storage.objects where bucket_id = 'signatures' and name = p_path) then
+      raise exception 'That signature file has not been uploaded.';
     end if;
   end if;
 
@@ -264,3 +272,8 @@ end;
 $$;
 
 grant execute on function public.verify_document(text) to anon, authenticated;
+
+-- Trigger functions run only as triggers.
+revoke all on function public.guard_signature_path() from public, anon, authenticated;
+revoke all on function public.guard_own_role() from public, anon, authenticated;
+revoke all on function public.snapshot_signature() from public, anon, authenticated;

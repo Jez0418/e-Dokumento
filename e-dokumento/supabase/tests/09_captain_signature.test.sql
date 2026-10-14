@@ -2,7 +2,7 @@
 -- service change clears it, certificates snapshot it, and only people who can see
 -- a certificate can read the image.
 begin;
-select plan(27);
+select plan(30);
 
 -- Setup as postgres. Ids live in transaction-local settings so every role can read them.
 do $$
@@ -18,6 +18,9 @@ begin
   perform set_config('t.tre', tests.create_staff('tre@example.test', 'treasurer')::text, true);
   perform set_config('t.res', tests.resident_of(v_ana)::text, true);
   perform set_config('t.path', current_setting('t.cap') || '/aaaaaaaaaaaaaaaaaaaaaaaa.png', true);
+  insert into storage.objects (bucket_id, name) values ('signatures', current_setting('t.path'));
+  insert into storage.objects (bucket_id, name)
+    values ('signatures', current_setting('t.cap2') || '/cccccccccccccccccccccccc.png');
 end $$;
 
 -- No Punong Barangay yet
@@ -44,6 +47,10 @@ select throws_ok(
 select throws_ok(
   $$select public.set_captain_signature('00000000-0000-0000-0000-000000000000/bbbbbbbbbbbbbbbbbbbbbbbb.png')$$,
   'P0001', 'That signature file is not in your folder.', 'A path in another folder is rejected');
+
+select throws_ok(
+  $$select public.set_captain_signature(current_setting('t.cap') || '/dddddddddddddddddddddddd.png')$$,
+  'P0001', 'That signature file has not been uploaded.', 'A path with no stored file is rejected');
 
 -- I1: another captain-role account cannot take over a linked seat
 select tests.act_as(current_setting('t.cap2')::uuid);
@@ -76,6 +83,19 @@ select tests.act_as(current_setting('t.tre')::uuid);
 select throws_ok(
   $$select public.set_captain_signature(null)$$,
   'P0001', 'Only the Punong Barangay can change the signature.', 'The Treasurer cannot use the RPC');
+
+select tests.act_as(current_setting('t.ana')::uuid);
+do $$
+begin
+  update public.barangay_officials set signature_path = 'evil' where position = 'punong_barangay';
+exception when others then
+  null;
+end $$;
+select is((select signature_path from public.barangay_officials where position = 'punong_barangay' and is_active),
+  current_setting('t.path'), 'A resident cannot change the signature');
+select throws_ok(
+  $$insert into storage.objects (bucket_id, name) values ('signatures', current_setting('t.ana') || '/eeeeeeeeeeeeeeeeeeeeeeee.png')$$,
+  '42501', null, 'A resident cannot upload into the signatures bucket');
 
 -- I2: renaming the official clears the signature but keeps the link
 select tests.act_as(current_setting('t.adm')::uuid);
@@ -125,9 +145,6 @@ select is((select signature_path from public.issued_documents where id = current
   current_setting('t.path'), 'The certificate snapshots the signature path');
 
 -- I4: the image is readable only by the captain and by people who can see a certificate that uses it
-reset role;
-select set_config('request.jwt.claims', '', true);
-insert into storage.objects (bucket_id, name) values ('signatures', current_setting('t.path'));
 select tests.act_as(current_setting('t.ana')::uuid);
 select is((select count(*)::int from storage.objects where bucket_id = 'signatures' and name = current_setting('t.path')),
   1, 'The resident who holds the certificate can read the signature image');
