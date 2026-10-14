@@ -28,7 +28,7 @@ if (is_post()) {
             }
             if (!$v->fails()) {
                 if (preg_match('/^\d{1,5}$/', $rid)) {
-                    $db->update($tab, [['id', 'eq.' . $rid]], $data + ['is_active' => ($_POST['is_active'] ?? '1') === '1']);
+                    $db->update($tab, [['id', 'eq.' . $rid]], $data);
                 } else {
                     $db->insert($tab, $data);
                 }
@@ -37,6 +37,11 @@ if (is_post()) {
             }
             $errors = $v->errors();
         } elseif ($action === 'delete' && preg_match('/^\d{1,5}$/', $rid)) {
+            [$chkTable, $chkCol] = $cfg['used'];
+            if ($db->first($chkTable, [['select', $chkCol], [$chkCol, 'eq.' . $rid]]) !== null) {
+                flash_error('This ' . $cfg['singular'] . ' is still in use' . ($tab === 'puroks' ? ' by residents who live there' : '') . ' and cannot be deleted.');
+                redirect($self);
+            }
             $db->delete($tab, [['id', 'eq.' . $rid]]);
             flash_success(ucfirst($cfg['singular']) . ' deleted.');
             redirect($self);
@@ -47,7 +52,7 @@ if (is_post()) {
     }
 }
 
-$rows = $db->select($tab, [['select', '*'], ['order', 'is_active.desc,name.asc']])['rows'];
+$rows = $db->select($tab, [['select', '*'], ['order', 'name.asc']])['rows'];
 [$usedTable, $usedCol] = $cfg['used'];
 $usage = [];
 foreach ($db->select($usedTable, [['select', $usedCol], ['limit', '10000']])['rows'] as $u) {
@@ -55,7 +60,7 @@ foreach ($db->select($usedTable, [['select', $usedCol], ['limit', '10000']])['ro
 }
 
 layout_start('Reference data', 'reference');
-page_header('Puroks, purposes and IDs', 'Lists used in forms across the system. Deactivate entries that are in use instead of deleting them.');
+page_header('Puroks, purposes and IDs', 'Lists used in forms across the system.');
 ?>
 <nav class="status-tabs" aria-label="Lists">
   <?php foreach ($tabs as $k => $t): ?><a href="?tab=<?= e($k) ?>" class="<?= $tab === $k ? 'active' : '' ?>"><?= e($t['label']) ?></a><?php endforeach; ?>
@@ -66,16 +71,15 @@ page_header('Puroks, purposes and IDs', 'Lists used in forms across the system. 
       <?php if (!$rows): ?><?= empty_state('Nothing here yet', 'Add the first ' . $cfg['singular'] . ' with the form.', '', '', 'tags') ?><?php else: ?>
       <p class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i>Swipe sideways to see every column.</p>
       <div class="table-responsive"><table class="table data-table">
-        <thead><tr><th scope="col">Name</th><th scope="col">In use</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+        <thead><tr><th scope="col">Name</th><th scope="col">In use</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
         <tbody>
         <?php foreach ($rows as $r): $n = $usage[(string) $r['id']] ?? 0; ?>
-          <tr class="<?= $r['is_active'] ? '' : 'row-muted' ?>">
+          <tr>
             <td><strong><?= e($r['name']) ?></strong><?= !empty($r['description']) ? '<small class="d-block text-secondary">' . e($r['description']) . '</small>' : '' ?></td>
             <td><?= $n ?></td>
-            <td><?= $r['is_active'] ? simple_badge('Active', 'success') : simple_badge('Inactive', 'neutral') ?></td>
             <td class="text-end text-nowrap"><div class="row-actions">
               <a class="btn btn-sm btn-outline-secondary" href="<?= e(url('reference', ['tab' => $tab, 'edit' => $r['id']])) ?>">Edit</a>
-              <?php if ($n === 0): ?><?= action_button($self, ['action' => 'delete', 'row_id' => $r['id']], 'Delete', 'btn-sm btn-outline-danger', 'Delete ' . $r['name'] . '?') ?><?php endif; ?>
+              <?php if ($n > 0): ?><span class="small text-secondary">In use</span><?php else: ?><?= action_button($self, ['action' => 'delete', 'row_id' => $r['id']], 'Delete', 'btn-sm btn-outline-danger', 'Delete ' . $r['name'] . '?') ?><?php endif; ?>
             </div></td>
           </tr>
         <?php endforeach; ?>
@@ -91,7 +95,6 @@ page_header('Puroks, purposes and IDs', 'Lists used in forms across the system. 
         <?= csrf_field() ?><input type="hidden" name="action" value="save"><input type="hidden" name="row_id" value="<?= e($editing['id'] ?? '') ?>">
         <div class="mb-3"><label class="form-label" for="name">Name</label><input class="form-control<?= invalid($errors, 'name') ?>" id="name" name="name" value="<?= e(old($old, 'name')) ?>" required maxlength="<?= (int) $cfg['max'] ?>"><?= field_error($errors, 'name') ?></div>
         <?php if ($cfg['desc']): ?><div class="mb-3"><label class="form-label" for="description">Description <span class="optional">optional</span></label><input class="form-control<?= invalid($errors, 'description') ?>" id="description" name="description" value="<?= e(old($old, 'description')) ?>" maxlength="255" placeholder="Landmarks or streets covered"><?= field_error($errors, 'description') ?></div><?php endif; ?>
-        <?php if ($editing): ?><div class="mb-3"><label class="form-label" for="is_active">Status</label><select class="form-select" id="is_active" name="is_active"><?= options(['1' => 'Active', '0' => 'Inactive'], !empty($editing['is_active']) && ($old['is_active'] ?? '1') !== '0' ? '1' : '0') ?></select></div><?php endif; ?>
         <button class="btn btn-primary" type="submit">Save</button>
       </form>
     </section>
