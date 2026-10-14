@@ -91,10 +91,6 @@ def full_name(r):
 STATUS_LIST = ['pending', 'under_review', 'for_payment', 'processing', 'for_approval', 'ready_for_release', 'released', 'rejected', 'cancelled']
 OFFICIALS = [
     {'id': 1, 'full_name': 'Eduardo Mercado', 'position': 'punong_barangay', 'committee': None, 'term_start': d(700), 'term_end': d(-400), 'signature_path': None, 'is_active': True},
-    {'id': 2, 'full_name': 'Maria Santos', 'position': 'secretary', 'committee': None, 'term_start': d(700), 'term_end': d(-400), 'signature_path': None, 'is_active': True},
-    {'id': 3, 'full_name': 'Lorna Bautista', 'position': 'treasurer', 'committee': None, 'term_start': d(700), 'term_end': d(-400), 'signature_path': None, 'is_active': True},
-    {'id': 4, 'full_name': 'Ricardo Flores', 'position': 'kagawad', 'committee': 'Peace and order', 'term_start': d(700), 'term_end': d(-400), 'signature_path': None, 'is_active': True},
-    {'id': 5, 'full_name': 'Angela Navarro', 'position': 'sk_chairperson', 'committee': 'Youth', 'term_start': d(700), 'term_end': d(-400), 'signature_path': None, 'is_active': False},
 ]
 
 REQUESTS = []

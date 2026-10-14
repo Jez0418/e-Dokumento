@@ -69,7 +69,7 @@ select throws_ok(
   'P0001', 'Only the Punong Barangay can change the signature.', 'An administrator cannot update signature_path directly');
 select throws_ok(
   $$insert into public.barangay_officials (full_name, position, term_start, term_end, signature_path)
-    values ('Fake Kagawad', 'kagawad', date '2025-07-01', date '2028-06-30', 'evil')$$,
+    values ('Fake Captain', 'punong_barangay', date '2025-07-01', date '2028-06-30', 'evil')$$,
   'P0001', 'Only the Punong Barangay can change the signature.', 'An administrator cannot insert a signature_path');
 select throws_ok(
   $$update public.profiles set role_id = (select id from public.roles where code = 'captain')

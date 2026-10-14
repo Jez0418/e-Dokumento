@@ -53,6 +53,7 @@ Open **SQL Editor → New query** and run each file, in this order, one at a tim
 | 9 | `sql/09_email_outbox.sql` | Optional. Email outbox, queueing trigger and sending functions for status emails (see [Turn on status emails](#turn-on-status-emails)). Safe to rerun; emails stay off until an Administrator turns them on |
 | 10 | `sql/10_captain_signature.sql` | The Punong Barangay's e-signature: private `signatures` bucket, guards so only the captain account linked to the office can sign (renaming or ending service clears it), a per-certificate signature snapshot, and the `e_signed` flag on the public check. Safe to rerun; run it again after updating |
 | 11 | `sql/11_close_account_on_exit.sql` | Marking a resident Moved out or Deceased deactivates their online account (and Active reactivates it). Also catches up residents already marked. Safe to rerun |
+| 12 | `sql/12_officials_captain_only.sql` | The Officials list holds only the Punong Barangay: deletes other official rows (Secretary, Treasurer and the rest are set up under Users) and restricts the position. Safe to rerun |
 
 `05_seed.sql` contains configuration only. No residents, requests or payments are seeded; everything you see in the app was entered through it. Set the **fees to your barangay's revenue ordinance** under Document types.
 
@@ -94,7 +95,7 @@ Residents register themselves; staff accounts are created by an Administrator. C
    ```
 3. Sign in to the app. Then:
    - **Settings:** enter the barangay name, city or municipality, province and office hours.
-   - **Officials:** add the active Punong Barangay. Documents cannot be issued until you do.
+   - **Punong Barangay:** add the active Punong Barangay under Officials. Documents cannot be issued until you do. Other roles are set up under Users, not here.
    - **Users:** create the Punong Barangay, Secretary and Treasurer accounts.
 
 ## 5. Configure local environment variables

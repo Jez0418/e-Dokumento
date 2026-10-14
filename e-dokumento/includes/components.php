@@ -23,13 +23,7 @@ const VERIFICATION_STATUSES = [
 const RESIDENT_STATUSES = ['active' => 'Active', 'moved_out' => 'Moved out', 'deceased' => 'Deceased', 'inactive' => 'Inactive'];
 const CIVIL_STATUSES = ['single' => 'Single', 'married' => 'Married', 'widowed' => 'Widowed', 'separated' => 'Separated', 'annulled' => 'Annulled'];
 const PAYMENT_METHODS = ['cash' => 'Cash', 'gcash' => 'GCash', 'maya' => 'Maya', 'bank_transfer' => 'Bank transfer'];
-const OFFICIAL_POSITIONS = [
-    'punong_barangay' => 'Punong Barangay',
-    'kagawad'         => 'Barangay Kagawad',
-    'secretary'       => 'Barangay Secretary',
-    'treasurer'       => 'Barangay Treasurer',
-    'sk_chairperson'  => 'SK Chairperson',
-];
+const OFFICIAL_POSITIONS = ['punong_barangay' => 'Punong Barangay'];
 const TEMPLATE_KEYS = [
     'clearance' => 'Barangay clearance',
     'residency' => 'Certificate of residency',
