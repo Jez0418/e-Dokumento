@@ -79,7 +79,7 @@ page_header('Puroks, purposes and IDs', 'Lists used in forms across the system.'
             <td><?= $n ?></td>
             <td class="text-end text-nowrap"><div class="row-actions">
               <a class="btn btn-sm btn-outline-secondary" href="<?= e(url('reference', ['tab' => $tab, 'edit' => $r['id']])) ?>">Edit</a>
-              <?php if ($n > 0): ?><span class="small text-secondary">In use</span><?php else: ?><?= action_button($self, ['action' => 'delete', 'row_id' => $r['id']], 'Delete', 'btn-sm btn-outline-danger', 'Delete ' . $r['name'] . '?') ?><?php endif; ?>
+              <?php if ($n === 0): ?><?= action_button($self, ['action' => 'delete', 'row_id' => $r['id']], 'Delete', 'btn-sm btn-outline-danger', 'Delete ' . $r['name'] . '?') ?><?php endif; ?>
             </div></td>
           </tr>
         <?php endforeach; ?>
