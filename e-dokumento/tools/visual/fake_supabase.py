@@ -237,6 +237,22 @@ class H(BaseHTTPRequestHandler):
                 return self.send(200, summary())
             if fn == 'verify_document':
                 return self.send(200, [{'status': 'valid'}])
+            if fn == 'report_issuance_summary':
+                return self.send(200, [
+                    {'document_type': 'Barangay clearance', 'issued': 42, 'released': 38, 'revoked': 1, 'fees': 2100},
+                    {'document_type': 'Certificate of indigency', 'issued': 17, 'released': 17, 'revoked': 0, 'fees': 0},
+                    {'document_type': 'First time jobseeker (RA 11261)', 'issued': 6, 'released': 5, 'revoked': 0, 'fees': 0},
+                    {'document_type': 'Certificate of residency', 'issued': 118, 'released': 110, 'revoked': 3, 'fees': 5900}])
+            if fn == 'report_processing_time':
+                return self.send(200, [
+                    {'document_type': 'Barangay clearance', 'target_days': 1, 'released': 38, 'avg_days': 0.8, 'max_days': 3, 'overdue_open': 2},
+                    {'document_type': 'Certificate of indigency', 'target_days': 2, 'released': 17, 'avg_days': 2.4, 'max_days': 6, 'overdue_open': 0},
+                    {'document_type': 'First time jobseeker (RA 11261)', 'target_days': 1, 'released': 5, 'avg_days': None, 'max_days': None, 'overdue_open': 1}])
+            if fn == 'report_residents_by_purok':
+                return self.send(200, [
+                    {'purok': 'Purok 1', 'total': 214, 'verified': 180, 'voters': 120, 'with_account': 64},
+                    {'purok': 'Purok 2', 'total': 187, 'verified': 150, 'voters': 98, 'with_account': 41},
+                    {'purok': 'Purok 3', 'total': 9, 'verified': 4, 'voters': 2, 'with_account': 0}])
             return self.send(200, [])
         if p.startswith('/rest/v1/'):
             table = p.split('/')[-1]
