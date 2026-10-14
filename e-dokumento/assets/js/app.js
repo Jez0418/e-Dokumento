@@ -42,6 +42,27 @@
     other?.addEventListener('input', check);
   });
 
+  // ---- Live field errors: show the message while the user types, not only on submit ----
+  const liveError = (input, message, after) => {
+    const parent = input.parentElement;
+    parent.querySelectorAll('.invalid-feedback:not([data-live])').forEach((el) => el.remove());
+    let box = parent.querySelector('.invalid-feedback[data-live]');
+    if (!message) {
+      input.classList.remove('is-invalid');
+      box?.remove();
+      return;
+    }
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'invalid-feedback d-block';
+      box.dataset.live = '1';
+      box.setAttribute('role', 'alert');
+      (after || input).insertAdjacentElement('afterend', box);
+    }
+    box.textContent = message;
+    input.classList.add('is-invalid');
+  };
+
   // ---- ID number follows the chosen ID type ---------------------------------
   document.querySelectorAll('[data-id-type]').forEach((select) => {
     const input = document.getElementById(select.dataset.idType);
@@ -51,15 +72,32 @@
     const hint = document.getElementById(input.getAttribute('aria-describedby') || '');
     const sync = () => {
       const rule = rules[select.value];
-      if (!rule) { input.setCustomValidity(''); input.placeholder = ''; return; }
+      if (!rule) { input.setCustomValidity(''); input.placeholder = ''; liveError(input, ''); return; }
       input.placeholder = rule.example || '';
       if (hint) hint.textContent = rule.hint;
       const compact = input.value.replace(/[\s-]+/g, '').toUpperCase();
-      input.setCustomValidity(compact === '' || new RegExp(rule.re).test(compact) ? '' : 'This does not match the ID type. ' + rule.hint);
+      const bad = compact !== '' && !new RegExp(rule.re).test(compact);
+      const msg = 'ID number does not match the format of ' + select.selectedOptions[0].textContent.trim() + '. ' + rule.hint;
+      input.setCustomValidity(bad ? msg : '');
+      liveError(input, bad ? msg : '', hint);
     };
     select.addEventListener('change', sync);
     input.addEventListener('input', sync);
     sync();
+  });
+
+  // ---- Mobile numbers: Philippine format, checked as the user types ---------
+  document.querySelectorAll('input[name^="contact_no"][pattern]').forEach((input) => {
+    const msg = 'Enter a valid Philippine mobile number: 11 digits starting with 09, like 09171234567.';
+    const re = new RegExp('^(?:' + input.getAttribute('pattern') + ')$');
+    const check = () => {
+      const v = input.value.replace(/[\s\-().]/g, '');
+      const bad = v !== '' && !re.test(v);
+      input.setCustomValidity(bad ? msg : '');
+      liveError(input, bad ? msg : '');
+    };
+    input.addEventListener('input', check);
+    check();
   });
 
   // ---- Payment method shows/hides the reference number ----------------------
