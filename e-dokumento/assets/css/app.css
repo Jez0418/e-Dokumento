@@ -324,6 +324,43 @@ textarea.form-control { min-height: 0; }
 .dropdown-menu { --bs-dropdown-item-border-radius: 8px; padding: var(--s2); }
 .dropdown-header { color: var(--text-muted); font-size: var(--text-sm); white-space: normal; max-width: 260px; padding: var(--s2) var(--s4); }
 
+/* Menus open with a short fade-and-slide (reduced-motion users get none, see the media query below).
+   Bootstrap menus are positioned with transform, so the animation uses the separate translate/scale properties. */
+@keyframes menu-in { from { opacity: 0; translate: 0 -6px; scale: .98; } to { opacity: 1; translate: 0 0; scale: 1; } }
+@keyframes option-in { from { opacity: 0; translate: 0 -4px; } to { opacity: 1; translate: 0 0; } }
+.dropdown-menu.show { animation: menu-in .16s cubic-bezier(.2, .8, .2, 1); transform-origin: top; }
+.dropdown-menu-end.show { transform-origin: top right; }
+
+/* Select menus: the native <select> stays in place, invisible, and a button + menu sit on top (assets/js/select-menu.js) */
+.select-wrap { position: relative; display: block; min-width: 0; }
+.select-native { opacity: 0; pointer-events: none; }
+.select-trigger { position: absolute; inset: 0; width: 100%; display: flex; align-items: center; text-align: left; cursor: pointer; background-image: none !important; }
+.select-trigger::after { content: ""; position: absolute; right: .95rem; top: 50%; width: .8rem; height: .8rem; margin-top: -.4rem; background: var(--text-muted);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='m2 5 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='m2 5 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: transform .18s ease, background-color .15s ease; }
+.select-trigger[aria-expanded="true"]::after { transform: rotate(180deg); background: var(--accent); }
+.select-trigger[aria-expanded="true"] { border-color: var(--accent); }
+.select-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.select-value.is-placeholder { color: var(--text-subtle); }
+.select-trigger:disabled { cursor: not-allowed; }
+
+.select-menu { position: fixed; z-index: 1100; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain; padding: var(--s2);
+  background: var(--surface-raised); color: var(--text); border: 1px solid var(--border-hi); border-radius: var(--radius); box-shadow: var(--shadow-float);
+  font-size: var(--text-md); opacity: 0; visibility: hidden; pointer-events: none; transform-origin: top; translate: 0 -6px; scale: .98;
+  transition: opacity .14s ease, translate .16s cubic-bezier(.2, .8, .2, 1), scale .16s cubic-bezier(.2, .8, .2, 1), visibility 0s linear .16s; }
+.select-menu.up { transform-origin: bottom; translate: 0 6px; }
+.select-menu.open { opacity: 1; visibility: visible; pointer-events: auto; translate: 0 0; scale: 1; transition-delay: 0s; }
+.select-option { position: relative; display: flex; align-items: center; min-height: 40px; padding: var(--s2) 2.4rem var(--s2) var(--s4); border-radius: 8px; cursor: pointer; line-height: 1.35; }
+.select-menu.open .select-option { animation: option-in .18s ease both; animation-delay: calc(var(--i, 0) * 14ms); }
+.select-option.is-active { background: var(--hover); }
+.select-option[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 550; }
+.select-option[aria-selected="true"]::after { content: ""; position: absolute; right: var(--s4); top: 50%; width: .9rem; height: .9rem; margin-top: -.45rem; background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' d='m3 8.5 3.2 3.2L13 4.8'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' d='m3 8.5 3.2 3.2L13 4.8'/%3E%3C/svg%3E") center / contain no-repeat; }
+.select-option.is-disabled { color: var(--text-subtle); cursor: not-allowed; }
+.select-group { color: var(--text-muted); font-size: var(--text-sm); padding: var(--s2) var(--s4); }
+
 .app-main { overflow-wrap: break-word; width: 100%; max-width: calc(var(--content-w) + 2 * var(--s6)); margin: 0 auto; padding: var(--s6) var(--s6) var(--s8); }
 .app-main:focus { outline: none; }
 @media (max-width: 991.98px) {

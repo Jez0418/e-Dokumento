@@ -119,6 +119,12 @@ async function checkSidebarScroll(browser, problems) {
             fs.mkdirSync(dir, { recursive: true });
             await page.screenshot({ path: path.join(dir, name + '.png'), fullPage: true });
             shots++;
+            if (sizeName === 'desktop' && await page.locator('.select-trigger:visible:not(:disabled)').count()) {
+              await page.locator('.select-trigger:visible:not(:disabled)').first().click({ timeout: 3000 });
+              await page.waitForTimeout(350);
+              await page.screenshot({ path: path.join(dir, name + '-select-open.png') });
+              await page.keyboard.press('Escape');
+            }
             const label = `${role}/${name} (${theme}, ${sizeName})`;
             if (res.status() !== expected) problems.push(`${label}: HTTP ${res.status()}, expected ${expected}`);
             const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);

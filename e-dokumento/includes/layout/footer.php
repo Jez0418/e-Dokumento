@@ -34,6 +34,7 @@
 <script src="/assets/js/<?= e($script) ?>?v=<?= e(asset_ver('js/' . $script)) ?>"></script>
   <?php endif; ?>
 <?php endforeach; ?>
+<script src="/assets/js/select-menu.js?v=<?= e(asset_ver('js/select-menu.js')) ?>"></script>
 <script src="/assets/js/app.js?v=<?= e(asset_ver('js/app.js')) ?>"></script>
 </body>
 </html>
