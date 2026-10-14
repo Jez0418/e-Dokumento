@@ -102,11 +102,11 @@ page_header('Users', 'Staff accounts are created here. Residents create their ow
 <?= form_errors(isset($errors['_form']) ? ['_form' => $errors['_form']] : []) ?>
 <div class="row g-4">
   <div class="col-xl-8">
-    <form class="filter-bar" method="get" role="search">
+    <form class="filter-bar" method="get" role="search" data-live-filter>
       <div class="filter-search"><label class="visually-hidden" for="q">Search users</label><i class="bi bi-search" aria-hidden="true"></i><input id="q" name="q" type="search" class="form-control" value="<?= e($f['q']) ?>" placeholder="Name or email" maxlength="80"></div>
       <div><label class="form-label small" for="role">Role</label><select id="role" name="role" class="form-select"><?= options(pluck($roles, 'name', 'code'), $f['role'], 'Any') ?></select></div>
       <div><label class="form-label small" for="status">Status</label><select id="status" name="status" class="form-select"><?= options(['active' => 'Active', 'inactive' => 'Inactive'], $f['status'], 'Any') ?></select></div>
-      <div class="filter-actions"><button class="btn btn-primary" type="submit">Apply</button><a class="btn btn-link" href="/users">Clear</a></div>
+      <div class="filter-actions"><noscript><button class="btn btn-primary" type="submit">Apply</button></noscript><a class="btn btn-link" href="/users">Clear</a></div>
     </form>
     <section class="panel p-0">
       <?php if (!$result['rows']): ?><?= empty_state('No users match', 'Try another name or role.', '', '', 'person-gear') ?><?php else: ?>

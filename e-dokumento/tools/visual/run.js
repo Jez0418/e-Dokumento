@@ -31,7 +31,7 @@ const REQ = (n) => '/requests/view?id=' + uuid(300 + n);
 const PAGES = {
   guest: [['login', '/login'], ['register', '/register'], ['forgot', '/forgot-password'], ['reset', '/reset-password'], ['verify', '/verify'], ['verify-result', '/verify?code=A1B2C3D4E5'], ['not-found', '/nope', 404]],
   resident: [['dashboard', '/dashboard'], ['requests', '/requests'], ['new-request', '/requests/new'], ['request-pending', REQ(0)], ['request-ready', REQ(5)], ['request-rejected', REQ(7)], ['profile', '/profile'], ['notifications', '/notifications']],
-  secretary: [['dashboard', '/dashboard'], ['requests', '/requests'], ['request-review', REQ(1)], ['walk-in', '/requests/new'], ['residents', '/residents'], ['resident', '/residents/view?id=' + uuid(101)], ['resident-form', '/residents/form'], ['verifications', '/verifications'], ['documents', '/documents'], ['certificate', '/documents/print?id=' + uuid(705)], ['reports', '/reports']],
+  secretary: [['dashboard', '/dashboard'], ['requests', '/requests'], ['request-review', REQ(1)], ['request-release', REQ(5)], ['walk-in', '/requests/new'], ['residents', '/residents'], ['resident', '/residents/view?id=' + uuid(101)], ['resident-form', '/residents/form'], ['verifications', '/verifications'], ['documents', '/documents'], ['certificate', '/documents/print?id=' + uuid(705)], ['reports', '/reports']],
   treasurer: [['dashboard', '/dashboard'], ['cashiering', '/payments'], ['payment-history', '/payments?tab=history'], ['payment', '/payments/view?id=' + uuid(503)], ['reports', '/reports']],
   captain: [['dashboard', '/dashboard'], ['approvals', '/requests?status=for_approval'], ['audit', '/audit']],
   admin: [['dashboard', '/dashboard'], ['release', '/requests?status=ready_for_release'], ['document-types', '/document-types'], ['document-type-form', '/document-types/form'], ['requirements', '/requirements'], ['reference', '/reference'], ['officials', '/officials'], ['users', '/users'], ['settings', '/settings'], ['audit', '/audit']],
@@ -74,6 +74,25 @@ async function checkSidebarScroll(browser, problems) {
   await ctx.close();
 }
 
+// List filters apply as you type or pick: no Apply button, the URL follows the controls.
+async function checkLiveFilters(browser, problems) {
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  await ctx.addCookies([{ name: 'edk_at', value: token('secretary'), url: BASE }, { name: 'edk_rt', value: 'rt-secretary', url: BASE }]);
+  const page = await ctx.newPage();
+  await page.goto(BASE + '/residents', { waitUntil: 'networkidle' });
+  if (await page.locator('form[data-live-filter] button[type=submit]:visible').count()) problems.push('live filters: an Apply button is still visible');
+  await page.locator('#q').click();
+  await page.keyboard.type('dela', { delay: 60 });
+  await page.waitForURL(/q=dela/, { timeout: 5000 }).catch(() => problems.push('live filters: typing in search did not filter'));
+  await page.waitForLoadState('networkidle');
+  const focused = await page.evaluate(() => document.activeElement && document.activeElement.id);
+  if (focused !== 'q') problems.push('live filters: search box lost focus after filtering (' + focused + ')');
+  await page.locator('.select-trigger:visible').first().click();
+  await page.locator('.select-menu.open .select-option').nth(1).click();
+  await page.waitForURL(/purok=[0-9]+/, { timeout: 5000 }).catch(() => problems.push('live filters: picking a dropdown option did not filter'));
+  await ctx.close();
+}
+
 (async () => {
   let version;
   try { version = Number(execFileSync(PHP, ['-r', 'echo PHP_VERSION_ID;']).toString()); } catch (e) { console.error(`Cannot run "${PHP}". Set PHP_BIN to a PHP 8.1+ binary.`); process.exit(2); }
@@ -101,6 +120,7 @@ async function checkSidebarScroll(browser, problems) {
     let shots = 0;
     const problems = [];
     await checkSidebarScroll(browser, problems);
+    await checkLiveFilters(browser, problems);
     for (const [role, pages] of Object.entries(sidebarOnly ? {} : PAGES)) {
       for (const theme of themes) {
         for (const [sizeName, viewport] of Object.entries(sizes)) {

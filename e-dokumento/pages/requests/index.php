@@ -112,7 +112,7 @@ $chips = ['' => 'All'] + REQUEST_STATUSES;
   <?php endforeach; ?>
 </nav>
 
-<form class="filter-bar" method="get" role="search">
+<form class="filter-bar" method="get" role="search" data-live-filter>
   <?php if ($f['status'] !== ''): ?><input type="hidden" name="status" value="<?= e($f['status']) ?>"><?php endif; ?>
   <div class="filter-search">
     <label class="visually-hidden" for="q">Search</label>
@@ -148,7 +148,7 @@ $chips = ['' => 'All'] + REQUEST_STATUSES;
   </div>
   <?php endif; ?>
   <div class="filter-actions">
-    <button class="btn btn-primary" type="submit">Apply</button>
+    <noscript><button class="btn btn-primary" type="submit">Apply</button></noscript>
     <a class="btn btn-link" href="/requests">Clear</a>
   </div>
 </form>

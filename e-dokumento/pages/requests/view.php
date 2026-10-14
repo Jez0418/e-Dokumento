@@ -94,8 +94,10 @@ layout_start($req['control_no'], match (true) {
         foreach ($hidden + ['action' => 'release'] as $k => $v) {
             $releaseForm .= '<input type="hidden" name="' . e($k) . '" value="' . e($v) . '">';
         }
-        $releaseForm .= '<div class="col-md-7"><label class="form-label" for="released_to">Claimed by</label><input class="form-control" id="released_to" name="released_to" required minlength="2" maxlength="120" value="' . e(resident_name($res)) . '"><div class="form-text">Name of the person who received it, after checking their ID.</div></div>';
-        $releaseForm .= '<div class="col-md-5"><button class="btn btn-primary w-100" type="submit"><i class="bi bi-box-arrow-up-right me-1" aria-hidden="true"></i>Mark as released</button></div></form>';
+        $releaseForm .= '<div class="col-md-7"><label class="form-label" for="released_to">Claimed by</label><input class="form-control" id="released_to" name="released_to" required minlength="2" maxlength="120" value="' . e(resident_name($res)) . '"></div>';
+        // The button shares the input's row so both bottoms line up; the hint goes below them
+        $releaseForm .= '<div class="col-md-5"><button class="btn btn-primary btn-field w-100" type="submit"><i class="bi bi-box-arrow-up-right me-1" aria-hidden="true"></i>Mark as released</button></div>'
+            . '<div class="col-12"><div class="form-text mt-0">Name of the person who received it, after checking their ID.</div></div></form>';
     }
     ob_start();
     if ($role === 'secretary') {

@@ -51,13 +51,13 @@ $types = $db->select('document_types', [['select', 'id,name'], ['order', 'name.a
 layout_start('Issued documents', 'documents');
 page_header('Issued documents', 'Every certificate the system has numbered, with its public verification code.');
 ?>
-<form class="filter-bar" method="get" role="search">
+<form class="filter-bar" method="get" role="search" data-live-filter>
   <div class="filter-search"><label class="visually-hidden" for="q">Search</label><i class="bi bi-search" aria-hidden="true"></i><input id="q" name="q" type="search" class="form-control" value="<?= e($f['q']) ?>" placeholder="Document no., control no. or name" maxlength="80"></div>
   <div><label class="form-label small" for="type">Document</label><select id="type" name="type" class="form-select"><?= options(pluck($types), $f['type'], 'All') ?></select></div>
   <div><label class="form-label small" for="status">Status</label><select id="status" name="status" class="form-select"><?= options(['valid' => 'Valid', 'revoked' => 'Revoked'], $f['status'], 'Any') ?></select></div>
   <div><label class="form-label small" for="from">Issued from</label><input id="from" name="from" type="date" class="form-control" value="<?= e($f['from']) ?>"></div>
   <div><label class="form-label small" for="to">To</label><input id="to" name="to" type="date" class="form-control" value="<?= e($f['to']) ?>"></div>
-  <div class="filter-actions"><button class="btn btn-primary" type="submit">Apply</button><a class="btn btn-link" href="/documents">Clear</a></div>
+  <div class="filter-actions"><noscript><button class="btn btn-primary" type="submit">Apply</button></noscript><a class="btn btn-link" href="/documents">Clear</a></div>
 </form>
 <section class="panel p-0">
 <?php if (!$result['rows']): ?>

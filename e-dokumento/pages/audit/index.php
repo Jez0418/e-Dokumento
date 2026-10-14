@@ -35,14 +35,14 @@ $result = $db->select('audit_logs', $query, true, $offset, $per);
 layout_start('Audit log', 'audit');
 page_header('Audit log', 'Every sign-in, change, payment and status move, newest first. Entries cannot be edited or deleted.');
 ?>
-<form class="filter-bar" method="get">
+<form class="filter-bar" method="get" data-live-filter>
   <div><label class="form-label small" for="action">Action</label><select id="action" name="action" class="form-select"><?= options(array_combine($actions, array_map(static fn ($a) => ucfirst(str_replace('_', ' ', $a)), $actions)), $f['action'], 'Any') ?></select></div>
   <div><label class="form-label small" for="entity">Record type</label><select id="entity" name="entity" class="form-select"><?= options(array_combine($entities, array_map(static fn ($a) => str_replace('_', ' ', $a), $entities)), $f['entity'], 'Any') ?></select></div>
   <div><label class="form-label small" for="actor">User</label><select id="actor" name="actor" class="form-select"><?= options(pluck($staff, 'full_name'), $f['actor'], 'Anyone') ?></select></div>
   <div><label class="form-label small" for="record">Record id</label><input id="record" name="record" class="form-control mono" value="<?= e($f['record']) ?>" maxlength="60"></div>
   <div><label class="form-label small" for="from">From</label><input id="from" name="from" type="date" class="form-control" value="<?= e($f['from']) ?>"></div>
   <div><label class="form-label small" for="to">To</label><input id="to" name="to" type="date" class="form-control" value="<?= e($f['to']) ?>"></div>
-  <div class="filter-actions"><button class="btn btn-primary" type="submit">Apply</button><a class="btn btn-link" href="/audit">Clear</a></div>
+  <div class="filter-actions"><noscript><button class="btn btn-primary" type="submit">Apply</button></noscript><a class="btn btn-link" href="/audit">Clear</a></div>
 </form>
 <section class="panel p-0">
 <?php if (!$result['rows']): ?>

@@ -158,6 +158,44 @@
 
   document.querySelectorAll('[data-print]').forEach((b) => b.addEventListener('click', () => window.print()));
 
+  // ---- Live filters ----------------------------------------------------------------
+  // List pages (form[data-live-filter]) apply as you go: dropdowns, dates and checkboxes submit on
+  // change, and typing in the search box submits shortly after you stop. The page reloads, so the
+  // search box is refocused afterwards with the caret at the end. Without JS the Apply button shows.
+  const LIVE_KEY = 'edk_live_focus';
+  document.querySelectorAll('form[data-live-filter]').forEach((form) => {
+    let timer = 0;
+    const submit = () => {
+      clearTimeout(timer);
+      const field = document.activeElement;
+      if (field && form.contains(field) && field.id && /^(search|text)$/.test(field.type || '')) {
+        try { sessionStorage.setItem(LIVE_KEY, field.id); } catch (_) { /* focus is not restored */ }
+      }
+      form.requestSubmit();
+    };
+    form.addEventListener('change', (ev) => {
+      if (ev.target.matches('select, input[type="date"], input[type="checkbox"]')) submit();
+    });
+    form.querySelectorAll('input[type="search"], input[type="text"]').forEach((input) => {
+      let last = input.value;
+      input.addEventListener('input', () => {
+        clearTimeout(timer);
+        if (input.value === last) return;
+        timer = setTimeout(() => { last = input.value; submit(); }, 400);
+      });
+    });
+  });
+  try {
+    const id = sessionStorage.getItem(LIVE_KEY);
+    sessionStorage.removeItem(LIVE_KEY);
+    const input = id ? document.getElementById(id) : null;
+    if (input) {
+      input.focus({ preventScroll: true });
+      const end = input.value.length;
+      input.setSelectionRange(end, end);
+    }
+  } catch (_) { /* nothing to restore */ }
+
   // ---- Sidebar keeps its scroll position -------------------------------------------
   // Each link is a full page load and the server renders a fresh menu that starts at the top.
   // Remember where it was, and make sure the link for the current page is in view.

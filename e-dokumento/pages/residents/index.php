@@ -51,7 +51,7 @@ layout_start('Residents', 'residents');
 page_header('Residents', 'The barangay registry. Residents who sign up online appear here automatically.',
     has_role('secretary') ? '<a class="btn btn-primary" href="/residents/form"><i class="bi bi-person-plus me-1" aria-hidden="true"></i>Add resident</a>' : '');
 ?>
-<form class="filter-bar" method="get" role="search">
+<form class="filter-bar" method="get" role="search" data-live-filter>
   <div class="filter-search">
     <label class="visually-hidden" for="q">Search residents</label>
     <i class="bi bi-search" aria-hidden="true"></i>
@@ -62,7 +62,7 @@ page_header('Residents', 'The barangay registry. Residents who sign up online ap
   <div><label class="form-label small" for="status">Registry status</label><select id="status" name="status" class="form-select"><option value="all"<?= sel('', $f['status']) ?>>Any</option><?= options(RESIDENT_STATUSES, $f['status']) ?></select></div>
   <div><label class="form-label small" for="voter">Voter</label><select id="voter" name="voter" class="form-select"><?= options(['1' => 'Registered', '0' => 'Not registered'], $f['voter'], 'Any') ?></select></div>
   <div><label class="form-label small" for="account">Online account</label><select id="account" name="account" class="form-select"><?= options(['1' => 'Has account', '0' => 'Walk-in only'], $f['account'], 'Any') ?></select></div>
-  <div class="filter-actions"><button class="btn btn-primary" type="submit">Apply</button><a class="btn btn-link" href="/residents">Clear</a></div>
+  <div class="filter-actions"><noscript><button class="btn btn-primary" type="submit">Apply</button></noscript><a class="btn btn-link" href="/residents">Clear</a></div>
 </form>
 
 <section class="panel p-0">

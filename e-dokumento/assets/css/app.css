@@ -616,6 +616,8 @@ textarea.form-control { min-height: 0; }
 .filter-actions { display: flex; gap: var(--s1); flex: 0 0 auto !important; min-width: auto !important; }
 .filter-bar > .form-check { flex: 0 0 auto; margin-bottom: .55rem; }
 .filter-actions .btn { border-radius: var(--radius-pill); }
+/* A button that sits on a row with a form field matches the field height */
+.btn-field { min-height: 42px; }
 @media (max-width: 575.98px) {
   .filter-bar { display: grid; grid-template-columns: 1fr 1fr; }
   .filter-bar > div { min-width: 0; }

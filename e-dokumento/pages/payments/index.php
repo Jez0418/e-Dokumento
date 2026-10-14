@@ -50,7 +50,7 @@ page_header($isTreasurer ? 'Cashiering' : 'Payments', $isTreasurer ? 'Record the
   <a href="?tab=history" class="<?= $tab === 'history' ? 'active' : '' ?>">Payment history</a>
 </nav>
 
-<form class="filter-bar" method="get" role="search">
+<form class="filter-bar" method="get" role="search" data-live-filter>
   <input type="hidden" name="tab" value="<?= e($tab) ?>">
   <div class="filter-search"><label class="visually-hidden" for="q">Search</label><i class="bi bi-search" aria-hidden="true"></i>
     <input id="q" name="q" type="search" class="form-control" value="<?= e($f['q']) ?>" placeholder="<?= $tab === 'queue' ? 'Control number or name' : 'OR, control number or name' ?>" maxlength="80"></div>
@@ -60,7 +60,7 @@ page_header($isTreasurer ? 'Cashiering' : 'Payments', $isTreasurer ? 'Record the
     <div><label class="form-label small" for="from">From</label><input id="from" name="from" type="date" class="form-control" value="<?= e($f['from']) ?>"></div>
     <div><label class="form-label small" for="to">To</label><input id="to" name="to" type="date" class="form-control" value="<?= e($f['to']) ?>"></div>
   <?php endif; ?>
-  <div class="filter-actions"><button class="btn btn-primary" type="submit">Apply</button><a class="btn btn-link" href="?tab=<?= e($tab) ?>">Clear</a></div>
+  <div class="filter-actions"><noscript><button class="btn btn-primary" type="submit">Apply</button></noscript><a class="btn btn-link" href="?tab=<?= e($tab) ?>">Clear</a></div>
 </form>
 
 <section class="panel p-0">
