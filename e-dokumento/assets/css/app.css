@@ -139,32 +139,32 @@
   --border-hi: #CBC1AA;
   --border-strong: #8C8672;
 
-  --text: #17231D;
+  --text: #2A3B33;
   --text-muted: #566159;
   --text-subtle: #67706A;
 
-  --accent: #1E4A3C;
-  --accent-hover: #143A2E;
-  --accent-fill: #1E4A3C;
-  --accent-fill-hover: #163A2E;
+  --accent: #0E7350;
+  --accent-hover: #0B6B49;
+  --accent-fill: #0F7A55;
+  --accent-fill-hover: #0B6B49;
   --on-accent: #FFFFFF;
-  --accent-rgb: 30, 74, 60;
-  --accent-soft: rgba(30, 74, 60, .09);
+  --accent-rgb: 14, 115, 80;
+  --accent-soft: rgba(14, 115, 80, .10);
   --gold: #8A6420;               /* secondary links on auth pages */
-  --accent-line: rgba(30, 74, 60, .40);
+  --accent-line: rgba(14, 115, 80, .40);
 
-  --status-pending: #8A5300;
-  --status-review: #1D5FBF;
+  --status-pending: #9A5B00;
+  --status-review: #2468CF;
   --status-payment: #6A42C2;
-  --status-ready: #13703A;
+  --status-ready: #17803F;
   --status-rejected: #B42318;
   --on-danger: #FFFFFF;
 
   --field-bg: #FFFDF8;
-  --hover: rgba(23, 35, 29, .045);
+  --hover: rgba(42, 59, 51, .05);
   --shadow-float: 0 16px 40px rgba(17, 22, 21, .14), 0 0 0 1px rgba(17, 22, 21, .05);
-  --streak: rgba(30, 74, 60, .06);
-  --streak-2: rgba(30, 74, 60, .03);
+  --streak: rgba(14, 115, 80, .07);
+  --streak-2: rgba(14, 115, 80, .035);
 
   --bs-danger-rgb: 180, 35, 24;
   --bs-success-rgb: 19, 112, 58;
