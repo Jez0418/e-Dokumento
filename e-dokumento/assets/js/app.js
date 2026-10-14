@@ -42,6 +42,26 @@
     other?.addEventListener('input', check);
   });
 
+  // ---- ID number follows the chosen ID type ---------------------------------
+  document.querySelectorAll('[data-id-type]').forEach((select) => {
+    const input = document.getElementById(select.dataset.idType);
+    if (!input) return;
+    let rules = {};
+    try { rules = JSON.parse(select.dataset.idRules || '{}'); } catch (e) { rules = {}; }
+    const hint = document.getElementById(input.getAttribute('aria-describedby') || '');
+    const sync = () => {
+      const rule = rules[select.value];
+      if (!rule) { input.setCustomValidity(''); input.placeholder = ''; return; }
+      input.placeholder = rule.example || '';
+      if (hint) hint.textContent = rule.hint;
+      const compact = input.value.replace(/[\s-]+/g, '').toUpperCase();
+      input.setCustomValidity(compact === '' || new RegExp(rule.re).test(compact) ? '' : 'This does not match the ID type. ' + rule.hint);
+    };
+    select.addEventListener('change', sync);
+    input.addEventListener('input', sync);
+    sync();
+  });
+
   // ---- Payment method shows/hides the reference number ----------------------
   document.querySelectorAll('[data-toggle-ref]').forEach((select) => {
     const sync = () => {

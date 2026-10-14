@@ -16,6 +16,7 @@ require BASE_PATH . '/includes/permissions.php';
 require BASE_PATH . '/includes/csrf.php';
 require BASE_PATH . '/includes/flash.php';
 require BASE_PATH . '/includes/validator.php';
+require BASE_PATH . '/includes/id_format.php';
 require BASE_PATH . '/includes/upload.php';
 require BASE_PATH . '/includes/layout.php';
 require BASE_PATH . '/includes/components.php';

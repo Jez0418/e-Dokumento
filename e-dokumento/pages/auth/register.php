@@ -146,9 +146,9 @@ guest_start('Create an account', 'guest auth');
             </div>
             <div class="col-md-6">
               <label class="form-label" for="contact_no">Mobile number</label>
-              <input class="form-control<?= invalid($errors, 'contact_no') ?>" id="contact_no" name="contact_no" value="<?= e(old($old, 'contact_no')) ?>" required inputmode="tel" pattern="(09|\+639)[0-9]{9}" aria-describedby="contact-hint" placeholder="09171234567" autocomplete="tel">
-              <div class="form-text" id="contact-hint">11 digits, starting with 09. The Secretary may call this number.</div>
-              <?= isset($errors['contact_no']) ? field_error($errors, 'contact_no') : '<div class="invalid-feedback">Enter an 11-digit mobile number that starts with 09.</div>' ?>
+              <input class="form-control<?= invalid($errors, 'contact_no') ?>" id="contact_no" name="contact_no" value="<?= e(old($old, 'contact_no')) ?>" required inputmode="tel" pattern="(\+63|63|0)?9[0-9]{9}" aria-describedby="contact-hint" placeholder="09171234567" autocomplete="tel">
+              <div class="form-text" id="contact-hint">Philippine mobile number, 11 digits like 09171234567 (+63 is converted). The Secretary may call this number.</div>
+              <?= isset($errors['contact_no']) ? field_error($errors, 'contact_no') : '<div class="invalid-feedback">Enter a Philippine mobile number with 11 digits, like 09171234567.</div>' ?>
             </div>
             <div class="col-md-6">
               <label class="form-label" for="occupation">Occupation <span class="optional">optional</span></label>

@@ -75,6 +75,19 @@ if (is_post()) {
     } elseif ($section === 'verification' && $resident) {
         $idType = $v->integer('id_type_id', 'ID type', true, 1, 32767);
         $idNumber = $v->text('id_number', 'ID number', true, 3, 40);
+        if ($idType !== null && $idNumber !== null) {
+            $typeRow = $db->first('id_types', [['select', 'name'], ['id', 'eq.' . $idType], ['is_active', 'eq.true']]);
+            if (!$typeRow) {
+                $v->error('id_type_id', 'Choose one of the listed ID types.');
+            } else {
+                [$normalised, $idErr] = IdFormat::check((string) $typeRow['name'], $idNumber);
+                if ($idErr !== null) {
+                    $v->error('id_number', $idErr);
+                } else {
+                    $idNumber = $normalised;
+                }
+            }
+        }
         $front = Upload::check($_FILES['id_front'] ?? null, 'Front of the ID', true);
         $back = Upload::check($_FILES['id_back'] ?? null, 'Back of the ID', false);
         if (is_string($front)) {
@@ -202,14 +215,15 @@ page_header('Profile', $isResident ? 'Your account, your resident record, and yo
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label" for="id_type_id">ID type</label>
-              <select class="form-select<?= invalid($errors, 'id_type_id') ?>" id="id_type_id" name="id_type_id" required>
+              <select class="form-select<?= invalid($errors, 'id_type_id') ?>" id="id_type_id" name="id_type_id" required data-id-type="id_number" data-id-rules="<?= e(json_encode(IdFormat::forBrowser($idTypes))) ?>">
                 <?= options(pluck($idTypes), old($old, 'id_type_id'), 'Choose your ID') ?>
               </select>
               <?= field_error($errors, 'id_type_id') ?>
             </div>
             <div class="col-md-6">
               <label class="form-label" for="id_number">ID number</label>
-              <input class="form-control<?= invalid($errors, 'id_number') ?>" id="id_number" name="id_number" value="<?= e(old($old, 'id_number')) ?>" required minlength="3" maxlength="40" autocomplete="off">
+              <input class="form-control<?= invalid($errors, 'id_number') ?>" id="id_number" name="id_number" value="<?= e(old($old, 'id_number')) ?>" required minlength="3" maxlength="40" autocomplete="off" aria-describedby="id_number_hint">
+              <div class="form-text" id="id_number_hint">Choose the ID type first. The number must match its format.</div>
               <?= field_error($errors, 'id_number') ?>
             </div>
             <div class="col-md-6">
@@ -260,7 +274,7 @@ page_header('Profile', $isResident ? 'Your account, your resident record, and yo
             <div class="col-md-4"><label class="form-label" for="purok_id">Purok</label><select class="form-select<?= invalid($errors, 'purok_id') ?>" id="purok_id" name="purok_id" required><?= options(pluck($puroks), $val('purok_id')) ?></select><?= field_error($errors, 'purok_id') ?></div>
             <div class="col-md-8"><label class="form-label" for="street_address">House no. and street</label><input class="form-control<?= invalid($errors, 'street_address') ?>" id="street_address" name="street_address" value="<?= e($val('street_address')) ?>" required maxlength="200"><?= field_error($errors, 'street_address') ?></div>
             <div class="col-md-4"><label class="form-label" for="resident_since">Living here since</label><input class="form-control<?= invalid($errors, 'resident_since') ?>" id="resident_since" name="resident_since" type="date" value="<?= e($val('resident_since')) ?>" required max="<?= e(today_local()) ?>"><?= field_error($errors, 'resident_since') ?></div>
-            <div class="col-md-4"><label class="form-label" for="contact_no_r">Mobile number</label><input class="form-control<?= invalid($errors, 'contact_no_r') ?>" id="contact_no_r" name="contact_no_r" value="<?= e($val('contact_no_r', 'contact_no')) ?>" required inputmode="tel" pattern="(09|\+639)[0-9]{9}"><?= field_error($errors, 'contact_no_r') ?></div>
+            <div class="col-md-4"><label class="form-label" for="contact_no_r">Mobile number</label><input class="form-control<?= invalid($errors, 'contact_no_r') ?>" id="contact_no_r" name="contact_no_r" value="<?= e($val('contact_no_r', 'contact_no')) ?>" required inputmode="tel" pattern="(\+63|63|0)?9[0-9]{9}"><?= field_error($errors, 'contact_no_r') ?></div>
             <div class="col-md-4"><label class="form-label" for="occupation">Occupation</label><input class="form-control" id="occupation" name="occupation" value="<?= e($val('occupation')) ?>" maxlength="100"></div>
             <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="is_registered_voter" name="is_registered_voter" value="1"<?= chk($r['is_registered_voter'] ?? false) ?>><label class="form-check-label" for="is_registered_voter">Registered voter in this barangay</label></div></div>
           </div>
@@ -277,7 +291,7 @@ page_header('Profile', $isResident ? 'Your account, your resident record, and yo
         <input type="hidden" name="_section" value="account">
         <div class="row g-3">
           <div class="col-md-6"><label class="form-label" for="full_name">Display name</label><input class="form-control<?= invalid($errors, 'full_name') ?>" id="full_name" name="full_name" value="<?= e(old($old, 'full_name', (string) $user['full_name'])) ?>" required minlength="2" maxlength="120"><?= field_error($errors, 'full_name') ?></div>
-          <div class="col-md-6"><label class="form-label" for="contact_no">Mobile number <span class="optional">optional</span></label><input class="form-control<?= invalid($errors, 'contact_no') ?>" id="contact_no" name="contact_no" value="<?= e(old($old, 'contact_no', (string) ($user['contact_no'] ?? ''))) ?>" inputmode="tel" pattern="(09|\+639)[0-9]{9}"><?= field_error($errors, 'contact_no') ?></div>
+          <div class="col-md-6"><label class="form-label" for="contact_no">Mobile number <span class="optional">optional</span></label><input class="form-control<?= invalid($errors, 'contact_no') ?>" id="contact_no" name="contact_no" value="<?= e(old($old, 'contact_no', (string) ($user['contact_no'] ?? ''))) ?>" inputmode="tel" pattern="(\+63|63|0)?9[0-9]{9}"><?= field_error($errors, 'contact_no') ?></div>
           <div class="col-12"><label class="form-label" for="email_ro">Email</label><input class="form-control" id="email_ro" value="<?= e($user['email']) ?>" readonly></div>
         </div>
         <button class="btn btn-outline-primary mt-3" type="submit">Save account</button>

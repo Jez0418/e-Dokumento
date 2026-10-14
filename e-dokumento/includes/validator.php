@@ -81,16 +81,19 @@ final class Validator
 
     public function phone(string $field, string $label = 'Mobile number', bool $required = false): ?string
     {
-        $v = preg_replace('/[\s\-]/', '', $this->raw($field)) ?? '';
+        $v = preg_replace('/[\s\-().]/', '', $this->raw($field)) ?? '';
         if ($v === '') {
             if ($required) {
                 $this->error($field, "{$label} is required.");
             }
             return null;
         }
-        if (!preg_match('/^(09|\+639)\d{9}$/', $v)) {
-            $this->error($field, "{$label} must look like 09171234567 or +639171234567.");
+        // Philippine mobile numbers: +639xx, 639xx, 09xx or 9xx all become 09xxxxxxxxx (11 digits).
+        if (preg_match('/^(?:\+63|63|0)?(9\d{9})$/', $v, $m) !== 1) {
+            $this->error($field, "{$label} must be a Philippine mobile number with 11 digits, like 09171234567.");
+            return $v;
         }
+        $v = '0' . $m[1];
         return $v;
     }
 
