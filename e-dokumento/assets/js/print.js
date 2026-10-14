@@ -12,6 +12,9 @@
     const url = new URL(window.location.href);
     url.searchParams.delete('autoprint');
     history.replaceState(null, '', url.toString());
-    setTimeout(() => window.print(), 500);
+    // Wait for the signature image (it loads through /files) so the official copy is never printed without it.
+    const pending = Array.from(cert.querySelectorAll('img')).map((img) => img.decode().catch(() => {}));
+    const timeout = new Promise((resolve) => setTimeout(resolve, 5000));
+    Promise.race([Promise.all(pending), timeout]).then(() => setTimeout(() => window.print(), 500));
   }
 })();

@@ -131,7 +131,7 @@ begin
            'status', i.status,
            'expired', (i.valid_until is not null and i.valid_until < (now() at time zone 'Asia/Manila')::date),
            'signatory', o.full_name,
-           'e_signed', (t.requires_captain_approval and o.signature_path is not null))
+           'e_signed', (t.requires_captain_approval and i.status <> 'revoked' and o.signature_path is not null))
     into v
   from public.issued_documents i
   join public.document_requests d on d.id = i.request_id

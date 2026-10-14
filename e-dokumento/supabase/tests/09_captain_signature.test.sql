@@ -1,6 +1,6 @@
 -- The captain's e-signature: only the captain may set it, and verify reports it.
 begin;
-select plan(13);
+select plan(14);
 
 -- Setup as postgres. Ids live in transaction-local settings so every role can read them.
 do $$
@@ -77,14 +77,19 @@ end $$;
 select tests.act_as(current_setting('t.cap')::uuid);
 do $$
 begin
-  perform set_config('t.code_coi', (select verification_code from public.issued_documents
-    where id = (public.issue_document(current_setting('t.coi')::uuid) ->> 'id')::uuid), true);
+  perform set_config('t.doc_coi', public.issue_document(current_setting('t.coi')::uuid) ->> 'id', true);
 end $$;
 select tests.act_as(current_setting('t.sec')::uuid);
 do $$
 begin
+  perform set_config('t.doc_cor', public.issue_document(current_setting('t.cor')::uuid) ->> 'id', true);
+end $$;
+do $$
+begin
+  perform set_config('t.code_coi', (select verification_code from public.issued_documents
+                                    where id = current_setting('t.doc_coi')::uuid), true);
   perform set_config('t.code_cor', (select verification_code from public.issued_documents
-    where id = (public.issue_document(current_setting('t.cor')::uuid) ->> 'id')::uuid), true);
+                                    where id = current_setting('t.doc_cor')::uuid), true);
 end $$;
 
 select is(public.verify_document(current_setting('t.code_coi')) ->> 'e_signed', 'true',
@@ -96,6 +101,16 @@ select tests.act_as(current_setting('t.cap')::uuid);
 select public.set_captain_signature(null);
 select is(public.verify_document(current_setting('t.code_coi')) ->> 'e_signed', 'false',
   'Without a signature on file the document is not e-signed');
+
+-- A revoked document is not reported as e-signed
+select tests.act_as(current_setting('t.sec')::uuid);
+select public.revoke_document(current_setting('t.doc_coi')::uuid, 'Issued to the wrong resident');
+reset role;
+select set_config('request.jwt.claims', '', true);
+select tests.act_as(current_setting('t.cap')::uuid);
+select public.set_captain_signature(current_setting('t.path'));
+select is(public.verify_document(current_setting('t.code_coi')) ->> 'e_signed', 'false',
+  'A revoked document is not reported as e-signed');
 
 select * from finish();
 rollback;
