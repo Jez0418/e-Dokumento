@@ -54,10 +54,11 @@ Open **SQL Editor → New query** and run each file, in this order, one at a tim
 | 10 | `sql/10_captain_signature.sql` | The Punong Barangay's e-signature: private `signatures` bucket, guards so only the captain account linked to the office can sign (renaming or ending service clears it), a per-certificate signature snapshot, and the `e_signed` flag on the public check. Safe to rerun; run it again after updating |
 | 11 | `sql/11_close_account_on_exit.sql` | Marking a resident Moved out or Deceased deactivates their online account (and Active reactivates it). Also catches up residents already marked. Safe to rerun |
 | 12 | `sql/12_officials_captain_only.sql` | The Officials list holds only the Punong Barangay: deletes other official rows (Secretary, Treasurer and the rest are set up under Users) and restricts the position. Safe to rerun |
+| 13 | `sql/13_one_captain_account.sql` | Only one active account may hold the Punong Barangay role. Fails if two accounts hold it now; change one under Users first. Safe to rerun |
 
 `05_seed.sql` contains configuration only. No residents, requests or payments are seeded; everything you see in the app was entered through it. Set the **fees to your barangay's revenue ordinance** under Document types.
 
-For a demonstration, `sql/08_demo_data.sql` adds 24 sample residents and 43 walk-in requests spread over the last six months, in every status. It runs each request through the real workflow functions as the test accounts from `sql/07_test_accounts.sql`, so run 07 first and add the active Punong Barangay under Officials. Demo residents have emails ending in `@demo.e-dokumento.test`; the block at the bottom of the file removes them. Do not load it into a real barangay's database.
+For a demonstration, `sql/08_demo_data.sql` adds 24 sample residents and 43 walk-in requests spread over the last six months, in every status. It runs each request through the real workflow functions as the test accounts from `sql/07_test_accounts.sql`, so run 07 first and add the active Barangay Captain (Punong Barangay) under Barangay Captain in the menu. Demo residents have emails ending in `@demo.e-dokumento.test`; the block at the bottom of the file removes them. Do not load it into a real barangay's database.
 
 If a file fails partway, read the error, fix it, and rerun that file. Most statements fail cleanly when the object already exists. To start over, run `drop schema public cascade; create schema public;` and reapply the standard grants Supabase documents for the public schema. Only do this on a fresh project.
 
@@ -95,7 +96,7 @@ Residents register themselves; staff accounts are created by an Administrator. C
    ```
 3. Sign in to the app. Then:
    - **Settings:** enter the barangay name, city or municipality, province and office hours.
-   - **Punong Barangay:** add the active Punong Barangay under Officials. Documents cannot be issued until you do. Other roles are set up under Users, not here.
+   - **Punong Barangay:** add the active Barangay Captain (Punong Barangay) under Barangay Captain in the menu. Documents cannot be issued until you do. Other roles are set up under Users, not here.
    - **Users:** create the Punong Barangay, Secretary and Treasurer accounts.
 
 ## 5. Configure local environment variables

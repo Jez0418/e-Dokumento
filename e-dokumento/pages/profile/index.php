@@ -301,9 +301,9 @@ page_header('Profile', $isResident ? 'Your account, your resident record, and yo
       <div class="panel-head"><h2>My signature</h2></div>
       <p class="small text-secondary">Printed on every certificate that needs your approval. Only you can change it.</p>
       <?php if (!$captainOfficial): ?>
-        <div class="notice notice-warning"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><div>An administrator must add you as the active Punong Barangay under Officials first.</div></div>
+        <div class="notice notice-warning"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><div>An administrator must add you as the active Punong Barangay under Barangay Captain first.</div></div>
       <?php elseif (!empty($captainOfficial['profile_id']) && $captainOfficial['profile_id'] !== $user['id']): ?>
-        <div class="notice notice-warning"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><div>The signature for this office is linked to another account. An administrator must reset it under Officials before you can sign.</div></div>
+        <div class="notice notice-warning"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><div>The signature for this office is linked to another account. An administrator must reset it under Barangay Captain before you can sign.</div></div>
       <?php else: ?>
         <?php if (!empty($captainOfficial['signature_path'])): ?>
           <p><img src="<?= e(url('files', ['bucket' => 'signatures', 'path' => $captainOfficial['signature_path']])) ?>" alt="Your signature" style="max-height:120px;max-width:100%;background:#fff;border:1px solid var(--bs-border-color);padding:.5rem"></p>

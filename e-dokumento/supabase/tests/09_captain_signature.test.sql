@@ -12,7 +12,7 @@ begin
   perform set_config('t.ana', v_ana::text, true);
   perform set_config('t.ben', tests.create_resident('ben@example.test', 'Ben', 'Santos')::text, true);
   perform set_config('t.cap', tests.create_staff('cap@example.test', 'captain')::text, true);
-  perform set_config('t.cap2', tests.create_staff('cap2@example.test', 'captain')::text, true);
+  perform set_config('t.cap2', tests.create_staff('cap2@example.test', 'secretary')::text, true);
   perform set_config('t.adm', tests.create_staff('adm@example.test', 'admin')::text, true);
   perform set_config('t.sec', tests.create_staff('sec@example.test', 'secretary')::text, true);
   perform set_config('t.tre', tests.create_staff('tre@example.test', 'treasurer')::text, true);
@@ -52,12 +52,21 @@ select throws_ok(
   $$select public.set_captain_signature(current_setting('t.cap') || '/dddddddddddddddddddddddd.png')$$,
   'P0001', 'That signature file has not been uploaded.', 'A path with no stored file is rejected');
 
--- I1: another captain-role account cannot take over a linked seat
+-- I1: after a handover, the new captain account cannot take over a seat still linked to the old one
+reset role;
+select set_config('request.jwt.claims', '', true);
+savepoint handover;
+update public.profiles set status = 'inactive' where id = current_setting('t.cap')::uuid;
+update public.profiles set role_id = (select id from public.roles where code = 'captain')
+  where id = current_setting('t.cap2')::uuid;
 select tests.act_as(current_setting('t.cap2')::uuid);
 select throws_ok(
   $$select public.set_captain_signature(current_setting('t.cap2') || '/cccccccccccccccccccccccc.png')$$,
   'P0001', 'This signature belongs to another account. An administrator must reset it first.',
   'A second captain account cannot replace the signature');
+reset role;
+select set_config('request.jwt.claims', '', true);
+rollback to savepoint handover;
 
 -- Everyone else is rejected, through the RPC and by direct writes
 select tests.act_as(current_setting('t.adm')::uuid);

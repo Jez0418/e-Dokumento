@@ -35,7 +35,7 @@ if (($role === 'secretary' && $status === 'processing') || ($role === 'captain' 
     $missingSignatory = $db->first('barangay_officials', [['position', 'eq.punong_barangay'], ['is_active', 'eq.true'], ['select', 'id']]) === null;
 }
 $signatoryWarning = '<div class="notice notice-warning"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><div>'
-    . '<strong>No active Punong Barangay is on record.</strong> Documents cannot be issued until the Administrator adds one under Officials, '
+    . '<strong>No active Punong Barangay is on record.</strong> Documents cannot be issued until the Administrator adds one under Barangay Captain, '
     . 'with the position Punong Barangay and the record marked active.</div></div>';
 $isOwner = $role === 'resident' && ($res['profile_id'] ?? null) === Auth::id();
 $extra = is_array($req['extra_details'] ?? null) ? $req['extra_details'] : [];

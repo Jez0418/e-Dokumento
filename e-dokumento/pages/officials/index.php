@@ -28,7 +28,7 @@ if (is_post()) {
                 } else {
                     $db->insert('barangay_officials', $data);
                 }
-                flash_success('Punong Barangay saved.');
+                flash_success('Barangay Captain saved.');
                 redirect('/officials');
             }
             $errors = $v->errors();
@@ -49,8 +49,8 @@ if (is_post()) {
 $rows = $db->select('barangay_officials', [['select', '*'], ['order', 'is_active.desc,position.asc,full_name.asc']])['rows'];
 $hasCaptain = (bool) array_filter($rows, static fn ($o) => $o['position'] === 'punong_barangay' && $o['is_active']);
 
-layout_start('Officials', 'officials');
-page_header('Punong Barangay', 'The active Punong Barangay is printed as the signatory on every certificate. Other roles are set up under Users.');
+layout_start('Barangay Captain', 'officials');
+page_header('Barangay Captain', 'The serving Barangay Captain (Punong Barangay) is printed as the signatory on every certificate. To change captains, end the current one\'s service, then add the new one. Other roles are set up under Users.');
 ?>
 <?php if (!$hasCaptain): ?>
   <div class="notice notice-warning"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><div><strong>No active Punong Barangay.</strong> Documents cannot be issued until one is added.</div></div>
@@ -59,7 +59,7 @@ page_header('Punong Barangay', 'The active Punong Barangay is printed as the sig
 <div class="row g-4">
   <div class="col-lg-8">
     <section class="panel p-0">
-      <?php if (!$rows): ?><?= empty_state('No officials yet', 'Add the Punong Barangay first; they sign every certificate.', '', '', 'award') ?><?php else: ?>
+      <?php if (!$rows): ?><?= empty_state('No Barangay Captain yet', 'Add the Barangay Captain first; they sign every certificate.', '', '', 'award') ?><?php else: ?>
       <p class="table-scroll-hint"><i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i>Swipe sideways to see every column.</p>
       <div class="table-responsive"><table class="table data-table">
         <thead><tr><th scope="col">Name</th><th scope="col">Term</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
@@ -83,7 +83,7 @@ page_header('Punong Barangay', 'The active Punong Barangay is printed as the sig
   </div>
   <div class="col-lg-4">
     <section class="panel">
-      <div class="panel-head"><h2><?= $editing ? 'Edit Punong Barangay' : 'Add Punong Barangay' ?></h2><?php if ($editing): ?><a href="/officials" class="small">Cancel</a><?php endif; ?></div>
+      <div class="panel-head"><h2><?= $editing ? 'Edit Barangay Captain' : 'Add Barangay Captain' ?></h2><?php if ($editing): ?><a href="/officials" class="small">Cancel</a><?php endif; ?></div>
       <form method="post" action="/officials" novalidate class="needs-validation">
         <?= csrf_field() ?><input type="hidden" name="action" value="save"><input type="hidden" name="official_id" value="<?= e($editing['id'] ?? '') ?>">
         <div class="mb-3"><label class="form-label" for="full_name">Full name as printed</label><input class="form-control<?= invalid($errors, 'full_name') ?>" id="full_name" name="full_name" value="<?= e(old($old, 'full_name')) ?>" required maxlength="120"><?= field_error($errors, 'full_name') ?></div>

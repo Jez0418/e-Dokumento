@@ -11,6 +11,16 @@ foreach ($roles as $r) {
     $roleByCode[$r['code']] = $r;
 }
 $staffCodes = ['admin', 'captain', 'secretary', 'treasurer'];
+// Only one active account may hold the Punong Barangay role; the database enforces it too.
+$captainId = $db->first('profiles', [['select', 'id'], ['role_id', 'eq.' . $roleByCode['captain']['id']], ['status', 'eq.active']])['id'] ?? null;
+/** Role choices for one account: the captain role is offered only to the current holder, or to anyone while the seat is empty. */
+$roleChoices = static function (?string $forUserId) use ($roles, $captainId): array {
+    $map = pluck($roles, 'name', 'code');
+    if ($captainId !== null && $captainId !== $forUserId) {
+        unset($map['captain']);
+    }
+    return $map;
+};
 
 if (is_post()) {
     $action = post('action');
@@ -113,7 +123,7 @@ page_header('Users', 'Staff accounts are created here. Residents create their ow
                 <form method="post" class="d-flex gap-2" data-confirm="Change this user's role? Their menu and permissions change immediately.">
                   <?= csrf_field() ?><input type="hidden" name="action" value="role"><input type="hidden" name="user_id" value="<?= e($u['id']) ?>">
                   <label class="visually-hidden" for="role-<?= e($u['id']) ?>">Role</label>
-                  <select class="form-select form-select-sm" id="role-<?= e($u['id']) ?>" name="role"><?= options(pluck($roles, 'name', 'code'), $code) ?></select>
+                  <select class="form-select form-select-sm" id="role-<?= e($u['id']) ?>" name="role"><?= options($roleChoices($u['id']), $code) ?></select>
                   <button class="btn btn-sm btn-outline-primary" type="submit">Change role</button>
                 </form>
               <?php endif; ?>
@@ -140,7 +150,7 @@ page_header('Users', 'Staff accounts are created here. Residents create their ow
         <?= csrf_field() ?><input type="hidden" name="action" value="create">
         <div class="mb-3"><label class="form-label" for="full_name">Full name</label><input class="form-control<?= invalid($errors, 'full_name') ?>" id="full_name" name="full_name" value="<?= e(old($old, 'full_name')) ?>" required maxlength="120"><?= field_error($errors, 'full_name') ?></div>
         <div class="mb-3"><label class="form-label" for="email">Email</label><input class="form-control<?= invalid($errors, 'email') ?>" id="email" name="email" type="email" value="<?= e(old($old, 'email')) ?>" required maxlength="254"><?= field_error($errors, 'email') ?></div>
-        <div class="mb-3"><label class="form-label" for="new-role">Role</label><select class="form-select<?= invalid($errors, 'role') ?>" id="new-role" name="role" required><?= options(array_intersect_key(pluck($roles, 'name', 'code'), array_flip($staffCodes)), old($old, 'role'), 'Choose') ?></select><?= field_error($errors, 'role') ?></div>
+        <div class="mb-3"><label class="form-label" for="new-role">Role</label><select class="form-select<?= invalid($errors, 'role') ?>" id="new-role" name="role" required><?= options(array_intersect_key($roleChoices(null), array_flip($staffCodes)), old($old, 'role'), 'Choose') ?></select><?= field_error($errors, 'role') ?></div>
         <div class="mb-3"><label class="form-label" for="password">Temporary password</label><input class="form-control<?= invalid($errors, 'password') ?>" id="password" name="password" type="password" required minlength="8" maxlength="72" autocomplete="new-password"><?= field_error($errors, 'password') ?></div>
         <div class="mb-3"><label class="form-label" for="password_confirm">Repeat password</label><input class="form-control<?= invalid($errors, 'password_confirm') ?>" id="password_confirm" name="password_confirm" type="password" required maxlength="72" autocomplete="new-password" data-match="password"><?= field_error($errors, 'password_confirm') ?><div class="invalid-feedback">The passwords do not match.</div></div>
         <button class="btn btn-primary w-100" type="submit" data-loading-text="Creating…">Create account</button>

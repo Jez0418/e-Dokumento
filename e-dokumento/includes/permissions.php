@@ -91,7 +91,7 @@ function nav_for_role(?string $role): array
                 ['document-types', '/document-types', 'file-earmark-text', 'Document types'],
                 ['requirements', '/requirements', 'list-check', 'Requirements'],
                 ['reference', '/reference', 'tags', 'Puroks, purposes, IDs'],
-                ['officials', '/officials', 'award', 'Officials'],
+                ['officials', '/officials', 'award', 'Barangay Captain'],
             ]],
             ['Administration', [
                 ['users', '/users', 'person-gear', 'Users'],
