@@ -100,6 +100,21 @@
     check();
   });
 
+  // ---- Email: checked as the user types, and confirmed on blur --------------
+  document.querySelectorAll('input[type="email"]').forEach((input) => {
+    const msg = 'Enter a valid email address, like juan@gmail.com.';
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const check = () => {
+      const v = input.value.trim();
+      const bad = v !== '' && !re.test(v);
+      input.setCustomValidity(bad ? msg : '');
+      liveError(input, bad ? msg : '');
+    };
+    input.addEventListener('input', check);
+    input.addEventListener('blur', check);
+    check();
+  });
+
   // ---- Payment method shows/hides the reference number ----------------------
   document.querySelectorAll('[data-toggle-ref]').forEach((select) => {
     const sync = () => {
