@@ -220,7 +220,7 @@ layout_start($req['control_no'], match (true) {
               <?php if ($a['review_status'] === 'rejected' && $a['review_remarks']): ?><p class="small text-danger fw-semibold mb-1"><i class="bi bi-exclamation-circle me-1" aria-hidden="true"></i>Why it was rejected: <?= e($a['review_remarks']) ?></p><?php endif; ?>
             <?php endforeach; ?>
             <?php
-              $needsReplacement = $rq['accepts_upload'] && in_array($status, ['pending', 'under_review'], true)
+              $needsReplacement = $rq['accepts_upload'] && $req['channel'] !== 'walk_in' && in_array($status, ['pending', 'under_review'], true)
                   && ($isOwner || $role === 'secretary')
                   && !array_filter($files, static fn ($a) => in_array($a['review_status'], ['pending', 'accepted'], true));
             ?>
