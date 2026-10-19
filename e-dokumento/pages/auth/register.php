@@ -152,7 +152,7 @@ guest_start('Create an account', 'guest auth');
             </div>
             <div class="col-md-6">
               <label class="form-label" for="occupation">Occupation <span class="optional">optional</span></label>
-              <input class="form-control<?= invalid($errors, 'occupation') ?>" id="occupation" name="occupation" value="<?= e(old($old, 'occupation')) ?>" maxlength="100">
+              <input class="form-control<?= invalid($errors, 'occupation') ?>" id="occupation" name="occupation" value="<?= e(old($old, 'occupation')) ?>" maxlength="100" placeholder="Farmer, Driver, Vendor">
               <?= field_error($errors, 'occupation') ?>
             </div>
           </div>
@@ -170,7 +170,7 @@ guest_start('Create an account', 'guest auth');
             </div>
             <div class="col-md-8">
               <label class="form-label" for="street_address">House no. and street</label>
-              <input class="form-control<?= invalid($errors, 'street_address') ?>" id="street_address" name="street_address" value="<?= e(old($old, 'street_address')) ?>" required minlength="3" maxlength="200" autocomplete="street-address">
+              <input class="form-control<?= invalid($errors, 'street_address') ?>" id="street_address" name="street_address" value="<?= e(old($old, 'street_address')) ?>" required minlength="3" maxlength="200" autocomplete="street-address" placeholder="123 Mabini St.">
               <?= isset($errors['street_address']) ? field_error($errors, 'street_address') : '<div class="invalid-feedback">Enter your house number and street, at least 3 characters.</div>' ?>
             </div>
             <div class="col-md-4">
@@ -198,7 +198,7 @@ guest_start('Create an account', 'guest auth');
             <div class="col-md-6">
               <label class="form-label" for="password">Password</label>
               <div class="input-group has-validation">
-                <input class="form-control<?= invalid($errors, 'password') ?>" id="password" name="password" type="password" required minlength="8" maxlength="72" autocomplete="new-password" data-strength="password-hint" aria-describedby="password-hint">
+                <input class="form-control<?= invalid($errors, 'password') ?>" id="password" name="password" type="password" required minlength="8" maxlength="72" autocomplete="new-password" data-strength="password-hint" aria-describedby="password-hint" placeholder="At least 8 characters">
                 <button class="btn btn-outline-secondary" type="button" data-toggle-password="password" aria-label="Show password"><i class="bi bi-eye" aria-hidden="true"></i></button>
                 <?= isset($errors['password']) ? field_error($errors, 'password') : '<div class="invalid-feedback">Use at least 8 characters with an uppercase letter, a lowercase letter and a number.</div>' ?>
               </div>
@@ -206,7 +206,7 @@ guest_start('Create an account', 'guest auth');
             </div>
             <div class="col-md-6">
               <label class="form-label" for="password_confirm">Repeat password</label>
-              <input class="form-control<?= invalid($errors, 'password_confirm') ?>" id="password_confirm" name="password_confirm" type="password" required maxlength="72" autocomplete="new-password" data-match="password">
+              <input class="form-control<?= invalid($errors, 'password_confirm') ?>" id="password_confirm" name="password_confirm" type="password" required maxlength="72" autocomplete="new-password" data-match="password" placeholder="Retype the password above">
               <?= isset($errors['password_confirm']) ? field_error($errors, 'password_confirm') : '<div class="invalid-feedback">The passwords do not match.</div>' ?>
             </div>
           </div>
