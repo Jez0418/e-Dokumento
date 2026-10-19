@@ -101,7 +101,7 @@ guest_start('Create an account', 'guest auth');
           <div class="row g-3 name-row">
             <div class="col-md-4">
               <label class="form-label" for="first_name">First name</label>
-              <input class="form-control<?= invalid($errors, 'first_name') ?>" id="first_name" name="first_name" value="<?= e(old($old, 'first_name')) ?>" required maxlength="60" autocomplete="given-name">
+              <input class="form-control<?= invalid($errors, 'first_name') ?>" id="first_name" name="first_name" value="<?= e(old($old, 'first_name')) ?>" required maxlength="60" autocomplete="given-name" placeholder="Juan">
               <?= isset($errors['first_name']) ? field_error($errors, 'first_name') : '<div class="invalid-feedback">Enter your first name as it appears on your ID.</div>' ?>
             </div>
             <div class="col-md-3">
@@ -111,7 +111,7 @@ guest_start('Create an account', 'guest auth');
             </div>
             <div class="col-md-3">
               <label class="form-label" for="last_name">Last name</label>
-              <input class="form-control<?= invalid($errors, 'last_name') ?>" id="last_name" name="last_name" value="<?= e(old($old, 'last_name')) ?>" required maxlength="60" autocomplete="family-name">
+              <input class="form-control<?= invalid($errors, 'last_name') ?>" id="last_name" name="last_name" value="<?= e(old($old, 'last_name')) ?>" required maxlength="60" autocomplete="family-name" placeholder="Dela Cruz">
               <?= isset($errors['last_name']) ? field_error($errors, 'last_name') : '<div class="invalid-feedback">Enter your last name as it appears on your ID.</div>' ?>
             </div>
             <div class="col-md-2">
@@ -192,7 +192,7 @@ guest_start('Create an account', 'guest auth');
           <div class="row g-3">
             <div class="col-md-12">
               <label class="form-label" for="email">Email</label>
-              <input class="form-control<?= invalid($errors, 'email') ?>" id="email" name="email" type="email" value="<?= e(old($old, 'email')) ?>" required maxlength="254" autocomplete="email">
+              <input class="form-control<?= invalid($errors, 'email') ?>" id="email" name="email" type="email" value="<?= e(old($old, 'email')) ?>" required maxlength="254" autocomplete="email" placeholder="juan@gmail.com">
               <?= isset($errors['email']) ? field_error($errors, 'email') : '<div class="invalid-feedback">Enter a valid email address, for example juan@gmail.com.</div>' ?>
             </div>
             <div class="col-md-6">
