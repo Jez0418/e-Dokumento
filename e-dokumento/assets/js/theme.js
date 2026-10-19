@@ -1,5 +1,5 @@
-/* Theme: light (cream and green) by default. The account menu offers Dark, Light and System; the sun/moon button
-   flips between dark and light. The choice is remembered in this browser.
+/* Theme: light (cream and green) by default. The sun/moon button in the header flips between
+   dark and light. The choice is remembered in this browser.
    Stored under edk_theme_v3: the old edk_theme key held a choice made under the previous
    light-first design, and honouring it would keep returning users on light. Loaded in <head>
    so the right theme is set before first paint. */
@@ -20,7 +20,6 @@
       b.setAttribute('aria-label', label);
       b.setAttribute('title', label);
     });
-    document.querySelectorAll('[data-theme-set]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.themeSet === choice() ? 'true' : 'false'));
     if (notify && changed) document.dispatchEvent(new CustomEvent('edk:themechange', { detail: { theme: t } }));
   };
 
@@ -28,8 +27,6 @@
   document.addEventListener('DOMContentLoaded', () => apply(false));
   media.addEventListener('change', () => { if (choice() === 'system') apply(true); });
   document.addEventListener('click', (ev) => {
-    const set = ev.target.closest('[data-theme-set]');
-    if (set) { write(set.dataset.themeSet); apply(true); return; }
     if (!ev.target.closest('[data-theme-toggle]')) return;
     write(effective() === 'dark' ? 'light' : 'dark');
     apply(true);
