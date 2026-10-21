@@ -35,6 +35,7 @@ $supabaseOrigin = config('supabase')['url'];
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 header('Referrer-Policy: strict-origin-when-cross-origin');
+header_remove('X-Powered-By');
 header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
 header("Content-Security-Policy: default-src 'self'; "
     . "script-src 'self' https://cdn.jsdelivr.net; "
