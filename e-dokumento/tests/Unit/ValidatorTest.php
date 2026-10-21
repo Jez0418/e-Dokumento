@@ -59,7 +59,7 @@ final class ValidatorTest extends TestCase
     {
         $v = new Validator(['m' => '0917-123 4567', 'n' => '+639171234567']);
         $this->assertSame('09171234567', $v->phone('m'));
-        $this->assertSame('+639171234567', $v->phone('n'));
+        $this->assertSame('09171234567', $v->phone('n'));
         $this->assertSame([], $v->errors());
     }
 
@@ -67,7 +67,7 @@ final class ValidatorTest extends TestCase
     {
         $v = new Validator(['m' => '08171234567']);
         $v->phone('m');
-        $this->assertSame(['m' => 'Mobile number must look like 09171234567 or +639171234567.'], $v->errors());
+        $this->assertSame(['m' => 'Mobile number must be a valid Philippine mobile number: 11 digits starting with 09, like 09171234567.'], $v->errors());
     }
 
     public function test_integer_rejects_non_number(): void

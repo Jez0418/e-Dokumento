@@ -12,7 +12,7 @@ begin
   perform set_config('t.ana', v_ana::text, true);
   perform set_config('t.ben', tests.create_resident('ben@example.test', 'Ben', 'Santos')::text, true);
   perform set_config('t.cap', tests.create_staff('cap@example.test', 'captain')::text, true);
-  perform set_config('t.cap2', tests.create_staff('cap2@example.test', 'secretary')::text, true);
+  perform set_config('t.cap2', tests.create_staff('cap2@example.test', 'resident')::text, true);
   perform set_config('t.adm', tests.create_staff('adm@example.test', 'admin')::text, true);
   perform set_config('t.sec', tests.create_staff('sec@example.test', 'secretary')::text, true);
   perform set_config('t.tre', tests.create_staff('tre@example.test', 'treasurer')::text, true);
