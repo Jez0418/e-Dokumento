@@ -92,7 +92,9 @@ if (is_post() && $resident) {
                 'p_fee_waived'       => $waived,
                 'p_waiver_reason'    => $waiverReason,
             ]);
-            flash_success('Request ' . ($res['control_no'] ?? '') . ' submitted. Keep this control number.');
+            if ($isSecretary) {
+                flash_success('Request ' . ($res['control_no'] ?? '') . ' submitted. Give the resident this control number.');
+            }
             redirect(url('requests/view', ['id' => $res['id'], 'new' => 1]));
         } catch (Throwable $e) {
             try {
@@ -266,9 +268,10 @@ endif;
         <?= isset($errors['waiver_reason']) ? field_error($errors, 'waiver_reason') : '<div class="invalid-feedback">Write the basis for the waiver, at least 10 characters.</div>' ?>
       </section>
       <?php endif; ?>
+      <p class="small text-secondary d-xl-none">Pay at the Treasurer's window when the request reaches <em>For payment</em>. You'll get a notification.</p>
     </div>
 
-    <div class="col-xl-4">
+    <div class="col-xl-4 d-none d-xl-block">
       <aside class="panel summary-panel">
         <h2 class="h5">Summary</h2>
         <dl class="summary-list">
@@ -280,6 +283,14 @@ endif;
         <button class="btn btn-primary btn-lg w-100" type="submit" data-loading-text="Submitting…">Submit request</button>
       </aside>
     </div>
+  </div>
+
+  <div class="submit-bar no-print d-xl-none">
+    <div class="submit-bar-info" aria-live="polite">
+      <span class="submit-bar-doc" id="bar-doc">Choose a document</span>
+      <span class="submit-bar-fee num" id="bar-fee"></span>
+    </div>
+    <button class="btn btn-primary btn-lg" type="submit" data-loading-text="Submitting…">Submit request</button>
   </div>
 </form>
 <?php layout_end(['request-form.js']); ?>

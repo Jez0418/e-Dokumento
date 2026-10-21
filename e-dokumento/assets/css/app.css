@@ -1,8 +1,10 @@
 /* =====================================================================
-   e-Dokumento design system: dark data-dense console, one emerald accent.
-   Near-black canvas, panels about 4-6% lighter, 1px low-contrast borders
-   instead of shadows, 12-16px corners. Dark is the default; the light theme
-   reuses the same token names under [data-bs-theme="light"].
+   e-Dokumento design system: data-dense console, one emerald accent.
+   Light (cream and green) is the default: <html data-bs-theme="light"> and
+   assets/js/theme.js. Dark is opt-in through the header toggle. The :root block
+   holds the dark tokens; [data-bs-theme="light"] overrides the same names.
+   Panels sit a few percent off the canvas with 1px low-contrast borders
+   instead of shadows, 10-16px corners.
 
    Contrast (computed, WCAG 2.x):
    dark  : text 15.9:1, muted 7.1:1, subtle 5.9:1, accent 10.2:1 on --bg,
@@ -242,7 +244,7 @@ textarea.form-control { min-height: 0; }
 .form-control-sm, .form-select-sm { padding: .3rem .7rem; min-height: 34px; border-radius: 6px; font-size: var(--text-sm); }
 .form-control-lg { padding: .75rem 1rem; min-height: 50px; border-radius: var(--radius-sm); font-size: 1rem; }
 .form-control::placeholder { color: var(--text-subtle); opacity: 1; }
-.form-control:focus, .form-select:focus { border-color: var(--accent); background-color: var(--field-bg); color: var(--text); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .22); outline: 0; }
+.form-control:focus, .form-select:focus { border-color: var(--accent); background-color: var(--field-bg); color: var(--text); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .22); outline: 2px solid var(--accent); outline-offset: 0; }
 .form-control:disabled, .form-select:disabled { background-color: var(--surface-raised); color: var(--text-muted); border-color: var(--border); }
 .form-control:-webkit-autofill { -webkit-text-fill-color: var(--text); box-shadow: inset 0 0 0 40px var(--surface-raised); caret-color: var(--text); }
 .form-control[type="file"]::file-selector-button { background: var(--surface-raised); color: var(--text); border: 0; border-right: 1px solid var(--border); font-weight: 500; padding-inline: .85rem; margin-right: .75rem; }
@@ -254,7 +256,7 @@ textarea.form-control { min-height: 0; }
 .form-check-input:checked { background-color: var(--accent-fill); border-color: var(--accent-fill); }
 .form-check-input:checked[type="checkbox"] { --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%2304140D' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e"); }
 .form-check-input:checked[type="radio"] { --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%2304140D'/%3e%3c/svg%3e"); }
-.form-check-input:focus { box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .22); border-color: var(--accent); outline: 0; }
+.form-check-input:focus { box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .22); border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 2px; }
 .form-switch .form-check-input:checked { --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%2304140D'/%3e%3c/svg%3e"); }
 .invalid-feedback { font-size: var(--text-sm); font-weight: 500; color: var(--status-rejected); margin-top: var(--s1); }
 .invalid-feedback::before { content: "\F332"; font-family: "bootstrap-icons"; font-weight: 400; margin-right: .35rem; vertical-align: -.1em; }
@@ -413,8 +415,7 @@ textarea.form-control { min-height: 0; }
 .pipe-step:last-child { border-right: 0; }
 .pipe-step:hover { background: var(--hover); color: var(--text); }
 .pipe-step:focus-visible { outline-offset: -4px; z-index: 2; }
-.pipe-no { font-size: var(--text-sm); font-weight: 400; color: var(--text-subtle); }
-.pipe-num { font-size: var(--text-3xl); font-weight: 500; line-height: 1.15; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; margin-top: var(--s2); }
+.pipe-num { font-size: var(--text-3xl); font-weight: 500; line-height: 1.15; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
 .pipe-label { font-weight: 550; margin-top: var(--s1); }
 .pipe-hint { font-size: var(--text-sm); color: var(--text-muted); line-height: 1.4; }
 .pipe-step.is-focus .pipe-num { color: var(--accent); }
@@ -449,14 +450,28 @@ textarea.form-control { min-height: 0; }
   .stat-strip > div:last-child:nth-child(odd) { grid-column: 1 / -1; }
 }
 
-.dash-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 0 var(--s4); }
-.dash-grid .panel-wide { grid-column: 1 / -1; }
-@media (max-width: 991.98px) { .dash-grid { grid-template-columns: minmax(0, 1fr); } }
 .chart-box { position: relative; height: 260px; }
-.dash-grid:has(#typeChart) > .panel:nth-child(2) { grid-row: span 2; display: flex; flex-direction: column; }
-.dash-grid:has(#typeChart) > .panel:nth-child(2) .chart-box { flex: 1 1 auto; height: auto; min-height: 280px; }
-@media (max-width: 991.98px) { .dash-grid:has(#typeChart) > .panel:nth-child(2) { grid-row: auto; } }
 .chart-box-sm { height: 240px; }
+
+/* Staff dashboard: totals and charts sit behind one disclosure, below the work queue */
+.insights { padding: 0; }
+.insights > summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: var(--s3); min-height: var(--tap); padding: var(--s3) var(--s5); cursor: pointer; }
+.insights > summary::-webkit-details-marker { display: none; }
+.insights > summary h2 { margin: 0; display: flex; align-items: center; gap: var(--s2); }
+.insights > summary h2::before { content: "\F285"; font-family: "bootstrap-icons"; font-size: .9rem; font-weight: 400; transition: transform .15s var(--ease-out); }
+.insights[open] > summary { border-bottom: 1px solid var(--border); }
+.insights[open] > summary h2::before { transform: rotate(90deg); }
+.insights > .stat-strip { margin: var(--s5); }
+.insights > .insights-grid { margin: 0 var(--s5) var(--s5); }
+.insights-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--s5); }
+.insights-grid > .insight:only-child { grid-column: 1 / -1; }
+.insight h3 { margin-bottom: var(--s3); }
+@media (max-width: 991.98px) { .insights-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 575.98px) {
+  .insights > summary { padding: var(--s3) var(--s4); }
+  .insights > .stat-strip { margin: var(--s4); }
+  .insights > .insights-grid { margin: 0 var(--s4) var(--s4); }
+}
 .chart-data { margin-top: var(--s3); border-top: 1px solid var(--border-soft); padding-top: var(--s1); }
 .chart-data summary { display: inline-flex; align-items: center; min-height: var(--tap); font-size: var(--text-sm); font-weight: 500; color: var(--accent); cursor: pointer; }
 .chart-data table { margin: var(--s1) 0 0; font-size: var(--text-md); }
@@ -691,6 +706,25 @@ textarea.form-control { min-height: 0; }
 .req-input { flex: 1 1 260px; min-width: 0; }
 .summary-panel { position: sticky; top: calc(var(--topbar-h) + var(--s5)); }
 @media (max-width: 1199.98px) { .summary-panel { position: static; } }
+
+/* Phones and tablets: the document, its fee and Submit stay on screen while the form scrolls */
+.request-form { padding-bottom: 5.5rem; }
+@media (min-width: 1200px) { .request-form { padding-bottom: 0; } }
+.submit-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1010; display: flex; align-items: center; gap: var(--s4); padding: var(--s3) var(--s4) calc(var(--s3) + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border-hi); box-shadow: 0 -6px 20px rgba(23, 35, 29, .12); }
+@media (min-width: 992px) { .submit-bar { left: var(--sidebar-w); padding-inline: var(--s6); } }
+.submit-bar-info { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.submit-bar-doc { font-weight: 550; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.submit-bar-fee { color: var(--accent); font-weight: 600; min-height: 1.5em; }
+.submit-bar .btn { flex: 0 0 auto; }
+
+/* After filing: confirmation, a copy button for the control number, and the road ahead */
+.success-panel { background: color-mix(in srgb, var(--status-ready) 8%, var(--surface)); border-color: color-mix(in srgb, var(--status-ready) 40%, transparent); }
+.success-head { display: flex; align-items: flex-start; gap: var(--s3); margin-bottom: var(--s4); }
+.success-head > i { font-size: 1.75rem; line-height: 1.2; color: var(--status-ready); }
+.success-head h2 { font-size: var(--text-xl); margin-bottom: var(--s1); }
+.success-head p { margin: 0; color: var(--text-muted); max-width: 60ch; }
+.next-title { font-size: var(--text-md); font-weight: 600; margin: var(--s5) 0 var(--s2); }
+.next-steps { margin: 0 0 var(--s3); padding-left: 1.25rem; display: grid; gap: var(--s2); max-width: 65ch; }
 .summary-list { margin: 0 0 var(--s4); }
 .summary-list > div { display: flex; justify-content: space-between; gap: var(--s4); padding: var(--s2) 0; border-bottom: 1px solid var(--border-soft); }
 .summary-list dt { font-weight: 500; color: var(--text-muted); }
@@ -847,6 +881,7 @@ body.auth .theme-float { top: var(--s3); right: var(--s3); }
 @media (max-width: 575.98px) {
   #toasts { top: auto !important; bottom: 0; left: 0; right: 0 !important; padding: var(--s3) !important; padding-bottom: calc(var(--s3) + env(safe-area-inset-bottom)) !important; }
   #toasts .toast { width: 100%; max-width: none; }
+  body:has(.submit-bar) #toasts { bottom: 5rem; }
 }
 
 /* Modals ------------------------------------------------------------------------ */

@@ -229,6 +229,33 @@
     window.location.href = row.dataset.href;
   });
 
+  // ---- Copy buttons (data-copy holds the text; the button's <span> shows the result) ----
+  document.addEventListener('click', async (ev) => {
+    const btn = ev.target.closest('[data-copy]');
+    if (!btn) return;
+    const text = btn.dataset.copy;
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(text);
+      ok = true;
+    } catch (_) {
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(area);
+      area.select();
+      try { ok = document.execCommand('copy'); } catch (__) { ok = false; }
+      area.remove();
+    }
+    const label = btn.querySelector('span');
+    if (!label) return;
+    const before = label.dataset.before || label.textContent;
+    label.dataset.before = before;
+    label.textContent = ok ? 'Copied' : 'Copy failed. Select the number and copy it.';
+    setTimeout(() => { label.textContent = before; }, 2500);
+  });
+
   document.querySelectorAll('[data-print]').forEach((b) => b.addEventListener('click', () => window.print()));
 
   // ---- Live filters ----------------------------------------------------------------

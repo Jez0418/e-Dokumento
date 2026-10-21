@@ -73,6 +73,28 @@ layout_start($req['control_no'], match (true) {
 ?>
 <nav aria-label="Breadcrumb" class="crumbs"><a href="/requests"><?= $role === 'resident' ? 'My requests' : 'Requests' ?></a> <span aria-hidden="true">/</span> <span class="mono"><?= e($req['control_no']) ?></span></nav>
 
+<?php if ($isOwner && q('new') === '1' && $status === 'pending'): ?>
+  <?php $days = (int) $type['processing_days']; ?>
+  <section class="panel success-panel" aria-labelledby="success-title">
+    <div class="success-head">
+      <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+      <div>
+        <h2 id="success-title">We received your request.</h2>
+        <p>Your control number is below. Write it down, take a screenshot, or copy it. You need it to claim the document.</p>
+      </div>
+    </div>
+    <button type="button" class="btn btn-outline-primary" data-copy="<?= e($req['control_no']) ?>"><i class="bi bi-clipboard me-1" aria-hidden="true"></i><span aria-live="polite">Copy control number</span></button>
+    <h3 class="next-title">What happens next</h3>
+    <ol class="next-steps">
+      <li>The Secretary checks your files. The target is <?= $days === 0 ? 'the same day' : $days . ' working day' . ($days === 1 ? '' : 's') . ' in all' ?>.</li>
+      <?php if ((float) $req['fee_amount'] > 0): ?><li>Pay <?= e(money($req['fee_amount'])) ?> at the Treasurer's window when this page says <em>For payment</em>.</li><?php endif; ?>
+      <?php if ($type['requires_captain_approval']): ?><li>The Punong Barangay approves the document.</li><?php endif; ?>
+      <li>Claim it at the barangay hall and bring a valid ID. Office hours: <?= e(setting('office_hours')) ?>.</li>
+    </ol>
+    <p class="small text-secondary mb-0">You will get a notification here at every step.</p>
+  </section>
+<?php endif; ?>
+
 <?= claim_stub($req['control_no'], ($type['name'] ?? 'Document') . ((int) $req['copies'] > 1 ? ' × ' . (int) $req['copies'] : ''), $status, $note) ?>
 
 <?php if ($isOwner): ?>

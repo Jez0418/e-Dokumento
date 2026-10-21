@@ -38,7 +38,15 @@
     const fee = r ? (waived && waived.checked ? 0 : Number(r.dataset.fee) * n) : null;
     document.getElementById('sum-doc').textContent = label;
     document.getElementById('sum-copies').textContent = String(n);
-    document.getElementById('sum-fee').textContent = fee === null ? '—' : (fee === 0 ? 'Free' : peso.format(fee));
+    const feeText = fee === null ? '—' : (fee === 0 ? 'Free' : peso.format(fee));
+    document.getElementById('sum-fee').textContent = feeText;
+    // Phone bar: same figures, always on screen next to Submit
+    const barDoc = document.getElementById('bar-doc');
+    const barFee = document.getElementById('bar-fee');
+    if (barDoc && barFee) {
+      barDoc.textContent = r ? label + (n > 1 ? ' × ' + n : '') : 'Choose a document';
+      barFee.textContent = r ? feeText : '';
+    }
   }
 
   radios.forEach((r) => r.addEventListener('change', sync));
