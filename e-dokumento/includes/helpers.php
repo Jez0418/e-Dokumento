@@ -294,7 +294,7 @@ function db_error(Throwable $e): string
         return match (true) {
             $code === 'P0001' => $msg,
             $code === '23505' => str_contains($msg, 'residents_identity') ? 'A resident with the same name and birth date is already registered.'
-                               : (str_contains($msg, 'one_captain') ? 'Only one Punong Barangay can be active at a time. Deactivate the current one first.'
+                               : (str_contains($msg, 'one_captain') || str_contains($msg, 'one_account_per_staff_role') ? 'Only one account can hold each staff role (Administrator, Punong Barangay, Secretary, Treasurer) at a time. Deactivate the current holder first.'
                                : 'This record already exists.'),
             $code === '23503' => 'This record is linked to other records. Deactivate it instead of deleting it.',
             $code === '23514' => 'Some values are outside what the system accepts. Check the form and try again.',

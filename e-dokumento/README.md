@@ -59,6 +59,7 @@ Open **SQL Editor → New query** and run each file, in this order, one at a tim
 | 15 | `sql/15_sync_resident_account.sql` | Keeps a resident's account name and contact number in step with their resident record, both ways. Safe to rerun |
 | 16 | `sql/16_notify_admin_on_role.sql` | The Administrator gets a copy of each notification sent to the Secretary, Treasurer and Punong Barangay. Safe to rerun |
 | 17 | `sql/17_lock_down_function_grants.sql` | Removes API (`/rest/v1/rpc`) access to trigger-only functions and to the role helpers for anonymous visitors. Safe to rerun |
+| 18 | `sql/18_one_account_per_staff_role.sql` | Only one active account may hold each staff role (Administrator, Punong Barangay, Secretary, Treasurer); replaces the captain-only index from 13. Fails if two accounts hold a role now; change one under Users first. Safe to rerun |
 
 `05_seed.sql` contains configuration only. No residents, requests or payments are seeded; everything you see in the app was entered through it. Set the **fees to your barangay's revenue ordinance** under Document types.
 
