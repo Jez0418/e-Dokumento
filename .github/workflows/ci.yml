@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+defaults:
+  run:
+    working-directory: e-dokumento
+
+jobs:
+  php:
+    name: PHP tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: curl, mbstring
+          tools: composer
+      - run: composer install --working-dir=tests --no-interaction --prefer-dist
+      - run: php tests/vendor/bin/phpunit -c tests/phpunit.xml
+
+  db:
+    name: Database tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: bash tests/sql/run.sh
